@@ -5,10 +5,10 @@
 此为另一个软件OsuSync的插件,主要提供于osu当前游戏中的谱面信息(比如beatmapID/SetID，PP等),并将内容写入各文件再供obs之类的软件使用。
 
 ## 使用到的其他项目
-*[OsuSync (MIT License)](https://github.com/Deliay/osuSync)
-*[OsuSync/NowPlayingPlugin (MIT License)](https://github.com/Deliay/osuSync/tree/master/OtherPlugins/NowPlaying)
-*[PPShowPlugin](https://coding.net/u/KedamaOvO/p/PPShowPlugin/git)
-*[oppai (GPL-3.0 License)](https://github.com/Francesco149/oppai)
+*[OsuSync (MIT License)](https://github.com/Deliay/osuSync)<br>
+*[OsuSync/NowPlayingPlugin (MIT License)](https://github.com/Deliay/osuSync/tree/master/OtherPlugins/NowPlaying)<br>
+*[PPShowPlugin](https://coding.net/u/KedamaOvO/p/PPShowPlugin/git)<br>
+*[oppai (GPL-3.0 License)](https://github.com/Francesco149/oppai)<br>
 
 
 ## 使用方法
