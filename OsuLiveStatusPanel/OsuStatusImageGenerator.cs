@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel
 {
-    public class Class1
+    class OsuStatusImageGenerator
     {
     }
 }
