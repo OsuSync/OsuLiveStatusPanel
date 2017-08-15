@@ -334,21 +334,14 @@ namespace OsuLiveStatusPanel
 
         private Bitmap GetBeatmapBackgroundImage(string bgFilePath)
         {
-            Bitmap bitmap = new Bitmap(Image.FromFile(bgFilePath), new Size(int.Parse(Width), int.Parse(Height)));
+            var rawBitmap = Bitmap.FromFile(bgFilePath);
+            Bitmap bitmap = new Bitmap(rawBitmap, new Size(int.Parse(Width), int.Parse(Height)));
+            rawBitmap.Dispose();
             return bitmap;
         }
 
         private Bitmap GetBlurImage(Bitmap bitmap)
         {
-            /*
-            if (blur==null)
-            {
-                blur = new GaussianBlur(int.Parse(BlurRadius));
-                blur.BlurType = BlurType.Both;
-            }
-
-            return blur.ProcessImage(bitmap);
-            */
             GaussianBlur blur = new GaussianBlur(bitmap);
             return blur.Process(int.Parse(BlurRadius));
         }
