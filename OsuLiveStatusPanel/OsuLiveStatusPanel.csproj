@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BeatmapHashHelper.cs" />
     <Compile Include="GaussianBlur.cs" />
     <Compile Include="OsuLiveStatusPanelPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -60,7 +61,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)Sync\bin\Debug\Plugins</PostBuildEvent>
   </PropertyGroup>
 </Project>

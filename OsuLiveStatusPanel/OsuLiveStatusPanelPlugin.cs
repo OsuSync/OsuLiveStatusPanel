@@ -37,21 +37,38 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement EnablePrintArtistTitle = "0";
         public ConfigurationElement EnableAutoStartPPShower = "1";
         public ConfigurationElement PPShowerFilePath = @"PPShowPlugin.exe";
-
-        public ConfigurationElement OutputImageFilePath = @"e:\current_playing_panel.png";
+        
+        /// <summary>
+        /// 当前游戏谱面的信息文件保存路径(CurrentPlaying: Artist - Title[DiffName])
+        /// </summary>
         public ConfigurationElement OutputArtistTitleDiffFilePath = @"e:\current_playing_2.txt";
-        public ConfigurationElement OutputOsuFilePath = @"in_current_playing.txt";
-        public ConfigurationElement OutputBeatmapNameInfoFilePath = @"e:\current_playing_beatmap_info.txt";
-        public ConfigurationElement OutputBackgroundImageFilePath = @"e:\result.png";
-        #endregion
 
-        GaussianBlur blur=null;
+
+        /// <summary>
+        /// 供PPShowerPlugin使用的文件保存路径,必须和前者设置一样否则无效
+        /// </summary>
+        public ConfigurationElement OutputOsuFilePath = @"in_current_playing.txt";
+
+        /// <summary>
+        /// 当前游戏谱面的信息文件保存路径(CurrentPlaying: Artist - Title[DiffName])
+        /// </summary>
+        public ConfigurationElement OutputBeatmapNameInfoFilePath = @"e:\current_playing_beatmap_info.txt";
+
+        /// <summary>
+        /// 当前谱面背景文件保存路径(CurrentPlaying: Artist - Title[DiffName])
+        /// </summary>
+        public ConfigurationElement OutputBackgroundImageFilePath = @"e:\result.png";
+
+        /// <summary>
+        /// 当前游戏最佳本地成绩的信息文件保存路径(CurrentPlaying: Artist - Title[DiffName])
+        /// </summary>
+        public ConfigurationElement OutputBestLocalRecordInfoFilePath = @"e:\best_local_record_info.txt";
+
+        #endregion
 
         Pen pen = new Pen(Color.FromArgb(170, 255, 255, 0), 25);
 
         SolidBrush Artist_TittleBrush = new SolidBrush(Color.Aqua);
-
-        Task RunningTask;
 
         string OsuSyncPath;
 
@@ -124,9 +141,15 @@ namespace OsuLiveStatusPanel
 
             File.WriteAllText(OutputBeatmapNameInfoFilePath, string.Empty);
 
+            File.WriteAllText(OutputBestLocalRecordInfoFilePath, string.Empty);
+
             if (File.Exists(OutputBackgroundImageFilePath))
             {
-                File.Delete(OutputBackgroundImageFilePath);
+                try
+                {
+                    File.Delete(OutputBackgroundImageFilePath);
+                }
+                catch { }
             }
         }
 
@@ -188,7 +211,8 @@ namespace OsuLiveStatusPanel
             File.WriteAllText(OutputArtistTitleDiffFilePath, $@"CurrentPlaying : {GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty ?? "<unknown diff>"}]");
 
             //var parse_data = OsuFileParser.PickValues(ref osuFileContent);
-            string bgPath = beatmap_folder+@"/"+Regex.Match(osuFileContent, @"//Background[\w\s]+?\n\d+,\d+,\""(.+?)\""").Groups[1].Value;
+            var match = Regex.Match(osuFileContent, @"\d,\d,\""((.+?)\.((jpg)|(png)))\""(,\d,\d)?");
+            string bgPath = beatmap_folder+@"\"+match.Groups[1].Value;
 
             #endregion
 
@@ -210,6 +234,8 @@ namespace OsuLiveStatusPanel
 
             #endregion
 
+            #region Save&Dispose
+
             //save
             graphics.Save();
             graphics.Dispose();
@@ -220,14 +246,62 @@ namespace OsuLiveStatusPanel
             catch { }
             bitmap.Dispose();
 
+            #endregion
+
+            #region QueryRecord
+
+            Replay replay = GetBestLocalRecord(beatmap_osu_file);
+            if (replay!=null)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("BestLocalRecord:").AppendLine(replay.Score.ToString()).Append($"{CalculateACC(replay.Count300,replay.Count100,replay.Count50,replay.CountMiss)*100:F2}%");
+                File.WriteAllText(OutputBestLocalRecordInfoFilePath, sb.ToString());
+            }
+            else
+            {
+                IO.CurrentIO.WriteColor($"未找到beatmapID = {current_beatmap.BeatmapId}的最佳本地成绩",ConsoleColor.Yellow);
+            }
+
+            #endregion
+
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
 
             return true;
         }
 
-        private string GetArtist(BeatmapEntry beatmap) => string.IsNullOrWhiteSpace(beatmap.ArtistUnicode) ? beatmap.Artist : beatmap.ArtistUnicode;
+        private static double CalculateACC(int count_300,int count_100,int count_50,int count_miss)
+        {
+            double total = count_300
+                + count_100 * ((double)1 / 3)
+                + count_50 * ((double)1 / 6);
 
-        private string GetTitle(BeatmapEntry beatmap) => string.IsNullOrWhiteSpace(beatmap.TitleUnicode) ? beatmap.Title : beatmap.TitleUnicode;
+            double result = total / (count_50 + count_300 + count_100 + count_miss);
+
+            return result;
+        }
+
+        private Replay GetBestLocalRecord(string osuFilePath)
+        {
+            var hash = BeatmapHashHelper.GetHashFromOsuFile(osuFilePath);
+
+            var db = osu_database_reader.ScoresDb.Read(CurrentOsuPath + "scores.db");
+
+            var result = db.Beatmaps.AsParallel().Where((pair) => pair.Key == hash);
+
+            if (result.Count() != 0)
+            {
+                var list = result.First().Value;
+                list.Sort((a, b) => b.Score - a.Score);
+
+                return list.First();
+            }
+
+            return null;
+        }
+
+        private static string GetArtist(BeatmapEntry beatmap) => string.IsNullOrWhiteSpace(beatmap.ArtistUnicode) ? beatmap.Artist : beatmap.ArtistUnicode;
+
+        private static string GetTitle(BeatmapEntry beatmap) => string.IsNullOrWhiteSpace(beatmap.TitleUnicode) ? beatmap.Title : beatmap.TitleUnicode;
 
         private string GetBeatmapFolderPath(string beatmap_sid)
         {
@@ -277,11 +351,6 @@ namespace OsuLiveStatusPanel
             */
             GaussianBlur blur = new GaussianBlur(bitmap);
             return blur.Process(int.Parse(BlurRadius));
-        }
-
-        private void ApplyImage(Bitmap bitmap)
-        {
-            bitmap.Save(OutputImageFilePath);
         }
         
         private void OsuLiveStatusPanelPlugin_onInitPlugin()
