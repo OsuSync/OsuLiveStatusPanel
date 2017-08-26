@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using MemoryReader.BeatmapInfo;
 using MemoryReader.Mods;
+using System.Net;
 
 namespace OsuLiveStatusPanel
 {
@@ -35,6 +36,8 @@ namespace OsuLiveStatusPanel
 
         public ConfigurationElement AllowUsedMemoryReader { get; set; } = "1";
         public ConfigurationElement AllowUsedNowPlaying { get; set; } = "0";
+
+        public ConfigurationElement AllowGetDiffNameFromOsuAPI { get; set; } = "1";
 
         public ConfigurationElement Width { get; set; } = "1920";
         public ConfigurationElement Height { get; set; } = "1080";
@@ -334,6 +337,10 @@ namespace OsuLiveStatusPanel
             {
                 case UsingSource.MemoryReader:
                     beatmap_osu_file = GetCurrentBeatmapOsuFilePathByBeatmapID(current_beatmap.BeatmapId.ToString(), beatmap_folder);
+                    if (string.IsNullOrWhiteSpace(beatmap_osu_file))
+                    {
+                        beatmap_osu_file = GetCurrentBeatmapOsuFilePathByAPI(current_beatmap.BeatmapId.ToString(), beatmap_folder);
+                    }
                     break;
                 case UsingSource.NowPlaying:
                     beatmap_osu_file = GetCurrentBeatmapOsuFilePathByDiffName(current_beatmap.Difficulty, beatmap_folder);
@@ -563,7 +570,40 @@ namespace OsuLiveStatusPanel
             GaussianBlur blur = new GaussianBlur(bitmap);
             return blur.Process(int.Parse(BlurRadius));
         }
-        
+
+        private string GetCurrentBeatmapOsuFilePathByAPI(string beatmapID,string folder_path)
+        {
+            string uri = @"https://osu.ppy.sh/api/get_beatmaps?" +
+                $@"k=b9f8ca3fc035078a5b111380bc21cd0b8e79d7b5&b={beatmapID}&limit=1";
+
+            HttpWebRequest request = HttpWebRequest.Create(uri) as HttpWebRequest;
+            request.Method = "GET";
+
+            try
+            {
+                var response = (HttpWebResponse)request.GetResponse();
+                var stream = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
+                string data = stream.ReadToEnd();
+                string diff_name=GetJSONValue(ref data, "version"); //diffName
+
+                return GetCurrentBeatmapOsuFilePathByDiffName(diff_name.Trim(), folder_path);
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private string GetJSONValue(ref string text, string key)
+        {
+            var result = Regex.Match(text, $"{key}\":\"(.+?)\"");
+
+            if (!result.Success)
+                return null;
+
+            return result.Groups[1].Value;
+        }
+
         private void OsuLiveStatusPanelPlugin_onInitPlugin()
         {
             Sync.Tools.IO.CurrentIO.WriteColor(this.Name+" by "+this.Author, System.ConsoleColor.DarkCyan);
