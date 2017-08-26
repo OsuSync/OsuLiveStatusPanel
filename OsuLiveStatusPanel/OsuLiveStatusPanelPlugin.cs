@@ -131,6 +131,7 @@ namespace OsuLiveStatusPanel
             public void OnCurrentModsChange(ModsInfo mod)
             {
                 ref_plugin.current_mod = mod;
+                IO.CurrentIO.WriteColor($"mod change : {mod.ShortName}", ConsoleColor.Blue);
             }
 
             public void OnHPChange(double hp)
@@ -351,14 +352,20 @@ namespace OsuLiveStatusPanel
             }
 
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
-            
+
+
+            beatmap_osu_file += "@";
+
             if (source==UsingSource.MemoryReader)
             {
                 //补完beatmap必需内容
                 current_beatmap = OsuFileParser.ParseText(osuFileContent);
 
                 //添加Mods
-                beatmap_osu_file += $"￥{current_mod.ShortName}";
+                if (current_mod!=null)
+                {
+                    beatmap_osu_file += $"{current_mod.ShortName}";
+                }
             }
 
             File.WriteAllText(OutputOsuFilePath, beatmap_osu_file);
@@ -377,10 +384,13 @@ namespace OsuLiveStatusPanel
 
             //draw background image with blur etc.
             var bgImage = GetBeatmapBackgroundImage(bgPath);
-            var blurImage = GetBlurImage(bgImage);
-            bgImage.Dispose();
-            graphics.DrawImage(blurImage, new PointF(0, 0));
-            blurImage.Dispose();
+            if (bgImage!=null)
+            {
+                var blurImage = GetBlurImage(bgImage);
+                bgImage.Dispose();
+                graphics.DrawImage(blurImage, new PointF(0, 0));
+                blurImage.Dispose();
+            }
             //draw bitmap data
             //graphics.DrawRectangle(pen, 0, 0, float.Parse(LiveWidth), float.Parse(LiveHeight));
             //draw artist - title[diff] (if enable)
@@ -529,10 +539,23 @@ namespace OsuLiveStatusPanel
 
         private Bitmap GetBeatmapBackgroundImage(string bgFilePath)
         {
-            var rawBitmap = Bitmap.FromFile(bgFilePath);
-            Bitmap bitmap = new Bitmap(rawBitmap, new Size(int.Parse(Width), int.Parse(Height)));
-            rawBitmap.Dispose();
-            return bitmap;
+            Image rawbitmap=null;
+
+            try
+            {
+                rawbitmap = Bitmap.FromFile(bgFilePath);
+                Bitmap bitmap = new Bitmap(rawbitmap, new Size(int.Parse(Width), int.Parse(Height)));
+                return bitmap;
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                rawbitmap?.Dispose();
+            }
+
         }
 
         private Bitmap GetBlurImage(Bitmap bitmap)
