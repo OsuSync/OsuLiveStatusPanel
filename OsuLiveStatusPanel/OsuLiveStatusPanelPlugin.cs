@@ -47,8 +47,8 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement FontSize { get; set; } = "15";
 
         public ConfigurationElement EnablePrintArtistTitle { get; set; } = "0";
-        public ConfigurationElement EnableAutoStartPPShower { get; set; } = "1";
-        public ConfigurationElement PPShowerFilePath { get; set; } = @"PPShowPlugin.exe";
+        public ConfigurationElement EnableAutoStartPPShowPlugin { get; set; } = "1";
+        public ConfigurationElement PPShowPluginFilePath { get; set; } = @"PPShowPlugin.exe";
 
         /// <summary>
         /// 当前游戏谱面的信息文件保存路径(CurrentPlaying: Artist - Title[DiffName])
@@ -56,7 +56,7 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement OutputArtistTitleDiffFilePath { get; set; } = @"output_current_playing.txt";
 
         /// <summary>
-        /// 供PPShowerPlugin使用的文件保存路径,必须和前者设置一样否则无效
+        /// 供PPShowPlugin使用的文件保存路径,必须和前者设置一样否则无效
         /// </summary>
         public ConfigurationElement OutputOsuFilePath { get; set; } = @"in_current_playing.txt";
 
@@ -292,13 +292,13 @@ namespace OsuLiveStatusPanel
 
         private void CheckPPShowPluginProgram()
         {
-            if (EnableAutoStartPPShower == "1")
+            if (EnableAutoStartPPShowPlugin == "1")
             {
                 if (Process.GetProcessesByName("PPShowPlugin").Count() == 0)
                 {
                     File.WriteAllText(OutputOsuFilePath, "");
                     IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]PPShowPlugin is not running,will start this program.", ConsoleColor.Yellow);
-                    Process.Start(new ProcessStartInfo(OsuSyncPath + PPShowerFilePath, "")
+                    Process.Start(new ProcessStartInfo(OsuSyncPath + PPShowPluginFilePath, "")
                     {
                         WorkingDirectory = OsuSyncPath,
                         CreateNoWindow = true
