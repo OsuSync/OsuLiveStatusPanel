@@ -359,8 +359,15 @@ namespace OsuLiveStatusPanel
 
             if (source == UsingSource.MemoryReader)
             {
+                int beatmapId = current_beatmap.BeatmapId, beatmapSetId = current_beatmap.BeatmapSetId;
                 //补完beatmap必需内容
                 current_beatmap = OsuFileParser.ParseText(osuFileContent);
+
+                if (source==UsingSource.MemoryReader)
+                {
+                    current_beatmap.BeatmapId = current_beatmap.BeatmapId==-1?beatmapId:current_beatmap.BeatmapId;
+                    current_beatmap.BeatmapSetId = current_beatmap.BeatmapSetId == -1 ? beatmapSetId: current_beatmap.BeatmapSetId;
+                }
 
                 //添加Mods
                 if (current_mod != null)
