@@ -31,8 +31,8 @@ namespace OsuLiveStatusPanel
 
         #region Options
 
-        public ConfigurationElement AllowUsedMemoryReader { get; set; } = "1";
-        public ConfigurationElement AllowUsedNowPlaying { get; set; } = "0";
+        public ConfigurationElement AllowUsedMemoryReader { get; set; } = "0";
+        public ConfigurationElement AllowUsedNowPlaying { get; set; } = "1";
 
         public ConfigurationElement AllowGetDiffNameFromOsuAPI { get; set; } = "1";
 
@@ -180,13 +180,20 @@ namespace OsuLiveStatusPanel
 
         private void OsuLiveStatusPanelPlugin_onLoadComplete(SyncHost host)
         {
-            if (((string)AllowUsedNowPlaying).Trim() == "1")
+            try
             {
-                TryRegisterSourceFromNowPlaying(host);
+                if (((string)AllowUsedNowPlaying).Trim() == "1")
+                {
+                    TryRegisterSourceFromNowPlaying(host);
+                }
+                else if (((string)AllowUsedMemoryReader).Trim() == "1")
+                {
+                    TryRegisterSourceFromMemoryReader(host);
+                }
             }
-            else if (((string)AllowUsedMemoryReader).Trim() == "1")
+            catch (Exception)
             {
-                TryRegisterSourceFromMemoryReader(host);
+                source = UsingSource.None;
             }
         }
 
@@ -284,7 +291,7 @@ namespace OsuLiveStatusPanel
         private void TryChangeOsuStatus(object obj)
         {
             BeatmapEntry beatmap = obj as BeatmapEntry;
-            if (!ChangeOsuStatus(beatmap))
+            if (!(source==UsingSource.MemoryReader?ChangeOsuStatusforMemoryReader(beatmap):ChangeOsuStatusforNowPlaying(beatmap)))
             {
                 CleanOsuStatus();
             }
@@ -307,7 +314,7 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        private bool ChangeOsuStatus(BeatmapEntry current_beatmap)
+        private bool ChangeOsuStatusforMemoryReader(BeatmapEntry current_beatmap)
         {
             CheckPPShowPluginProgram();
 
@@ -326,25 +333,10 @@ namespace OsuLiveStatusPanel
 
             string beatmap_osu_file = string.Empty;
 
-            switch (source)
+            beatmap_osu_file = GetCurrentBeatmapOsuFilePathByBeatmapID(current_beatmap.BeatmapId.ToString(), beatmap_folder);
+            if (string.IsNullOrWhiteSpace(beatmap_osu_file))
             {
-                case UsingSource.MemoryReader:
-                    beatmap_osu_file = GetCurrentBeatmapOsuFilePathByBeatmapID(current_beatmap.BeatmapId.ToString(), beatmap_folder);
-                    if (string.IsNullOrWhiteSpace(beatmap_osu_file))
-                    {
-                        beatmap_osu_file = GetCurrentBeatmapOsuFilePathByAPI(current_beatmap.BeatmapId.ToString(), beatmap_folder);
-                    }
-                    break;
-
-                case UsingSource.NowPlaying:
-                    beatmap_osu_file = GetCurrentBeatmapOsuFilePathByDiffName(current_beatmap.Difficulty, beatmap_folder);
-                    break;
-
-                case UsingSource.None:
-                    break;
-
-                default:
-                    break;
+                beatmap_osu_file = GetCurrentBeatmapOsuFilePathByAPI(current_beatmap.BeatmapId.ToString(), beatmap_folder);
             }
 
             if (string.IsNullOrWhiteSpace(beatmap_osu_file))
@@ -357,25 +349,118 @@ namespace OsuLiveStatusPanel
 
             beatmap_osu_file += "@";
 
-            if (source == UsingSource.MemoryReader)
+            int beatmapId = current_beatmap.BeatmapId, beatmapSetId = current_beatmap.BeatmapSetId;
+            //补完beatmap必需内容
+            current_beatmap = OsuFileParser.ParseText(osuFileContent);
+            
+            current_beatmap.BeatmapId = current_beatmap.BeatmapId == -1 ? beatmapId : current_beatmap.BeatmapId;
+            current_beatmap.BeatmapSetId = current_beatmap.BeatmapSetId == -1 ? beatmapSetId : current_beatmap.BeatmapSetId;
+
+            //添加Mods
+            if (current_mod != null)
             {
-                int beatmapId = current_beatmap.BeatmapId, beatmapSetId = current_beatmap.BeatmapSetId;
-                //补完beatmap必需内容
-                current_beatmap = OsuFileParser.ParseText(osuFileContent);
-
-                if (source==UsingSource.MemoryReader)
-                {
-                    current_beatmap.BeatmapId = current_beatmap.BeatmapId==-1?beatmapId:current_beatmap.BeatmapId;
-                    current_beatmap.BeatmapSetId = current_beatmap.BeatmapSetId == -1 ? beatmapSetId: current_beatmap.BeatmapSetId;
-                }
-
-                //添加Mods
-                if (current_mod != null)
-                {
-                    beatmap_osu_file += $"{current_mod.ShortName}";
-                }
+                beatmap_osu_file += $"{current_mod.ShortName}";
             }
 
+            File.WriteAllText(OutputOsuFilePath, beatmap_osu_file);
+
+            File.WriteAllText(OutputBeatmapNameInfoFilePath, $"Creator:{current_beatmap.Creator} \t \t Link:http://osu.ppy.sh/s/{current_beatmap.BeatmapSetId}");
+
+            File.WriteAllText(OutputArtistTitleDiffFilePath, $@"CurrentPlaying : {GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty ?? "<unknown diff>"}]");
+
+            //var parse_data = OsuFileParser.PickValues(ref osuFileContent);
+            var match = Regex.Match(osuFileContent, @"\d,\d,\""((.+?)\.((jpg)|(png)))\""(,\d,\d)?");
+            string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
+
+            #endregion GetInfo
+
+            #region Draw Content
+
+            //draw background image with blur etc.
+            var bgImage = GetBeatmapBackgroundImage(bgPath);
+            if (bgImage != null)
+            {
+                var blurImage = GetBlurImage(bgImage);
+                bgImage.Dispose();
+                graphics.DrawImage(blurImage, new PointF(0, 0));
+                blurImage.Dispose();
+            }
+            //draw bitmap data
+            //graphics.DrawRectangle(pen, 0, 0, float.Parse(LiveWidth), float.Parse(LiveHeight));
+            //draw artist - title[diff] (if enable)
+            if (EnablePrintArtistTitle == "1")
+            {
+                graphics.DrawString($"Current Playing:{GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty}]", font, Artist_TittleBrush, new RectangleF(new PointF(0, float.Parse(LiveHeight) + 40), new SizeF(float.Parse(LiveWidth), 60)));
+            }
+
+            #endregion Draw Content
+
+            #region Save&Dispose
+
+            //save
+            graphics.Save();
+            graphics.Dispose();
+            try
+            {
+                bitmap.Save(OutputBackgroundImageFilePath, ImageFormat.Jpeg);
+            }
+            catch { }
+            bitmap.Dispose();
+
+            #endregion Save&Dispose
+
+            #region QueryRecord
+
+            Replay replay = GetBestLocalRecord(beatmap_osu_file);
+            if (replay != null)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("BestLocalRecord:").AppendLine(replay.Score.ToString()).Append($"{CalculateACC(replay.Count300, replay.Count100, replay.Count50, replay.CountMiss) * 100:F2}%");
+                File.WriteAllText(OutputBestLocalRecordInfoFilePath, sb.ToString());
+            }
+            else
+            {
+                IO.CurrentIO.WriteColor($"未找到beatmapID = {current_beatmap.BeatmapId}的最佳本地成绩", ConsoleColor.Yellow);
+            }
+
+            #endregion QueryRecord
+
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
+
+            return true;
+        }
+
+        private bool ChangeOsuStatusforNowPlaying(BeatmapEntry current_beatmap)
+        {
+            CheckPPShowPluginProgram();
+
+            #region Create Bitmap
+
+            Bitmap bitmap = new Bitmap(int.Parse(Width), int.Parse(Height));
+            Graphics graphics = Graphics.FromImage(bitmap);
+
+            Font font = new Font("Consolas", 25);
+
+            #endregion Create Bitmap
+
+            #region GetInfo
+
+            string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
+
+            string beatmap_osu_file = string.Empty;
+
+            beatmap_osu_file = GetCurrentBeatmapOsuFilePathByDiffName(current_beatmap.Difficulty, beatmap_folder);
+
+            if (string.IsNullOrWhiteSpace(beatmap_osu_file))
+            {
+                IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Cant get current beatmap file path.", ConsoleColor.Red);
+                return false;
+            }
+
+            string osuFileContent = File.ReadAllText(beatmap_osu_file);
+
+            beatmap_osu_file += "@";
+            
             File.WriteAllText(OutputOsuFilePath, beatmap_osu_file);
 
             File.WriteAllText(OutputBeatmapNameInfoFilePath, $"Creator:{current_beatmap.Creator} \t \t Link:http://osu.ppy.sh/s/{current_beatmap.BeatmapSetId}");
