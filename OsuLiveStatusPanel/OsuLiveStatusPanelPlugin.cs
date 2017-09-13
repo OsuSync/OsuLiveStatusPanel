@@ -1,7 +1,6 @@
 ﻿using MemoryReader.BeatmapInfo;
 using MemoryReader.Mods;
 using NowPlaying;
-using osu_database_reader;
 using Sync;
 using Sync.Plugins;
 using Sync.Tools;
@@ -97,19 +96,21 @@ namespace OsuLiveStatusPanel
 
         private ModsInfo current_mod;
 
-        private class MemoryReaderListener : MemoryReader.Listen.InterFace.IOSUListener
+        /*
+        private class MemoryReaderListener : MemoryReader.Listen.Interface.IOSUListener
         {
+        *//*
             private OsuLiveStatusPanelPlugin ref_plugin;
-
+            */
             private int beatmapID, beatmapSetID;
 
             private OsuStatus status;
-
+        /*
             public MemoryReaderListener(OsuLiveStatusPanelPlugin plugin)
             {
                 ref_plugin = plugin;
             }
-
+            
             public void OnAccuracyChange(double acc)
             {
             }
@@ -117,7 +118,7 @@ namespace OsuLiveStatusPanel
             public void OnComboChange(int combo)
             {
             }
-
+            */
             public void OnCurrentBeatmapChange(Beatmap beatmap)
             {
                 beatmapID = beatmap.BeatmapID;
@@ -130,21 +131,21 @@ namespace OsuLiveStatusPanel
 
             public void OnCurrentModsChange(ModsInfo mod)
             {
-                ref_plugin.current_mod = mod;
+                /*ref_plugin.*/current_mod = mod;
                 IO.CurrentIO.WriteColor($"mod change : {mod.ShortName}", ConsoleColor.Blue);
             }
-
+        /*
             public void OnHPChange(double hp)
             {
             }
-
+            */
             public void OnStatusChange(OsuStatus last_status, OsuStatus status)
             {
                 if (last_status == status) return;
                 if (status != OsuStatus.Playing)
                 {
                     //clear
-                    ref_plugin.Np_OnCurrentPlayingBeatmapChangedEvent(null);
+                    /*ref_plugin.*/Np_OnCurrentPlayingBeatmapChangedEvent(null);
                 }
                 else
                 {
@@ -155,31 +156,33 @@ namespace OsuLiveStatusPanel
                         BeatmapSetId = beatmapSetID
                     };
 
-                    ref_plugin.Np_OnCurrentPlayingBeatmapChangedEvent(beatmap);
+                    /*ref_plugin.*/Np_OnCurrentPlayingBeatmapChangedEvent(new CurrentPlayingBeatmapChangedEvent(beatmap));
                 }
             }
-        }
+       /* }*/
 
         #endregion MemoryReader
 
         public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora >///<")
         {
-            onInitPlugin += OsuLiveStatusPanelPlugin_onInitPlugin;
-            onLoadComplete += OsuLiveStatusPanelPlugin_onLoadComplete;
-            onInitCommand += OsuLiveStatusPanelPlugin_onInitCommand;
+            base.EventBus.BindEvent<PluginEvents.InitPluginEvent>(OsuLiveStatusPanelPlugin_onInitPlugin);
+            base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(OsuLiveStatusPanelPlugin_onLoadComplete);
+            base.EventBus.BindEvent<PluginEvents.InitCommandEvent>(OsuLiveStatusPanelPlugin_onInitCommand);
         }
 
-        private void OsuLiveStatusPanelPlugin_onInitCommand(Sync.Command.CommandManager commands)
+        private void OsuLiveStatusPanelPlugin_onInitCommand(PluginEvents.InitCommandEvent @event)
         {
-            commands.Dispatch.bind("livestatuspanel", (args) =>
+            @event.Commands.Dispatch.bind("livestatuspanel", (args) =>
             {
                 IO.CurrentIO.Write($"CurrentOsuPath = {CurrentOsuPath}");
                 return true;
             }, "获取屙屎状态面板的数据");
         }
 
-        private void OsuLiveStatusPanelPlugin_onLoadComplete(SyncHost host)
+        private void OsuLiveStatusPanelPlugin_onLoadComplete(PluginEvents.LoadCompleteEvent evt)
         {
+            SyncHost host = evt.Host;
+
             try
             {
                 if (((string)AllowUsedNowPlaying).Trim() == "1")
@@ -206,7 +209,10 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found MemoryReader Plugin.", ConsoleColor.Green);
                     MemoryReader.MemoryReader reader = plugin as MemoryReader.MemoryReader;
 
-                    reader.RegisterOSUListener(new MemoryReaderListener(this));
+                    reader.ListenerManager.OnBeatmapChanged += this.OnCurrentBeatmapChange;
+                    reader.ListenerManager.OnBeatmapSetChanged += this.OnCurrentBeatmapSetChange;
+                    reader.ListenerManager.OnStatusChanged += this.OnStatusChange;
+                    reader.ListenerManager.OnCurrentMods += this.OnCurrentModsChange;
 
                     source = UsingSource.MemoryReader;
 
@@ -227,7 +233,7 @@ namespace OsuLiveStatusPanel
                 {
                     IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found NowPlaying Plugin.", ConsoleColor.Green);
                     NowPlaying.NowPlaying np = plugin as NowPlaying.NowPlaying;
-                    np.OnCurrentPlayingBeatmapChangedEvent += Np_OnCurrentPlayingBeatmapChangedEvent;
+                    EventBus.BindEvent<NowPlaying.CurrentPlayingBeatmapChangedEvent>(Np_OnCurrentPlayingBeatmapChangedEvent);
 
                     source = UsingSource.NowPlaying;
 
@@ -242,8 +248,10 @@ namespace OsuLiveStatusPanel
 
         #region Kernal
 
-        public void Np_OnCurrentPlayingBeatmapChangedEvent(BeatmapEntry new_beatmap)
+        public void Np_OnCurrentPlayingBeatmapChangedEvent(CurrentPlayingBeatmapChangedEvent evt)
         {
+            BeatmapEntry new_beatmap = evt.NewBeatmap;
+
             var osu_process = Process.GetProcessesByName("osu!")?.First();
 
             if (new_beatmap == null || osu_process == null)
@@ -297,19 +305,25 @@ namespace OsuLiveStatusPanel
             }
         }
 
+        object locker = new object();
+
         private void CheckPPShowPluginProgram()
         {
             if (EnableAutoStartPPShowPlugin == "1")
             {
-                if (Process.GetProcessesByName("PPShowPlugin").Count() == 0)
+                lock (locker)
                 {
-                    File.WriteAllText(OutputOsuFilePath, "");
-                    IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]PPShowPlugin is not running,will start this program.", ConsoleColor.Yellow);
-                    Process.Start(new ProcessStartInfo(OsuSyncPath + PPShowPluginFilePath, "")
+                    if (Process.GetProcessesByName("PPShowPlugin").Count() == 0)
                     {
-                        WorkingDirectory = OsuSyncPath,
-                        CreateNoWindow = true
-                    });
+                        File.WriteAllText(OutputOsuFilePath, "");
+                        IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]PPShowPlugin is not running,will start this program.", ConsoleColor.Yellow);
+                        Process.Start(new ProcessStartInfo(OsuSyncPath + PPShowPluginFilePath, "")
+                        {
+                            WorkingDirectory = OsuSyncPath,
+                            CreateNoWindow = true
+                        });
+                    }
+
                 }
             }
         }
@@ -409,22 +423,6 @@ namespace OsuLiveStatusPanel
 
             #endregion Save&Dispose
 
-            #region QueryRecord
-
-            Replay replay = GetBestLocalRecord(beatmap_osu_file);
-            if (replay != null)
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("BestLocalRecord:").AppendLine(replay.Score.ToString()).Append($"{CalculateACC(replay.Count300, replay.Count100, replay.Count50, replay.CountMiss) * 100:F2}%");
-                File.WriteAllText(OutputBestLocalRecordInfoFilePath, sb.ToString());
-            }
-            else
-            {
-                IO.CurrentIO.WriteColor($"未找到beatmapID = {current_beatmap.BeatmapId}的最佳本地成绩", ConsoleColor.Yellow);
-            }
-
-            #endregion QueryRecord
-
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
 
             return true;
@@ -508,22 +506,6 @@ namespace OsuLiveStatusPanel
 
             #endregion Save&Dispose
 
-            #region QueryRecord
-
-            Replay replay = GetBestLocalRecord(beatmap_osu_file);
-            if (replay != null)
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine("BestLocalRecord:").AppendLine(replay.Score.ToString()).Append($"{CalculateACC(replay.Count300, replay.Count100, replay.Count50, replay.CountMiss) * 100:F2}%");
-                File.WriteAllText(OutputBestLocalRecordInfoFilePath, sb.ToString());
-            }
-            else
-            {
-                IO.CurrentIO.WriteColor($"未找到beatmapID = {current_beatmap.BeatmapId}的最佳本地成绩", ConsoleColor.Yellow);
-            }
-
-            #endregion QueryRecord
-
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
 
             return true;
@@ -541,26 +523,7 @@ namespace OsuLiveStatusPanel
 
             return result;
         }
-
-        private Replay GetBestLocalRecord(string osuFilePath)
-        {
-            var hash = BeatmapHashHelper.GetHashFromOsuFile(osuFilePath);
-
-            var db = osu_database_reader.ScoresDb.Read(CurrentOsuPath + "scores.db");
-
-            var result = db.Beatmaps.AsParallel().Where((pair) => pair.Key == hash);
-
-            if (result.Count() != 0)
-            {
-                var list = result.First().Value;
-                list.Sort((a, b) => b.Score - a.Score);
-
-                return list.First();
-            }
-
-            return null;
-        }
-
+        
         private static string GetArtist(BeatmapEntry beatmap) => string.IsNullOrWhiteSpace(beatmap.ArtistUnicode) ? beatmap.Artist : beatmap.ArtistUnicode;
 
         private static string GetTitle(BeatmapEntry beatmap) => string.IsNullOrWhiteSpace(beatmap.TitleUnicode) ? beatmap.Title : beatmap.TitleUnicode;
@@ -688,7 +651,7 @@ namespace OsuLiveStatusPanel
             return result.Groups[1].Value;
         }
 
-        private void OsuLiveStatusPanelPlugin_onInitPlugin()
+        private void OsuLiveStatusPanelPlugin_onInitPlugin(PluginEvents.InitPluginEvent @event)
         {
             Sync.Tools.IO.CurrentIO.WriteColor(this.Name + " by " + this.Author, System.ConsoleColor.DarkCyan);
 
