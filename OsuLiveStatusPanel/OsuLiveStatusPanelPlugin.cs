@@ -332,21 +332,10 @@ namespace OsuLiveStatusPanel
         {
             CheckPPShowPluginProgram();
 
-            #region Create Bitmap
-
-            Bitmap bitmap = new Bitmap(int.Parse(Width), int.Parse(Height));
-            Graphics graphics = Graphics.FromImage(bitmap);
-
-            Font font = new Font("Consolas", 25);
-
-            #endregion Create Bitmap
-
-            #region GetInfo
-
             string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
 
             string beatmap_osu_file = string.Empty;
-
+            
             beatmap_osu_file = GetCurrentBeatmapOsuFilePathByBeatmapID(current_beatmap.BeatmapId.ToString(), beatmap_folder);
             if (string.IsNullOrWhiteSpace(beatmap_osu_file))
             {
@@ -369,61 +358,16 @@ namespace OsuLiveStatusPanel
             
             current_beatmap.BeatmapId = current_beatmap.BeatmapId == -1 ? beatmapId : current_beatmap.BeatmapId;
             current_beatmap.BeatmapSetId = current_beatmap.BeatmapSetId == -1 ? beatmapSetId : current_beatmap.BeatmapSetId;
+            current_beatmap.OsuFilePath = beatmap_osu_file;
 
+            string mod=string.Empty;
             //添加Mods
             if (current_mod != null)
             {
-                beatmap_osu_file += $"{current_mod.ShortName}";
+                mod = $"{current_mod.ShortName}";
             }
 
-            File.WriteAllText(OutputOsuFilePath, beatmap_osu_file);
-
-            File.WriteAllText(OutputBeatmapNameInfoFilePath, $"Creator:{current_beatmap.Creator} \t \t Link:http://osu.ppy.sh/s/{current_beatmap.BeatmapSetId}");
-
-            File.WriteAllText(OutputArtistTitleDiffFilePath, $@"CurrentPlaying : {GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty ?? "<unknown diff>"}]");
-
-            //var parse_data = OsuFileParser.PickValues(ref osuFileContent);
-            var match = Regex.Match(osuFileContent, @"\d,\d,\""((.+?)\.((jpg)|(png)))\""(,\d,\d)?");
-            string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
-
-            #endregion GetInfo
-
-            #region Draw Content
-
-            //draw background image with blur etc.
-            var bgImage = GetBeatmapBackgroundImage(bgPath);
-            if (bgImage != null)
-            {
-                var blurImage = GetBlurImage(bgImage);
-                bgImage.Dispose();
-                graphics.DrawImage(blurImage, new PointF(0, 0));
-                blurImage.Dispose();
-            }
-            //draw bitmap data
-            //graphics.DrawRectangle(pen, 0, 0, float.Parse(LiveWidth), float.Parse(LiveHeight));
-            //draw artist - title[diff] (if enable)
-            if (EnablePrintArtistTitle == "1")
-            {
-                graphics.DrawString($"Current Playing:{GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty}]", font, Artist_TittleBrush, new RectangleF(new PointF(0, float.Parse(LiveHeight) + 40), new SizeF(float.Parse(LiveWidth), 60)));
-            }
-
-            #endregion Draw Content
-
-            #region Save&Dispose
-
-            //save
-            graphics.Save();
-            graphics.Dispose();
-            try
-            {
-                bitmap.Save(OutputBackgroundImageFilePath, ImageFormat.Jpeg);
-            }
-            catch { }
-            bitmap.Dispose();
-
-            #endregion Save&Dispose
-
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
+            OuputContent(current_beatmap,mod);
 
             return true;
         }
@@ -431,6 +375,31 @@ namespace OsuLiveStatusPanel
         private bool ChangeOsuStatusforNowPlaying(BeatmapEntry current_beatmap)
         {
             CheckPPShowPluginProgram();
+
+            #region GetInfo
+
+            string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
+
+            string beatmap_osu_file = string.Empty;
+
+            beatmap_osu_file = /*GetCurrentBeatmapOsuFilePathByDiffName(current_beatmap.Difficulty, beatmap_folder)*/current_beatmap.OsuFilePath;
+
+            if (string.IsNullOrWhiteSpace(beatmap_osu_file))
+            {
+                IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Cant get current beatmap file path.", ConsoleColor.Red);
+                return false;
+            }
+
+            OuputContent(current_beatmap);
+
+            return true;
+        }
+
+        public void OuputContent(BeatmapEntry current_beatmap,string mod="")
+        {
+            string beatmap_osu_file = current_beatmap.OsuFilePath;
+            string osuFileContent = File.ReadAllText(beatmap_osu_file);
+            string beatmap_folder=Directory.GetParent(beatmap_osu_file).FullName;
 
             #region Create Bitmap
 
@@ -441,25 +410,7 @@ namespace OsuLiveStatusPanel
 
             #endregion Create Bitmap
 
-            #region GetInfo
-
-            string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
-
-            string beatmap_osu_file = string.Empty;
-
-            beatmap_osu_file = GetCurrentBeatmapOsuFilePathByDiffName(current_beatmap.Difficulty, beatmap_folder);
-
-            if (string.IsNullOrWhiteSpace(beatmap_osu_file))
-            {
-                IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Cant get current beatmap file path.", ConsoleColor.Red);
-                return false;
-            }
-
-            string osuFileContent = File.ReadAllText(beatmap_osu_file);
-
-            beatmap_osu_file += "@";
-            
-            File.WriteAllText(OutputOsuFilePath, beatmap_osu_file);
+            File.WriteAllText(OutputOsuFilePath, beatmap_osu_file + $"@{mod}");
 
             File.WriteAllText(OutputBeatmapNameInfoFilePath, $"Creator:{current_beatmap.Creator} \t \t Link:http://osu.ppy.sh/s/{current_beatmap.BeatmapSetId}");
 
@@ -508,7 +459,6 @@ namespace OsuLiveStatusPanel
 
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
 
-            return true;
         }
 
         #region tool func
