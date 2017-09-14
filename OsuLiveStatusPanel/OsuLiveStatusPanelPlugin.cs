@@ -93,32 +93,16 @@ namespace OsuLiveStatusPanel
         private PluginConfiuration config;
 
         #region MemoryReader
-
-        private ModsInfo current_mod;
-
-        /*
-        private class MemoryReaderListener : MemoryReader.Listen.Interface.IOSUListener
+        public class MemoryReaderWrapper
         {
-        *//*
-            private OsuLiveStatusPanelPlugin ref_plugin;
-            */
+            OsuLiveStatusPanelPlugin RefPlugin;
+
+            public ModsInfo current_mod;
+
             private int beatmapID, beatmapSetID;
 
-            private OsuStatus status;
-        /*
-            public MemoryReaderListener(OsuLiveStatusPanelPlugin plugin)
-            {
-                ref_plugin = plugin;
-            }
-            
-            public void OnAccuracyChange(double acc)
-            {
-            }
+            public MemoryReaderWrapper(OsuLiveStatusPanelPlugin p) => RefPlugin = p;
 
-            public void OnComboChange(int combo)
-            {
-            }
-            */
             public void OnCurrentBeatmapChange(Beatmap beatmap)
             {
                 beatmapID = beatmap.BeatmapID;
@@ -131,21 +115,16 @@ namespace OsuLiveStatusPanel
 
             public void OnCurrentModsChange(ModsInfo mod)
             {
-                /*ref_plugin.*/current_mod = mod;
+                current_mod = mod;
                 IO.CurrentIO.WriteColor($"mod change : {mod.ShortName}", ConsoleColor.Blue);
             }
-        /*
-            public void OnHPChange(double hp)
-            {
-            }
-            */
+
             public void OnStatusChange(OsuStatus last_status, OsuStatus status)
             {
                 if (last_status == status) return;
                 if (status != OsuStatus.Playing)
                 {
-                    //clear
-                    /*ref_plugin.*/Np_OnCurrentPlayingBeatmapChangedEvent(null);
+                     RefPlugin.Np_OnCurrentPlayingBeatmapChangedEvent(null);
                 }
                 else
                 {
@@ -156,11 +135,12 @@ namespace OsuLiveStatusPanel
                         BeatmapSetId = beatmapSetID
                     };
 
-                    /*ref_plugin.*/Np_OnCurrentPlayingBeatmapChangedEvent(new CurrentPlayingBeatmapChangedEvent(beatmap));
+                    RefPlugin.Np_OnCurrentPlayingBeatmapChangedEvent(new CurrentPlayingBeatmapChangedEvent(beatmap));
                 }
             }
-       /* }*/
+        }
 
+        MemoryReaderWrapper MemoryReaderWrapperInstance;
         #endregion MemoryReader
 
         public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora >///<")
@@ -209,10 +189,12 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found MemoryReader Plugin.", ConsoleColor.Green);
                     MemoryReader.MemoryReader reader = plugin as MemoryReader.MemoryReader;
 
-                    reader.ListenerManager.OnBeatmapChanged += this.OnCurrentBeatmapChange;
-                    reader.ListenerManager.OnBeatmapSetChanged += this.OnCurrentBeatmapSetChange;
-                    reader.ListenerManager.OnStatusChanged += this.OnStatusChange;
-                    reader.ListenerManager.OnCurrentMods += this.OnCurrentModsChange;
+                    MemoryReaderWrapperInstance = new MemoryReaderWrapper(this);
+
+                    reader.ListenerManager.OnBeatmapChanged += MemoryReaderWrapperInstance.OnCurrentBeatmapChange;
+                    reader.ListenerManager.OnBeatmapSetChanged += MemoryReaderWrapperInstance.OnCurrentBeatmapSetChange;
+                    reader.ListenerManager.OnStatusChanged += MemoryReaderWrapperInstance.OnStatusChange;
+                    reader.ListenerManager.OnCurrentMods += MemoryReaderWrapperInstance.OnCurrentModsChange;
 
                     source = UsingSource.MemoryReader;
 
@@ -250,7 +232,7 @@ namespace OsuLiveStatusPanel
 
         public void Np_OnCurrentPlayingBeatmapChangedEvent(CurrentPlayingBeatmapChangedEvent evt)
         {
-            BeatmapEntry new_beatmap = evt.NewBeatmap;
+            BeatmapEntry new_beatmap = evt?.NewBeatmap;
 
             var osu_process = Process.GetProcessesByName("osu!")?.First();
 
@@ -299,13 +281,13 @@ namespace OsuLiveStatusPanel
         private void TryChangeOsuStatus(object obj)
         {
             BeatmapEntry beatmap = obj as BeatmapEntry;
-            if (!(source==UsingSource.MemoryReader?ChangeOsuStatusforMemoryReader(beatmap):ChangeOsuStatusforNowPlaying(beatmap)))
+            if (!(source == UsingSource.MemoryReader ? ChangeOsuStatusforMemoryReader(beatmap) : ChangeOsuStatusforNowPlaying(beatmap)))
             {
                 CleanOsuStatus();
             }
         }
 
-        object locker = new object();
+        private object locker = new object();
 
         private void CheckPPShowPluginProgram()
         {
@@ -323,7 +305,6 @@ namespace OsuLiveStatusPanel
                             CreateNoWindow = true
                         });
                     }
-
                 }
             }
         }
@@ -335,7 +316,7 @@ namespace OsuLiveStatusPanel
             string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
 
             string beatmap_osu_file = string.Empty;
-            
+
             beatmap_osu_file = GetCurrentBeatmapOsuFilePathByBeatmapID(current_beatmap.BeatmapId.ToString(), beatmap_folder);
             if (string.IsNullOrWhiteSpace(beatmap_osu_file))
             {
@@ -350,24 +331,22 @@ namespace OsuLiveStatusPanel
 
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
 
-            beatmap_osu_file += "@";
-
             int beatmapId = current_beatmap.BeatmapId, beatmapSetId = current_beatmap.BeatmapSetId;
             //补完beatmap必需内容
             current_beatmap = OsuFileParser.ParseText(osuFileContent);
-            
+
             current_beatmap.BeatmapId = current_beatmap.BeatmapId == -1 ? beatmapId : current_beatmap.BeatmapId;
             current_beatmap.BeatmapSetId = current_beatmap.BeatmapSetId == -1 ? beatmapSetId : current_beatmap.BeatmapSetId;
             current_beatmap.OsuFilePath = beatmap_osu_file;
 
-            string mod=string.Empty;
+            string mod = string.Empty;
             //添加Mods
-            if (current_mod != null)
+            if (MemoryReaderWrapperInstance.current_mod != null)
             {
-                mod = $"{current_mod.ShortName}";
+                mod = $"{MemoryReaderWrapperInstance.current_mod.ShortName}";
             }
 
-            OuputContent(current_beatmap,mod);
+            OuputContent(current_beatmap, mod);
 
             return true;
         }
@@ -395,11 +374,11 @@ namespace OsuLiveStatusPanel
             return true;
         }
 
-        public void OuputContent(BeatmapEntry current_beatmap,string mod="")
+        public void OuputContent(BeatmapEntry current_beatmap, string mod = "")
         {
             string beatmap_osu_file = current_beatmap.OsuFilePath;
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
-            string beatmap_folder=Directory.GetParent(beatmap_osu_file).FullName;
+            string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
 
             #region Create Bitmap
 
@@ -458,7 +437,6 @@ namespace OsuLiveStatusPanel
             #endregion Save&Dispose
 
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
-
         }
 
         #region tool func
@@ -473,7 +451,7 @@ namespace OsuLiveStatusPanel
 
             return result;
         }
-        
+
         private static string GetArtist(BeatmapEntry beatmap) => string.IsNullOrWhiteSpace(beatmap.ArtistUnicode) ? beatmap.Artist : beatmap.ArtistUnicode;
 
         private static string GetTitle(BeatmapEntry beatmap) => string.IsNullOrWhiteSpace(beatmap.TitleUnicode) ? beatmap.Title : beatmap.TitleUnicode;

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel
 {
     public static class BeatmapHashHelper
     {
-        static MD5 md5 = new MD5CryptoServiceProvider();
+        private static MD5 md5 = new MD5CryptoServiceProvider();
 
         public static string GetHashFromOsuFile(string osuFilePath)
         {
@@ -27,7 +23,7 @@ namespace OsuLiveStatusPanel
             foreach (byte b in data)
                 sb.Append(b.ToString("x2"));
 
-            var result= sb.ToString();
+            var result = sb.ToString();
 
             return result;
         }

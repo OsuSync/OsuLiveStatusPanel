@@ -283,7 +283,6 @@ namespace OsuLiveStatusPanel
                                         }
                                     }
 
-
                                     read += src.Width;
                                     ++tempy;
                                 }
@@ -318,7 +317,6 @@ namespace OsuLiveStatusPanel
                     throw new InvalidOperationException("Radius must be greater then 0");
                 }
                 _radius = value;
-
             }
         }
 
@@ -352,7 +350,7 @@ namespace OsuLiveStatusPanel
             _originBitmap.UnlockBits(_bitmapData);
         }
 
-        #endregion
+        #endregion IDisposable Members
 
         public unsafe byte* Begin
         {
