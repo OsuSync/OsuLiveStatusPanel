@@ -392,15 +392,6 @@ namespace OsuLiveStatusPanel
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
 
-            #region Create Bitmap
-
-            Bitmap bitmap = new Bitmap(int.Parse(Width), int.Parse(Height));
-            Graphics graphics = Graphics.FromImage(bitmap);
-
-            Font font = new Font("Consolas", 25);
-
-            #endregion Create Bitmap
-
             //File.WriteAllText(OutputOsuFilePath, beatmap_osu_file + $"@{mod}");
             TrigPPShow(beatmap_osu_file, mod);
 
@@ -414,39 +405,51 @@ namespace OsuLiveStatusPanel
 
             #endregion GetInfo
 
-            #region Draw Content
-
-            //draw background image with blur etc.
-            var bgImage = GetBeatmapBackgroundImage(bgPath);
-            if (bgImage != null)
+            #region Create Bitmap
+            if (EnableGenerateBlurImageFile == "1")
             {
-                var blurImage = GetBlurImage(bgImage);
-                bgImage.Dispose();
-                graphics.DrawImage(blurImage, new PointF(0, 0));
-                blurImage.Dispose();
+
+                Bitmap bitmap = new Bitmap(int.Parse(Width), int.Parse(Height));
+                Graphics graphics = Graphics.FromImage(bitmap);
+
+                Font font = new Font("Consolas", 25);
+
+                #endregion Create Bitmap
+
+                #region Draw Content
+
+                //draw background image with blur etc.
+                var bgImage = GetBeatmapBackgroundImage(bgPath);
+                if (bgImage != null)
+                {
+                    var blurImage = GetBlurImage(bgImage);
+                    bgImage.Dispose();
+                    graphics.DrawImage(blurImage, new PointF(0, 0));
+                    blurImage.Dispose();
+                }
+                //draw bitmap data
+                //graphics.DrawRectangle(pen, 0, 0, float.Parse(LiveWidth), float.Parse(LiveHeight));
+                //draw artist - title[diff] (if enable)
+                if (EnablePrintArtistTitle == "1")
+                {
+                    graphics.DrawString($"Current Playing:{GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty}]", font, Artist_TittleBrush, new RectangleF(new PointF(0, float.Parse(LiveHeight) + 40), new SizeF(float.Parse(LiveWidth), 60)));
+                }
+
+                #endregion Draw Content
+
+                #region Save&Dispose
+
+                //save
+                graphics.Save();
+                graphics.Dispose();
+                try
+                {
+                    bitmap.Save(OutputBackgroundImageFilePath, ImageFormat.Jpeg);
+                }
+                catch { }
+                bitmap.Dispose();
+
             }
-            //draw bitmap data
-            //graphics.DrawRectangle(pen, 0, 0, float.Parse(LiveWidth), float.Parse(LiveHeight));
-            //draw artist - title[diff] (if enable)
-            if (EnablePrintArtistTitle == "1")
-            {
-                graphics.DrawString($"Current Playing:{GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty}]", font, Artist_TittleBrush, new RectangleF(new PointF(0, float.Parse(LiveHeight) + 40), new SizeF(float.Parse(LiveWidth), 60)));
-            }
-
-            #endregion Draw Content
-
-            #region Save&Dispose
-
-            //save
-            graphics.Save();
-            graphics.Dispose();
-            try
-            {
-                bitmap.Save(OutputBackgroundImageFilePath, ImageFormat.Jpeg);
-            }
-            catch { }
-            bitmap.Dispose();
-
             #endregion Save&Dispose
 
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
