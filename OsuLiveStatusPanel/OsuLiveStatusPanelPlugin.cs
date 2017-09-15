@@ -41,14 +41,17 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement LiveWidth { get; set; } = "1600";
         public ConfigurationElement LiveHeight { get; set; } = "900";
 
+        public ConfigurationElement EnableGenerateBlurImageFile { get; set; } = "1";
         public ConfigurationElement BlurRadius { get; set; } = "7";
-
+        
+        public ConfigurationElement EnablePrintArtistTitle { get; set; } = "0";
         public ConfigurationElement FontSize { get; set; } = "15";
 
-        public ConfigurationElement EnablePrintArtistTitle { get; set; } = "0";
-        public ConfigurationElement EnableAutoStartPPShowPlugin { get; set; } = "1";
-        public ConfigurationElement PPShowPluginFilePath { get; set; } = @"PPShowPlugin.exe";
-
+        public ConfigurationElement EnableUseBuildInPPShowPlugin { get; set; } = "1";
+        public ConfigurationElement OutlayPPShowPluginFilePath { get; set; } = @"PPShowPlugin.exe";
+        public ConfigurationElement EnableAutoStartOutlayPPShowPlugin { get; set; } = "1";
+        public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = "PPShowConfig.json";
+        public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0";
         /// <summary>
         /// 当前游戏谱面的信息文件保存路径(CurrentPlaying: Artist - Title[DiffName])
         /// </summary>
@@ -289,30 +292,41 @@ namespace OsuLiveStatusPanel
 
         private object locker = new object();
 
-        private void CheckPPShowPluginProgram()
+        PPShowPlugin PPShowPluginInstance;
+
+        private void CheckPPShowPlugin()
         {
-            if (EnableAutoStartPPShowPlugin == "1")
+            if (usingBuildInPPShow)
             {
-                lock (locker)
+                if (PPShowPluginInstance==null)
                 {
-                    if (Process.GetProcessesByName("PPShowPlugin").Count() == 0)
+                    PPShowPluginInstance = new PPShowPlugin(PPShowJsonConfigFilePath);
+                }
+            }
+            else
+            {
+                if (EnableAutoStartOutlayPPShowPlugin == "1")
+                {
+                    lock (locker)
                     {
-                        File.WriteAllText(OutputOsuFilePath, "");
-                        IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]PPShowPlugin is not running,will start this program.", ConsoleColor.Yellow);
-                        Process.Start(new ProcessStartInfo(OsuSyncPath + PPShowPluginFilePath, "")
+                        if (Process.GetProcessesByName("PPShowPlugin").Count() == 0)
                         {
-                            WorkingDirectory = OsuSyncPath,
-                            CreateNoWindow = true
-                        });
+                            File.WriteAllText(OutputOsuFilePath, "");
+                            IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]PPShowPlugin is not running,will start this program.", ConsoleColor.Yellow);
+                            Process.Start(new ProcessStartInfo(OsuSyncPath + OutlayPPShowPluginFilePath, "")
+                            {
+                                WorkingDirectory = OsuSyncPath,
+                                CreateNoWindow = true
+                            });
+                        }
                     }
                 }
+
             }
         }
 
         private bool ChangeOsuStatusforMemoryReader(BeatmapEntry current_beatmap)
         {
-            CheckPPShowPluginProgram();
-
             string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
 
             string beatmap_osu_file = string.Empty;
@@ -353,8 +367,6 @@ namespace OsuLiveStatusPanel
 
         private bool ChangeOsuStatusforNowPlaying(BeatmapEntry current_beatmap)
         {
-            CheckPPShowPluginProgram();
-
             #region GetInfo
 
             string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
@@ -389,7 +401,8 @@ namespace OsuLiveStatusPanel
 
             #endregion Create Bitmap
 
-            File.WriteAllText(OutputOsuFilePath, beatmap_osu_file + $"@{mod}");
+            //File.WriteAllText(OutputOsuFilePath, beatmap_osu_file + $"@{mod}");
+            TrigPPShow(beatmap_osu_file, mod);
 
             File.WriteAllText(OutputBeatmapNameInfoFilePath, $"Creator:{current_beatmap.Creator} \t \t Link:http://osu.ppy.sh/s/{current_beatmap.BeatmapSetId}");
 
@@ -440,6 +453,20 @@ namespace OsuLiveStatusPanel
         }
 
         #region tool func
+
+        private void TrigPPShow(string osu_file_path,string mod_list)
+        {
+            CheckPPShowPlugin();
+
+            if (usingBuildInPPShow)
+            {
+                PPShowPluginInstance.CalculateAndDump(osu_file_path, mod_list);
+            }
+            else
+            {
+                File.WriteAllText(OutputOsuFilePath, $"{osu_file_path}@{mod_list}");
+            }
+        }
 
         private static double CalculateACC(int count_300, int count_100, int count_50, int count_miss)
         {
@@ -579,6 +606,8 @@ namespace OsuLiveStatusPanel
             return result.Groups[1].Value;
         }
 
+        bool usingBuildInPPShow = false;
+
         private void OsuLiveStatusPanelPlugin_onInitPlugin(PluginEvents.InitPluginEvent @event)
         {
             Sync.Tools.IO.CurrentIO.WriteColor(this.Name + " by " + this.Author, System.ConsoleColor.DarkCyan);
@@ -587,7 +616,15 @@ namespace OsuLiveStatusPanel
             manager.AddItem(this);
 
             OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
-            CheckPPShowPluginProgram();
+
+            usingBuildInPPShow = EnableUseBuildInPPShowPlugin == "1";
+
+            CheckPPShowPlugin();
+        }
+
+        public void InitBuildInPPShow()
+        {
+
         }
 
         public void onConfigurationLoad()

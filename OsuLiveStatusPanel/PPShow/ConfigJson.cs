@@ -21,20 +21,18 @@ namespace OsuLiveStatusPanel
         public static Config Instance;
 
         public string oppai = "oppai.exe";
-        public string input_file="";
-        public string input_format="${beatmap_file}￥${mods}";
-        public List<OutputConfig> output_list=new List<OutputConfig>();
+        public string input_file = "";
+        public string input_format = "${beatmap_file}￥${mods}";
+        public List<OutputConfig> output_list = new List<OutputConfig>();
 
         private Config() { }
-
-        private Config(string config_path)
+        
+        public static void InitConfig(string config_path)
         {
-            string config_json=File.ReadAllText(config_path);
+            string config_json = File.ReadAllText(config_path);
 
-            Instance=JsonConvert.DeserializeObject<Config>(config_json);
+            Instance = JsonConvert.DeserializeObject<Config>(config_json);
         }
-
-        public static void InitConfig(string config_path) => Instance = new Config(config_path);
 
         public static void InitConfigFile(string config_path) => File.WriteAllText(config_path, JsonConvert.SerializeObject(new Config(), Formatting.Indented));
     }

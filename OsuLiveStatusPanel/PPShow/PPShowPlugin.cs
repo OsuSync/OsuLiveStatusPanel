@@ -12,20 +12,18 @@ namespace OsuLiveStatusPanel
 {
     public class PPShowPlugin /*: Plugin*/
     {
-        public static ConfigurationElement PPShowJsonConfigFilePath { set; get; } = "PPShowConfig.json";
-
-        public static ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0";
-
         Dictionary<OutputConfig, OutputFormatter> ofs;
 
         PPCalculator PP;
 
+        public bool PPShowAllowDumpInfo = false;
+
         public PPShowPlugin(string config_path)/*(string Name, string Author) : base("PPShowPlugin", "Mikira Sora")*/
         {
-            if (!File.Exists(PPShowJsonConfigFilePath))
+            if (!File.Exists(config_path))
             {
-                Config.InitConfigFile(PPShowJsonConfigFilePath);
-                throw new Exception("不存在指定路径的PPShowPlugin的配置文件.现在已经创建默认配置文件，请自行配置");
+                Config.InitConfigFile(config_path);
+                throw new Exception($"不存在指定路径的PPShowPlugin的配置文件({config_path}).现在已经创建默认配置文件，请自行配置");
             }
 
             LoadConfig(config_path);
@@ -74,7 +72,7 @@ namespace OsuLiveStatusPanel
             {
                 string str = of.Value.Format(oppai_infos);
 
-                if (PPShowAllowDumpInfo == "1")
+                if (PPShowAllowDumpInfo == true)
                 {
 
                     IO.CurrentIO.WriteColor("[PPShow][", ConsoleColor.White, false);
@@ -86,11 +84,17 @@ namespace OsuLiveStatusPanel
 
                 try
                 {
+                    if (!File.Exists(of.Key.output_file))
+                    {
+                        //Create Files
+                        File.Create(of.Key.output_file);
+                    }
+
                     File.WriteAllText(of.Key.output_file, str);
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"无法写入{of.Key.output_file},原因{e.Message}", ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor($"[PPShow]无法写入{of.Key.output_file},原因{e.Message}", ConsoleColor.Red);
                 }
             }
         }
@@ -106,7 +110,7 @@ namespace OsuLiveStatusPanel
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"无法写入{o.output_file},原因{e.Message}");
+                    IO.CurrentIO.WriteColor($"[PPShow]无法写入{o.output_file},原因{e.Message}",ConsoleColor.Red);
                 }
             }
         }
@@ -114,6 +118,15 @@ namespace OsuLiveStatusPanel
         public void CalculateAndDump(string osu_file_path,string mods_list)
         {
             PP.TrigCalc(osu_file_path, mods_list);
+        }
+
+        public void onConfigurationLoad()
+        {
+
+        }
+
+        public void onConfigurationSave()
+        {
 
         }
     }
