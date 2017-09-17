@@ -28,6 +28,57 @@ namespace OsuLiveStatusPanel
             None
         }
 
+        #region MemoryReader
+        public class MemoryReaderWrapper
+        {
+            OsuLiveStatusPanelPlugin RefPlugin;
+
+            public ModsInfo current_mod;
+
+            private int beatmapID, beatmapSetID;
+
+            public MemoryReaderWrapper(OsuLiveStatusPanelPlugin p) => RefPlugin = p;
+
+            public void OnCurrentBeatmapChange(Beatmap beatmap)
+            {
+                beatmapID = beatmap.BeatmapID;
+            }
+
+            public void OnCurrentBeatmapSetChange(BeatmapSet beatmap)
+            {
+                beatmapSetID = beatmap.BeatmapSetID;
+            }
+
+            public void OnCurrentModsChange(ModsInfo mod)
+            {
+                current_mod = mod;
+                IO.CurrentIO.WriteColor($"mod change : {mod.ShortName}", ConsoleColor.Blue);
+            }
+
+            public void OnStatusChange(OsuStatus last_status, OsuStatus status)
+            {
+                if (last_status == status) return;
+                if (status != OsuStatus.Playing)
+                {
+                    RefPlugin.Np_OnCurrentPlayingBeatmapChangedEvent(new CurrentPlayingBeatmapChangedEvent(null));
+                }
+                else
+                {
+                    //load
+                    BeatmapEntry beatmap = new BeatmapEntry()
+                    {
+                        BeatmapId = beatmapID,
+                        BeatmapSetId = beatmapSetID
+                    };
+
+                    RefPlugin.Np_OnCurrentPlayingBeatmapChangedEvent(new CurrentPlayingBeatmapChangedEvent(beatmap));
+                }
+            }
+        }
+
+        MemoryReaderWrapper MemoryReaderWrapperInstance;
+        #endregion MemoryReader
+
         #region Options
 
         public ConfigurationElement AllowUsedMemoryReader { get; set; } = "0";
@@ -90,62 +141,13 @@ namespace OsuLiveStatusPanel
         private string OsuSyncPath;
 
         private CancellationTokenSource token;
+        private object locker = new object();
+        PPShowPlugin PPShowPluginInstance;
 
         private string CurrentOsuPath = "";
 
+        bool usingBuildInPPShow = false;
         private PluginConfiuration config;
-
-        #region MemoryReader
-        public class MemoryReaderWrapper
-        {
-            OsuLiveStatusPanelPlugin RefPlugin;
-
-            public ModsInfo current_mod;
-
-            private int beatmapID, beatmapSetID;
-
-            public MemoryReaderWrapper(OsuLiveStatusPanelPlugin p) => RefPlugin = p;
-
-            public void OnCurrentBeatmapChange(Beatmap beatmap)
-            {
-                beatmapID = beatmap.BeatmapID;
-            }
-
-            public void OnCurrentBeatmapSetChange(BeatmapSet beatmap)
-            {
-                beatmapSetID = beatmap.BeatmapSetID;
-            }
-
-            public void OnCurrentModsChange(ModsInfo mod)
-            {
-                current_mod = mod;
-                IO.CurrentIO.WriteColor($"mod change : {mod.ShortName}", ConsoleColor.Blue);
-            }
-
-            public void OnStatusChange(OsuStatus last_status, OsuStatus status)
-            {
-                if (last_status == status) return;
-                if (status != OsuStatus.Playing)
-                {
-                     RefPlugin.Np_OnCurrentPlayingBeatmapChangedEvent(null);
-                }
-                else
-                {
-                    //load
-                    BeatmapEntry beatmap = new BeatmapEntry()
-                    {
-                        BeatmapId = beatmapID,
-                        BeatmapSetId = beatmapSetID
-                    };
-
-                    RefPlugin.Np_OnCurrentPlayingBeatmapChangedEvent(new CurrentPlayingBeatmapChangedEvent(beatmap));
-                }
-            }
-        }
-
-        MemoryReaderWrapper MemoryReaderWrapperInstance;
-        #endregion MemoryReader
-
         public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora >///<")
         {
             base.EventBus.BindEvent<PluginEvents.InitPluginEvent>(OsuLiveStatusPanelPlugin_onInitPlugin);
@@ -218,7 +220,7 @@ namespace OsuLiveStatusPanel
                 {
                     IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found NowPlaying Plugin.", ConsoleColor.Green);
                     NowPlaying.NowPlaying np = plugin as NowPlaying.NowPlaying;
-                    EventBus.BindEvent<NowPlaying.CurrentPlayingBeatmapChangedEvent>(Np_OnCurrentPlayingBeatmapChangedEvent);
+                    NowPlayingEvents.Instance.BindEvent<NowPlaying.CurrentPlayingBeatmapChangedEvent>(Np_OnCurrentPlayingBeatmapChangedEvent);
 
                     source = UsingSource.NowPlaying;
 
@@ -235,7 +237,7 @@ namespace OsuLiveStatusPanel
 
         public void Np_OnCurrentPlayingBeatmapChangedEvent(CurrentPlayingBeatmapChangedEvent evt)
         {
-            BeatmapEntry new_beatmap = evt?.NewBeatmap;
+            BeatmapEntry new_beatmap = evt.NewBeatmap;
 
             var osu_process = Process.GetProcessesByName("osu!")?.First();
 
@@ -263,7 +265,7 @@ namespace OsuLiveStatusPanel
         {
             IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Clean Status", ConsoleColor.Green);
 
-            File.WriteAllText(OutputOsuFilePath, string.Empty);
+            CleanPPShow();
 
             File.WriteAllText(OutputArtistTitleDiffFilePath, $@"选图中 >///<");
 
@@ -289,11 +291,6 @@ namespace OsuLiveStatusPanel
                 CleanOsuStatus();
             }
         }
-
-        private object locker = new object();
-
-        PPShowPlugin PPShowPluginInstance;
-
         private void CheckPPShowPlugin()
         {
             if (usingBuildInPPShow)
@@ -363,6 +360,23 @@ namespace OsuLiveStatusPanel
             OuputContent(current_beatmap, mod);
 
             return true;
+        }
+
+        public void InitBuildInPPShow()
+        {
+
+        }
+
+        private void CleanPPShow()
+        {
+            if (usingBuildInPPShow)
+            {
+                PPShowPluginInstance.CalculateAndDump(string.Empty, string.Empty);
+            }
+            else
+            {
+                File.WriteAllText(OutputOsuFilePath, string.Empty);
+            }
         }
 
         private bool ChangeOsuStatusforNowPlaying(BeatmapEntry current_beatmap)
@@ -608,9 +622,6 @@ namespace OsuLiveStatusPanel
 
             return result.Groups[1].Value;
         }
-
-        bool usingBuildInPPShow = false;
-
         private void OsuLiveStatusPanelPlugin_onInitPlugin(PluginEvents.InitPluginEvent @event)
         {
             Sync.Tools.IO.CurrentIO.WriteColor(this.Name + " by " + this.Author, System.ConsoleColor.DarkCyan);
@@ -624,12 +635,6 @@ namespace OsuLiveStatusPanel
 
             CheckPPShowPlugin();
         }
-
-        public void InitBuildInPPShow()
-        {
-
-        }
-
         public void onConfigurationLoad()
         {
         }
