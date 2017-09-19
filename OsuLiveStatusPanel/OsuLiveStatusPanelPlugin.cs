@@ -99,34 +99,34 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement FontSize { get; set; } = "15";
 
         public ConfigurationElement EnableUseBuildInPPShowPlugin { get; set; } = "1";
-        public ConfigurationElement OutlayPPShowPluginFilePath { get; set; } = @"PPShowPlugin.exe";
+        public ConfigurationElement OutlayPPShowPluginFilePath { get; set; } = @"..\PPShowPlugin.exe";
         public ConfigurationElement EnableAutoStartOutlayPPShowPlugin { get; set; } = "1";
-        public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = "PPShowConfig.json";
+        public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = @"..\PPShowConfig.json";
         public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0";
         /// <summary>
         /// 当前游戏谱面的信息文件保存路径(CurrentPlaying: Artist - Title[DiffName])
         /// </summary>
-        public ConfigurationElement OutputArtistTitleDiffFilePath { get; set; } = @"output_current_playing.txt";
+        public ConfigurationElement OutputArtistTitleDiffFilePath { get; set; } = @"..\output_current_playing.txt";
 
         /// <summary>
         /// 供PPShowPlugin使用的文件保存路径,必须和前者设置一样否则无效
         /// </summary>
-        public ConfigurationElement OutputOsuFilePath { get; set; } = @"in_current_playing.txt";
+        public ConfigurationElement OutputOsuFilePath { get; set; } = @"..\in_current_playing.txt";
 
         /// <summary>
         /// 当前游戏谱面的信息文件保存路径
         /// </summary>
-        public ConfigurationElement OutputBeatmapNameInfoFilePath { get; set; } = @"output_current_playing_beatmap_info.txt";
+        public ConfigurationElement OutputBeatmapNameInfoFilePath { get; set; } = @"..\output_current_playing_beatmap_info.txt";
 
         /// <summary>
         /// 当前谱面背景文件保存路径
         /// </summary>
-        public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"output_result.png";
+        public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png";
 
         /// <summary>
         /// 当前游戏最佳本地成绩的信息文件保存路径
         /// </summary>
-        public ConfigurationElement OutputBestLocalRecordInfoFilePath { get; set; } = @"output_best_local_record_info.txt";
+        public ConfigurationElement OutputBestLocalRecordInfoFilePath { get; set; } = @"..\output_best_local_record_info.txt";
 
         #endregion Options
 
@@ -148,11 +148,27 @@ namespace OsuLiveStatusPanel
 
         bool usingBuildInPPShow = false;
         private PluginConfiuration config;
+
         public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora >///<")
         {
-            base.EventBus.BindEvent<PluginEvents.InitPluginEvent>(OsuLiveStatusPanelPlugin_onInitPlugin);
+            
+        }
+
+        public override void OnEnable()
+        {
             base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(OsuLiveStatusPanelPlugin_onLoadComplete);
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>(OsuLiveStatusPanelPlugin_onInitCommand);
+
+            manager = new PluginConfigurationManager(this);
+            manager.AddItem(this);
+
+            OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
+
+            usingBuildInPPShow = EnableUseBuildInPPShowPlugin == "1";
+
+            CheckPPShowPlugin();
+
+            Sync.Tools.IO.CurrentIO.WriteColor(this.Name + " by " + this.Author, System.ConsoleColor.DarkCyan);
         }
 
         private void OsuLiveStatusPanelPlugin_onInitCommand(PluginEvents.InitCommandEvent @event)
@@ -622,19 +638,7 @@ namespace OsuLiveStatusPanel
 
             return result.Groups[1].Value;
         }
-        private void OsuLiveStatusPanelPlugin_onInitPlugin(PluginEvents.InitPluginEvent @event)
-        {
-            Sync.Tools.IO.CurrentIO.WriteColor(this.Name + " by " + this.Author, System.ConsoleColor.DarkCyan);
 
-            manager = new PluginConfigurationManager(this);
-            manager.AddItem(this);
-
-            OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
-
-            usingBuildInPPShow = EnableUseBuildInPPShowPlugin == "1";
-
-            CheckPPShowPlugin();
-        }
         public void onConfigurationLoad()
         {
         }
