@@ -34,16 +34,11 @@
   <ItemGroup>
     <Reference Include="MemoryReader">
       <HintPath>..\..\MemoryReader\bin\Debug\Plugins\MemoryReader.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Sync\OfficalPlugins\DefaultPlugin\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NowPlaying">
-      <HintPath>..\..\Sync\OfficalPlugins\NowPlaying\obj\Debug\NowPlaying.dll</HintPath>
-    </Reference>
-    <Reference Include="Sync">
-      <HintPath>..\..\Sync\Sync\bin\Debug\Sync.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,7 +62,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\..\Sync\OfficalPlugins\NowPlaying\NowPlaying.csproj">
+      <Project>{91ed3fe1-b0f7-44b4-8ab2-a3f6825eea60}</Project>
+      <Name>NowPlaying</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Sync\Sync\Sync.csproj">
+      <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
+      <Name>Sync</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

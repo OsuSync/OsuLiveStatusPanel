@@ -1,5 +1,6 @@
 ﻿using MemoryReader.BeatmapInfo;
 using MemoryReader.Mods;
+using MemoryReader;
 using NowPlaying;
 using Sync;
 using Sync.Plugins;
@@ -19,6 +20,7 @@ using static MemoryReader.Listen.OSUListenerManager;
 
 namespace OsuLiveStatusPanel
 {
+    [SyncSoftRequirePlugin("MemoryReader", "Now Playing")]
     public class OsuLiveStatusPanelPlugin : Plugin, IConfigurable
     {
         private enum UsingSource
