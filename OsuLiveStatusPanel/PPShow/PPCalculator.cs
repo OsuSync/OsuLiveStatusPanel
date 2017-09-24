@@ -100,6 +100,14 @@ namespace OsuLiveStatusPanel
                 oppai_json.accuracy = acc;
                 oppai_json.filepath = osu_file;
 
+                oppai_infos.Add(oppai_json);
+
+                p.WaitForExit();
+                p.Close();
+            }
+
+            oppai_infos.AsParallel().ForAll((oppai_json) => 
+            {
                 foreach (var pair in extra_data)
                 {
                     switch (pair.Key)
@@ -109,6 +117,12 @@ namespace OsuLiveStatusPanel
                             break;
                         case "beatmap_setid":
                             oppai_json.beatmap_id = int.Parse(pair.Value);
+                            break;
+                        case "title_unicode":
+                            oppai_json.title_unicode = pair.Value;
+                            break;
+                        case "artist_unicode":
+                            oppai_json.artist_unicode = pair.Value;
                             break;
                         case "min_bpm":
                             oppai_json.min_bpm = float.Parse(pair.Value);
@@ -121,11 +135,8 @@ namespace OsuLiveStatusPanel
                     }
                 }
 
-                oppai_infos.Add(oppai_json);
+            });
 
-                p.WaitForExit();
-                p.Close();
-            }
             OnOppainJson?.Invoke(oppai_infos);
 
             IO.CurrentIO.WriteColor($"[PPCalculator]执行结束,用时 {sw.ElapsedMilliseconds}ms",ConsoleColor.Green);

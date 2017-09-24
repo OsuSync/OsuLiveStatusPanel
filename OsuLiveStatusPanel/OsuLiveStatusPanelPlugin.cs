@@ -91,12 +91,9 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement Width { get; set; } = "1920";
         public ConfigurationElement Height { get; set; } = "1080";
          
-        public ConfigurationElement EnableGenerateBlurImageFile { get; set; } = "1";
+        public ConfigurationElement EnableGenerateBlurImageFile { get; set; } = "0";
         public ConfigurationElement BlurRadius { get; set; } = "7";
         
-        public ConfigurationElement EnablePrintArtistTitle { get; set; } = "0";
-        public ConfigurationElement FontSize { get; set; } = "15";
-
         public ConfigurationElement EnableUseBuildInPPShowPlugin { get; set; } = "1";
         public ConfigurationElement OutlayPPShowPluginFilePath { get; set; } = @"..\PPShowPlugin.exe";
         public ConfigurationElement EnableAutoStartOutlayPPShowPlugin { get; set; } = "1";
