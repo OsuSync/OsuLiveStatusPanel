@@ -90,10 +90,7 @@ namespace OsuLiveStatusPanel
 
         public ConfigurationElement Width { get; set; } = "1920";
         public ConfigurationElement Height { get; set; } = "1080";
-
-        public ConfigurationElement LiveWidth { get; set; } = "1600";
-        public ConfigurationElement LiveHeight { get; set; } = "900";
-
+         
         public ConfigurationElement EnableGenerateBlurImageFile { get; set; } = "1";
         public ConfigurationElement BlurRadius { get; set; } = "7";
         
@@ -104,31 +101,16 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement OutlayPPShowPluginFilePath { get; set; } = @"..\PPShowPlugin.exe";
         public ConfigurationElement EnableAutoStartOutlayPPShowPlugin { get; set; } = "1";
         public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = @"..\PPShowConfig.json";
-        public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0";
-        /// <summary>
-        /// 当前游戏谱面的信息文件保存路径(CurrentPlaying: Artist - Title[DiffName])
-        /// </summary>
-        public ConfigurationElement OutputArtistTitleDiffFilePath { get; set; } = @"..\output_current_playing.txt";
-
+        public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0"; 
         /// <summary>
         /// 供PPShowPlugin使用的文件保存路径,必须和前者设置一样否则无效
         /// </summary>
         public ConfigurationElement OutputOsuFilePath { get; set; } = @"..\in_current_playing.txt";
-
-        /// <summary>
-        /// 当前游戏谱面的信息文件保存路径
-        /// </summary>
-        public ConfigurationElement OutputBeatmapNameInfoFilePath { get; set; } = @"..\output_current_playing_beatmap_info.txt";
-
+         
         /// <summary>
         /// 当前谱面背景文件保存路径
         /// </summary>
-        public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png";
-
-        /// <summary>
-        /// 当前游戏最佳本地成绩的信息文件保存路径
-        /// </summary>
-        public ConfigurationElement OutputBestLocalRecordInfoFilePath { get; set; } = @"..\output_best_local_record_info.txt";
+        public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png"; 
 
         #endregion Options
 
@@ -283,13 +265,7 @@ namespace OsuLiveStatusPanel
         {
             IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Clean Status", ConsoleColor.Green);
 
-            CleanPPShow();
-
-            File.WriteAllText(OutputArtistTitleDiffFilePath, $@"选图中 >///<");
-
-            File.WriteAllText(OutputBeatmapNameInfoFilePath, string.Empty);
-
-            File.WriteAllText(OutputBestLocalRecordInfoFilePath, string.Empty);
+            CleanPPShow(); 
 
             if (File.Exists(OutputBackgroundImageFilePath))
             {
@@ -425,11 +401,7 @@ namespace OsuLiveStatusPanel
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
 
             //File.WriteAllText(OutputOsuFilePath, beatmap_osu_file + $"@{mod}");
-            TrigPPShow(beatmap_osu_file, mod);
-
-            File.WriteAllText(OutputBeatmapNameInfoFilePath, $"Creator:{current_beatmap.Creator} \t \t Link:http://osu.ppy.sh/s/{current_beatmap.BeatmapSetId}");
-
-            File.WriteAllText(OutputArtistTitleDiffFilePath, $@"CurrentPlaying : {GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty ?? "<unknown diff>"}]");
+            TrigPPShow(beatmap_osu_file, mod); 
 
             //var parse_data = OsuFileParser.PickValues(ref osuFileContent);
             var match = Regex.Match(osuFileContent, @"\d,\d,\""((.+?)\.((jpg)|(png)))\""(,\d,\d)?");
@@ -462,10 +434,6 @@ namespace OsuLiveStatusPanel
                 //draw bitmap data
                 //graphics.DrawRectangle(pen, 0, 0, float.Parse(LiveWidth), float.Parse(LiveHeight));
                 //draw artist - title[diff] (if enable)
-                if (EnablePrintArtistTitle == "1")
-                {
-                    graphics.DrawString($"Current Playing:{GetArtist(current_beatmap)} - {GetTitle(current_beatmap)}[{current_beatmap.Difficulty}]", font, Artist_TittleBrush, new RectangleF(new PointF(0, float.Parse(LiveHeight) + 40), new SizeF(float.Parse(LiveWidth), 60)));
-                }
 
                 #endregion Draw Content
 
