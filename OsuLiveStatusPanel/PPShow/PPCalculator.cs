@@ -177,6 +177,14 @@ namespace OsuLiveStatusPanel
                             {
                                 extra_data["beatmap_setid"] = line.Remove(0, 12 + 1).Trim();
                             }
+                            else if (line.StartsWith("TitleUnicode"))
+                            {
+                                extra_data["title_unicode"] = line.Remove(0, 12 + 1).Trim();
+                            }
+                            else if (line.StartsWith("ArtistUnicode"))
+                            {
+                                extra_data["artist_unicode"] = line.Remove(0, 13 + 1).Trim();
+                            }
                             break;
 
                         case 2: //TimingPoints

@@ -84,12 +84,6 @@ namespace OsuLiveStatusPanel
 
                 try
                 {
-                    if (!File.Exists(of.Key.output_file))
-                    {
-                        //Create Files
-                        File.Create(of.Key.output_file);
-                    }
-
                     File.WriteAllText(of.Key.output_file, str);
                 }
                 catch (Exception e)
