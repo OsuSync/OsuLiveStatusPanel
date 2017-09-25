@@ -104,7 +104,19 @@ namespace OsuLiveStatusPanel
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"[PPShow]无法写入{o.output_file},原因{e.Message}",ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor($"[PPShow]无法写入{o.output_file},原因{e.Message}", ConsoleColor.Red);
+                }
+            }
+
+            foreach (var o in Config.Instance.clean_list)
+            {
+                try
+                {
+                    File.WriteAllText($"{o.output_file}", o.output_format);
+                }
+                catch (Exception e)
+                {
+                    IO.CurrentIO.WriteColor($"[PPShow]无法写入{o.output_file},原因{e.Message}", ConsoleColor.Red);
                 }
             }
         }
