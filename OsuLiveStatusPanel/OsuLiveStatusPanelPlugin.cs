@@ -130,7 +130,7 @@ namespace OsuLiveStatusPanel
         bool usingBuildInPPShow = false;
         private PluginConfiuration config;
 
-        public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora >///<")
+        public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora & KedamavOvO >///<")
         {
             
         }
