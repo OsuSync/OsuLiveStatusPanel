@@ -115,6 +115,9 @@ namespace OsuLiveStatusPanel
                         case "beatmap_id":
                             oppai_json.beatmap_id = int.Parse(pair.Value);
                             break;
+                        case "source":
+                            oppai_json.source = pair.Value;
+                            break;
                         case "beatmap_setid":
                             oppai_json.beatmap_id = int.Parse(pair.Value);
                             break;
@@ -183,6 +186,10 @@ namespace OsuLiveStatusPanel
                             if (line.StartsWith("BeatmapID"))
                             {
                                 extra_data["beatmap_id"] = line.Remove(0, 9 + 1).Trim();
+                            }
+                            if (line.StartsWith("Source"))
+                            {
+                                extra_data["source"] = line.Remove(0, 9 + 1).Trim();
                             }
                             else if (line.StartsWith("BeatmapSetID"))
                             {

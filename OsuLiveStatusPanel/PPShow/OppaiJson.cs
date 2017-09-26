@@ -38,6 +38,7 @@ namespace OsuLiveStatusPanel
         public float max_bpm;
         public string title_unicode;
         public string artist_unicode;
+        public string source;
 
 
         public string beatmap_setlink { get => beatmap_setid > 0 ? (@"https://osu.ppy.sh/s/" + beatmap_setid) : string.Empty; }
