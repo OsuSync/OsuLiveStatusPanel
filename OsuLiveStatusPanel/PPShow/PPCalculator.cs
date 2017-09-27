@@ -189,7 +189,7 @@ namespace OsuLiveStatusPanel
                             }
                             if (line.StartsWith("Source"))
                             {
-                                extra_data["source"] = line.Remove(0, 9 + 1).Trim();
+                                extra_data["source"] = line.Remove(0, 6 + 1).Trim();
                             }
                             else if (line.StartsWith("BeatmapSetID"))
                             {

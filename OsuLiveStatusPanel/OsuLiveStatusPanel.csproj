@@ -40,6 +40,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Sync\OfficalPlugins\DefaultPlugin\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Sync, Version=2.13.2.1, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>G:\ddd\Sync.exe</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -65,11 +69,6 @@
     <ProjectReference Include="..\..\Sync\OfficalPlugins\NowPlaying\NowPlaying.csproj">
       <Project>{91ed3fe1-b0f7-44b4-8ab2-a3f6825eea60}</Project>
       <Name>NowPlaying</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Sync\Sync\Sync.csproj">
-      <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
-      <Name>Sync</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>

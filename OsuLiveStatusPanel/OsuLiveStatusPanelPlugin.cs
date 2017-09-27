@@ -20,7 +20,6 @@ using static MemoryReader.Listen.OSUListenerManager;
 
 namespace OsuLiveStatusPanel
 {
-    [SyncSoftRequirePlugin("MemoryReader", "Now Playing")]
     public class OsuLiveStatusPanelPlugin : Plugin, IConfigurable
     {
         private enum UsingSource
