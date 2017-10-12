@@ -164,6 +164,8 @@ namespace OsuLiveStatusPanel
         {
             SyncHost host = evt.Host;
 
+            UpdateCheck.Check();
+
             try
             {
                 if (((string)AllowUsedNowPlaying).Trim() == "1")
