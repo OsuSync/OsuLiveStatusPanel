@@ -112,6 +112,10 @@ namespace OsuLiveStatusPanel
         /// </summary>
         public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png"; 
 
+        public ConfigurationElement DebugOutputBGMatchFailedListFilePath{get;set;} =@"..\failed_list.txt";
+
+        public ConfigurationElement EnableDebug{set;get;} =@"0";
+
         #endregion Options
 
         private UsingSource source = UsingSource.None;
@@ -406,6 +410,17 @@ namespace OsuLiveStatusPanel
             
             var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)))\""");
             string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
+
+            if (!File.Exists(bgPath)&&EnableDebug=="1")
+            {
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputBlurImage]BG Files Not Exsit:{bgPath}", ConsoleColor.Yellow);
+
+                try
+                {
+                    File.AppendAllText(DebugOutputBGMatchFailedListFilePath, $"[({DateTime.Now.ToShortDateString()}){DateTime.Now.ToShortTimeString()}]{beatmap_osu_file}\n");
+                }
+                catch { }
+            }
             
             if (EnableGenerateBlurImageFile == "1")
             {
