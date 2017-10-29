@@ -7,18 +7,30 @@
 ## 使用到的其他项目
 * [OsuSync (MIT License)](https://github.com/Deliay/Sync)
 * [OsuSync/NowPlayingPlugin (MIT License)](https://github.com/Deliay/SyncPlugin/tree/master/NowPlaying)
-* [PPShowPlugin](https://coding.net/u/KedamaOvO/p/PPShowPlugin/git)
+* [PPShowPlugin](https://coding.net/u/KedamaOvO/p/PPShowPlugin/git)(已经内置,不再支持外置调用)
 * [oppai (GPL-3.0 License)](https://github.com/Francesco149/oppai)
 * [MemoryReader]()
-
-## 使用方法
-从[这里](https://github.com/MikiraSora/OsuLiveStatusPanel/releases)下载我编译整理好的压缩包，将里面的内容直接解压到OsuSync根目录即可,然后可以自行修改参数.默认情况下，会在OsuSync根目录有一个output文件夹，里面就是输出各种内容
 
 ## 截图
 ![](https://puu.sh/xAeUS/3fd87076b7.png)
 ![](https://puu.sh/x95HP/94247ebd27.png)
 ![](https://puu.sh/xAeKe/e3bb87eba6.png)
-若有疑问、建议或出现bugs，可以创建issue或者私发邮件到mikirasora0409@126.com,欢迎提交PR
+
+## 使用方法
+从[这里](https://github.com/MikiraSora/OsuLiveStatusPanel/releases)下载我编译整理好的压缩包，**将里面的内容直接解压到OsuSync根目录即可**,然后可以自行修改参数.**默认情况下，会在OsuSync根目录有一个output文件夹，里面就是输出各种内容**
+
+### 如何检查这货是否运作正常或者出现其他问题
+* 在默认配置下:
+1. 打开osu程序和osuSync,确定是否出现红框之类的内容
+![](https://puu.sh/y9J3S/00ce29c620.png)
+2. 进选图界面(**如果之前选择MemoryReader为源那就要选图一次再return**,MemoryReader才开始运作)
+3. 随便选一张图打然而暂停( 否则直接return会触发清理内容操作的 :P )
+4. 切出osu程序看看文件根目录是否多出png文件以及output文件夹是否多出文件,检查那些文件是否和你所打的图一样的信息
+![](https://puu.sh/y9Jdf/ef62f18023.png)
+
+* **此插件基于NowPlaying,使用前请务必配置好NowPlaying插件的设置**,MemoryReader是可选的插件,你可以选用MemoryReader插件来获取当前铺面信息(但你还是要NowPlaying插件),和Nowplaying有所不同的是,**MemoryReader支持获取当前铺面选用Mod**,如果你选用MemoryReader插件,那你可以在./output/PP.txt获取当前mod(默认配置).但因为后者MemoryReader的特殊性,即使[ppy默认允许]()的情况下,**我们也不会为此MemoryReader插件的使用造成的损失负任何责任**,怂的话仅仅使用NowPlaying就可以,这是非常安全的.
+
+* 因为osu历史原因,NowPlaying会捕捉不到极少部分图的消息,导致于本插件没能输出任何内容,这锅不背;也因为osu历史原因,少部分谱面捕捉不到,这锅本插件背了;不过通过开启EnableDebug=1和配置DebugOutputBGMatchFailedListFilePath来输出那些没匹配背景图成功的osu路径,并提交给我,由我来改进.
 
 ## 关于Config.ini中各个设置的解释
 | 设置名称     | 值|默认值| 描述|
@@ -30,18 +42,16 @@
 | BlurRadius | uint |7| 高斯模糊半径     |
 | FontSize | uint |15| 文本绘制字体半径     |
 | EnablePrintArtistTitle | 0/1 |0| 是否允许直接将艺术家和标题直接写在模糊图片上并输出     |
-| EnableAutoStartOutlayPPShowPlugin | 0/1 |1| 是否自动开启外置的PPShowPlugin.exe     |
-| EnableUseBuildInPPShowPlugin | string |PPShowPlugin.exe| 外置的PPShowPlugin.exe文件路径     |
-| OutputArtistTitleDiffFilePath | string |output_current_playing.txt| 输出铺面基本信息文件路径   |
-| OutputOsuFilePath | string |in_current_playing.txt| 输出.osu文件路径     |
-| OutputBeatmapNameInfoFilePath | string |output_current_playing_beatmap_info.txt| 输出谱面作者和Link文件路径     |
-| OutputBackgroundImageFilePath | string |output_result.png| 输出模糊图片文件路径     |
-| OutputBestLocalRecordInfoFilePath | string |output_best_local_record_info.txt| [暂时废置] 输出当前谱面最佳本地记录数据     |
-| AllowUsedMemoryReader | 0/1 |0| 是否允许使用MemoryReader插件来获取当前谱面信息     |
-| AllowUsedNowPlaying | 0/1 |1| 是否允许使用NowPlaying插件来获取当前谱面信息     |
+| OutputArtistTitleDiffFilePath | string |..\output_current_playing.txt| 输出铺面基本信息文件路径   |
+| OutputBackgroundImageFilePath | string |..\output_result.png| 输出模糊图片文件路径     |
+| AllowUsedMemoryReader | 0/1 |0| 是否允许使用MemoryReader插件来获取当前谱面信息(和AllowUsedNowPlaying二选一)     |
+| AllowUsedNowPlaying | 0/1 |1| 是否允许使用NowPlaying插件来获取当前谱面信息(和AllowUsedMemoryReader二选一)     |
 | AllowGetDiffNameFromOsuAPI | 0/1 |1| 是否允许使用OsuAPI来获取谱面难度名称     |
 | EnableGenerateBlurImageFile | 0/1 |1| 是否允许模糊谱面背景图片并输出     |
-| EnableUseBuildInPPShowPlugin | 0/1 |1| 是否允许使用内置的PPShowPlugin     |
-| EnableGenerateBlurImageFile | 0/1 |1| 是否允许模糊谱面背景图片并输出     |
 | PPShowJsonConfigFilePath | string |..\PPShowConfig.json| PPShowPlugin配置文件路径     |
-|PPShowAllowDumpInfo|0/1|1|是否允许内置的PPShowPlugin输出解析结果在Sync程序内
+|PPShowAllowDumpInfo|0/1|1|是否允许内置的PPShowPlugin输出解析结果在Sync程序内|
+|EnableDebug|0/1|0|是否允许捕捉不到背景图片的osu路径输出|
+|DebugOutputBGMatchFailedListFilePath|string|..\failed_list.txt|匹配背景图失败的osu路径|
+
+## 末尾
+若有疑问、建议或出现bugs，可以创建issue或者私发邮件到mikirasora0409@126.com,欢迎提交PR
