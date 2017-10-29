@@ -28,7 +28,7 @@
 4. 切出osu程序看看文件根目录是否多出png文件以及output文件夹是否多出文件,检查那些文件是否和你所打的图一样的信息
 ![](https://puu.sh/y9Jdf/ef62f18023.png)
 
-* **此插件基于NowPlaying,使用前请务必配置好NowPlaying插件的设置**,MemoryReader是可选的插件,你可以选用MemoryReader插件来获取当前铺面信息(但你还是要NowPlaying插件),和Nowplaying有所不同的是,**MemoryReader支持获取当前铺面选用Mod**,如果你选用MemoryReader插件,那你可以在./output/PP.txt获取当前mod(默认配置).但因为后者MemoryReader的特殊性,即使[ppy默认允许]()的情况下,**我们也不会为此MemoryReader插件的使用造成的损失负任何责任**,怂的话仅仅使用NowPlaying就可以,这是非常安全的.
+* **此插件基于NowPlaying,使用前请务必配置好NowPlaying插件的设置**,MemoryReader是可选的插件,你可以选用MemoryReader插件来获取当前铺面信息(但你还是要NowPlaying插件),和Nowplaying有所不同的是,**MemoryReader支持获取当前铺面选用Mod**,如果你选用MemoryReader插件,那你可以在./output/PP.txt获取当前mod(默认配置).但因为后者MemoryReader的特殊性,即使[ppy默认允许](https://puu.sh/y9OLD/e732bad502.png)的情况下,**我们也不会为此MemoryReader插件的使用造成的损失负任何责任**,怂的话仅仅使用NowPlaying就可以,这是非常安全的.
 
 * 因为osu历史原因,NowPlaying会捕捉不到极少部分图的消息,导致于本插件没能输出任何内容,这锅不背;也因为osu历史原因,少部分谱面捕捉不到,这锅本插件背了;不过通过开启EnableDebug=1和配置DebugOutputBGMatchFailedListFilePath来输出那些没匹配背景图成功的osu路径,并提交给我,由我来改进.
 
