@@ -189,7 +189,7 @@ namespace OsuLiveStatusPanel
 
         public void OnBeatmapChanged(BeatmapChangedParameter evt)
         {
-            BeatmapEntry new_beatmap = evt.beatmap;
+            BeatmapEntry new_beatmap = evt?.beatmap;
 
             var osu_process = Process.GetProcessesByName("osu!")?.First();
 
@@ -337,7 +337,7 @@ namespace OsuLiveStatusPanel
 
                 try
                 {
-                    File.AppendAllText(DebugOutputBGMatchFailedListFilePath, $"[({DateTime.Now.ToShortDateString()}){DateTime.Now.ToShortTimeString()}]{beatmap_osu_file}\n");
+                    File.AppendAllText(DebugOutputBGMatchFailedListFilePath, $"[({DateTime.Now.ToShortDateString()}){DateTime.Now.ToShortTimeString()}]{beatmap_osu_file}{Environment.NewLine}");
                 }
                 catch { }
             }

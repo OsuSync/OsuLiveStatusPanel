@@ -45,14 +45,7 @@ namespace OsuLiveStatusPanel
             if (last_status == status) return;
             if (status != OsuStatus.Playing)
             {
-                RefPlugin.OnBeatmapChanged(new BeatmapChangedParameter() {
-                    beatmap = new BeatmapEntry()
-                    {
-                        BeatmapId = this.beatmapID,
-                        BeatmapSetId = beatmapSetID,
-                        OsuFilePath = OsuFilePath
-                    }
-                });
+                RefPlugin.OnBeatmapChanged(null);
             }
             else
             {
