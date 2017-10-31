@@ -54,6 +54,9 @@
   <ItemGroup>
     <Compile Include="BeatmapHashHelper.cs" />
     <Compile Include="GaussianBlur.cs" />
+    <Compile Include="SourcesWrapper\BeatmapChangedParameter.cs" />
+    <Compile Include="SourcesWrapper\BeatmapEntry.cs" />
+    <Compile Include="SourcesWrapper\MemoryReaderWrapper.cs" />
     <Compile Include="OsuLiveStatusPanelPlugin.cs" />
     <Compile Include="PPShow\ConfigJson.cs" />
     <Compile Include="PPShow\OppaiJson.cs" />
@@ -61,6 +64,7 @@
     <Compile Include="PPShow\PPCalculator.cs" />
     <Compile Include="PPShow\PPShowPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SourcesWrapper\NowPlayingWrapper.cs" />
     <Compile Include="UpdateCheck.cs" />
   </ItemGroup>
   <ItemGroup>

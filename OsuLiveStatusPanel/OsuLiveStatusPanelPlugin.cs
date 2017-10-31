@@ -1,7 +1,4 @@
-﻿using MemoryReader.BeatmapInfo;
-using MemoryReader.Mods;
-using MemoryReader;
-using NowPlaying;
+﻿using NowPlaying;
 using Sync;
 using Sync.Plugins;
 using Sync.Tools;
@@ -30,57 +27,7 @@ namespace OsuLiveStatusPanel
         }
 
         #region MemoryReader
-        public class MemoryReaderWrapper
-        {
-            OsuLiveStatusPanelPlugin RefPlugin;
-
-            public ModsInfo current_mod;
-
-            private int beatmapID, beatmapSetID;
-
-            public string OsuFilePath;
-
-            public MemoryReaderWrapper(OsuLiveStatusPanelPlugin p) => RefPlugin = p;
-
-            public void OnCurrentBeatmapChange(Beatmap beatmap)
-            {
-                beatmapID = beatmap.BeatmapID;
-                OsuFilePath = beatmap.LocationFile;
-            }
-
-            public void OnCurrentBeatmapSetChange(BeatmapSet beatmap)
-            {
-                beatmapSetID = beatmap.BeatmapSetID;
-            }
-
-            public void OnCurrentModsChange(ModsInfo mod)
-            {
-                current_mod = mod;
-                IO.CurrentIO.WriteColor($"mod change : {mod.ShortName}", ConsoleColor.Blue);
-            }
-
-            public void OnStatusChange(OsuStatus last_status, OsuStatus status)
-            {
-                if (last_status == status) return;
-                if (status != OsuStatus.Playing)
-                {
-                    RefPlugin.OnBeatmapChanged(new CurrentPlayingBeatmapChangedEvent(null));
-                }
-                else
-                {
-                    //load
-                    BeatmapEntry beatmap = new BeatmapEntry()
-                    {
-                        BeatmapId = beatmapID,
-                        BeatmapSetId = beatmapSetID,
-                        OsuFilePath = OsuFilePath
-                    };
-
-                    RefPlugin.OnBeatmapChanged(new CurrentPlayingBeatmapChangedEvent(beatmap));
-                }
-            }
-        }
-
+        
         MemoryReaderWrapper MemoryReaderWrapperInstance;
         #endregion MemoryReader
 
@@ -216,7 +163,16 @@ namespace OsuLiveStatusPanel
                 {
                     IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found NowPlaying Plugin.", ConsoleColor.Green);
                     NowPlaying.NowPlaying np = plugin as NowPlaying.NowPlaying;
-                    NowPlayingEvents.Instance.BindEvent<NowPlaying.CurrentPlayingBeatmapChangedEvent>(OnBeatmapChanged);
+                    NowPlayingEvents.Instance.BindEvent<NowPlaying.CurrentPlayingBeatmapChangedEvent>((beatmap)=> {
+                        this.OnBeatmapChanged(new BeatmapChangedParameter() {
+                            beatmap=new BeatmapEntry()
+                            {
+                                OsuFilePath=beatmap.NewBeatmap.OsuFilePath,
+                                BeatmapId=beatmap.NewBeatmap.BeatmapId,
+                                BeatmapSetId=beatmap.NewBeatmap.BeatmapSetId
+                            }
+                        });
+                    });
 
                     source = UsingSource.NowPlaying;
 
@@ -231,9 +187,9 @@ namespace OsuLiveStatusPanel
 
         #region Kernal
 
-        public void OnBeatmapChanged(CurrentPlayingBeatmapChangedEvent evt)
+        public void OnBeatmapChanged(BeatmapChangedParameter evt)
         {
-            BeatmapEntry new_beatmap = evt.NewBeatmap;
+            BeatmapEntry new_beatmap = evt.beatmap;
 
             var osu_process = Process.GetProcessesByName("osu!")?.First();
 
@@ -315,7 +271,7 @@ namespace OsuLiveStatusPanel
 
             int beatmapId = current_beatmap.BeatmapId, beatmapSetId = current_beatmap.BeatmapSetId;
             //补完beatmap必需内容
-            current_beatmap = OsuFileParser.ParseText(osuFileContent);
+            /*current_beatmap = OsuFileParser.ParseText(osuFileContent);*/
 
             current_beatmap.BeatmapId = current_beatmap.BeatmapId == -1 ? beatmapId : current_beatmap.BeatmapId;
             current_beatmap.BeatmapSetId = current_beatmap.BeatmapSetId == -1 ? beatmapSetId : current_beatmap.BeatmapSetId;
