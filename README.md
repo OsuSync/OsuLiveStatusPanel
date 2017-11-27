@@ -21,6 +21,9 @@
 
 ### 如何检查这货是否运作正常或者出现其他问题
 * 在默认配置下:
+0.请先确认您的Sync是否已经实装NowPlaying插件或者MemoryReader插件.检查config.ini文件中的配置,(确认Nowplaying插件是否已经开启.)
+![](https://puu.sh/yuyz5/1be983707c.png)
+<br>**如果没出现那些插件配置文件内容,请先打开一次OsuSync程序并退出**.
 1. 打开osu程序和osuSync,确定是否出现红框之类的内容
 ![](https://puu.sh/y9J3S/00ce29c620.png)
 2. 进选图界面(**如果之前选择MemoryReader为源那就要选图一次再return**,MemoryReader才开始运作)
