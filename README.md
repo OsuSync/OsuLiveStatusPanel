@@ -21,7 +21,7 @@
 
 ### 如何检查这货是否运作正常或者出现其他问题
 * 在默认配置下:
-0.请先确认您的Sync是否已经实装NowPlaying插件或者MemoryReader插件.检查config.ini文件中的配置,(确认Nowplaying插件是否已经开启.)
+0. 请先确认您的Sync是否已经实装NowPlaying插件或者MemoryReader插件.检查config.ini文件中的配置,(确认Nowplaying插件是否已经开启.)
 ![](https://puu.sh/yuyz5/1be983707c.png)
 <br>**如果没出现那些插件配置文件内容,请先打开一次OsuSync程序并退出**.
 1. 打开osu程序和osuSync,确定是否出现红框之类的内容
@@ -31,7 +31,7 @@
 4. 切出osu程序看看文件根目录是否多出png文件以及output文件夹是否多出文件,检查那些文件是否和你所打的图一样的信息
 ![](https://puu.sh/y9Jdf/ef62f18023.png)
 
-* **此插件基于NowPlaying,使用前请务必配置好NowPlaying插件的设置**,MemoryReader是可选的插件,你可以选用MemoryReader插件来获取当前铺面信息(但你还是要NowPlaying插件),和Nowplaying有所不同的是,**MemoryReader支持获取当前铺面选用Mod**,如果你选用MemoryReader插件,那你可以在./output/PP.txt获取当前mod(默认配置).但因为后者MemoryReader的特殊性,即使[ppy默认允许](https://puu.sh/y9OLD/e732bad502.png)的情况下,**我们也不会为此MemoryReader插件的使用造成的损失负任何责任**,怂的话仅仅使用NowPlaying就可以,这是非常安全的.
+* **此插件基于NowPlaying,使用前请务必配置好NowPlaying插件的设置**,MemoryReader是可选的插件,你可以选用MemoryReader插件来获取当前铺面信息(但你还是要NowPlaying插件),和Nowplaying有所不同的是,**MemoryReader支持获取当前铺面选用Mod**,如果你选用MemoryReader插件,那你可以在./output/PP.txt获取当前mod(默认配置).但因为后者MemoryReader的特殊性,**我们也不会为此MemoryReader插件的使用造成的损失负任何责任**,怂的话仅仅使用NowPlaying就可以,这是非常安全的.
 
 * 因为osu历史原因,NowPlaying会捕捉不到极少部分图的消息,导致于本插件没能输出任何内容,这锅不背;也因为osu历史原因,少部分谱面捕捉不到,这锅本插件背了;不过通过开启EnableDebug=1和配置DebugOutputBGMatchFailedListFilePath来输出那些没匹配背景图成功的osu路径,并提交给我,由我来改进.
 
@@ -40,11 +40,7 @@
 |:---------|:---------|:---------|:-------|
 | Width | uint |1920| 模糊图片后宽度      |
 | Height | uint |1080| 模糊图片后高度     |
-| LiveHeight | uint |1600| 模糊图片后活动高度     |
-| LiveHeight | uint |900| 模糊图片后活动高度     |
 | BlurRadius | uint |7| 高斯模糊半径     |
-| FontSize | uint |15| 文本绘制字体半径     |
-| EnablePrintArtistTitle | 0/1 |0| 是否允许直接将艺术家和标题直接写在模糊图片上并输出     |
 | OutputArtistTitleDiffFilePath | string |..\output_current_playing.txt| 输出铺面基本信息文件路径   |
 | OutputBackgroundImageFilePath | string |..\output_result.png| 输出模糊图片文件路径     |
 | AllowUsedMemoryReader | 0/1 |0| 是否允许使用MemoryReader插件来获取当前谱面信息(和AllowUsedNowPlaying二选一)     |
