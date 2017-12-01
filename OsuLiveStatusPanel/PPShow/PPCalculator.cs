@@ -90,9 +90,10 @@ namespace OsuLiveStatusPanel
 
                 string output = p.StandardOutput.ReadToEnd();
                 string stderr = p.StandardError.ReadToEnd();
+
                 if (stderr.Length != 0)
                 {
-                    IO.CurrentIO.WriteColor("[PPCalculator]Beatmap无法打开或解析", ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor("[PPCalculator]Beatmap无法打开或解析,错误:"+stderr, ConsoleColor.Red);
                     return;
                 }
 
