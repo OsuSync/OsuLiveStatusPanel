@@ -30,6 +30,14 @@ namespace OsuLiveStatusPanel
             AccuracyList = acc_list;
 
             this.oppai = oppai;
+
+            p = new Process();
+            p.StartInfo.FileName = oppai;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardInput = true;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.CreateNoWindow = true;
         }
         
         public void TrigCalc(string osu_file_path,string mods_list,KeyValuePair<string,string>[] extra=null)
@@ -38,17 +46,6 @@ namespace OsuLiveStatusPanel
             sw.Start();
 
             Dictionary<string, string> extra_data = new Dictionary<string, string>();
-
-            if (p == null)
-            {
-                p = new Process();
-                p.StartInfo.FileName = oppai;
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.RedirectStandardInput = true;
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.RedirectStandardError = true;
-                p.StartInfo.CreateNoWindow = true;
-            }
             
             if (string.IsNullOrWhiteSpace(osu_file_path))
             {
@@ -88,9 +85,9 @@ namespace OsuLiveStatusPanel
 
                 p.StandardInput.AutoFlush = true;
 
-                string output = p.StandardOutput.ReadToEnd();
+                string output = p.StandardOutput.ReadToEnd();       
                 string stderr = p.StandardError.ReadToEnd();
-
+                                                    
                 if (stderr.Length != 0)
                 {
                     IO.CurrentIO.WriteColor("[PPCalculator]Beatmap无法打开或解析,错误:"+stderr, ConsoleColor.Red);
