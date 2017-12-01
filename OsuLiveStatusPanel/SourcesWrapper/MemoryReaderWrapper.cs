@@ -11,7 +11,7 @@ using static MemoryReader.Listen.OSUListenerManager;
 
 namespace OsuLiveStatusPanel
 {
-    public class MemoryReaderWrapper
+    class MemoryReaderWrapper
     {
         OsuLiveStatusPanelPlugin RefPlugin;
 

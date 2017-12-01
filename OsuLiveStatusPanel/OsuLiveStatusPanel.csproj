@@ -64,7 +64,6 @@
     <Compile Include="PPShow\PPCalculator.cs" />
     <Compile Include="PPShow\PPShowPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SourcesWrapper\NowPlayingWrapper.cs" />
     <Compile Include="UpdateCheck.cs" />
   </ItemGroup>
   <ItemGroup>

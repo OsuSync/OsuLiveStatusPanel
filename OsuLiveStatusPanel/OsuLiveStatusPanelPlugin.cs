@@ -74,7 +74,7 @@ namespace OsuLiveStatusPanel
 
         private string CurrentOsuPath = "";
         
-        private PluginConfiuration config;
+        //private PluginConfiuration config;
 
         public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora & KedamavOvO >///<")
         {
@@ -165,7 +165,7 @@ namespace OsuLiveStatusPanel
                     NowPlaying.NowPlaying np = plugin as NowPlaying.NowPlaying;
                     NowPlayingEvents.Instance.BindEvent<NowPlaying.CurrentPlayingBeatmapChangedEvent>((beatmap)=> {
                         this.OnBeatmapChanged(new BeatmapChangedParameter() {
-                            beatmap=new BeatmapEntry()
+                            beatmap= beatmap.NewBeatmap==null?null:new BeatmapEntry()
                             {
                                 OsuFilePath=beatmap.NewBeatmap.OsuFilePath,
                                 BeatmapId=beatmap.NewBeatmap.BeatmapId,
@@ -199,7 +199,7 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]osu program is not found!", ConsoleColor.Red);
                 CleanOsuStatus();
                 return;
-            }
+            }   
 
             if (token != null)
             {
