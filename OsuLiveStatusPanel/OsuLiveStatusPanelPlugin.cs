@@ -70,7 +70,8 @@ namespace OsuLiveStatusPanel
 
         private CancellationTokenSource token;
         private object locker = new object();
-        PPShowPlugin PPShowPluginInstance;
+
+        public PPShowPlugin PPShowPluginInstance { get;}
 
         private string CurrentOsuPath = "";
         

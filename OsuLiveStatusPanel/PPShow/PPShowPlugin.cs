@@ -16,7 +16,11 @@ namespace OsuLiveStatusPanel
 
         PPCalculator PP;
 
+        Dictionary<string, string> current_data_dic;
+
         public bool PPShowAllowDumpInfo = false;
+
+        public Dictionary<string,string> CurrentOutputInfo { get => current_data_dic; }
 
         public PPShowPlugin(string config_path)/*(string Name, string Author) : base("PPShowPlugin", "Mikira Sora")*/
         {
@@ -68,6 +72,8 @@ namespace OsuLiveStatusPanel
 
         private void OnOppaiJson(List<OppaiJson> oppai_infos,Dictionary<string,string> data_dic)
         {
+            current_data_dic = data_dic;
+
             foreach (var of in ofs)
             {
                 string str = of.Value.Format(oppai_infos,data_dic);
@@ -96,6 +102,8 @@ namespace OsuLiveStatusPanel
 
         private void OnBackMenu()
         {
+            current_data_dic = null;
+
             foreach (var o in Config.Instance.output_list)
             {
                 try
