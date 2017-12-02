@@ -66,11 +66,11 @@ namespace OsuLiveStatusPanel
             PP.OnBackMenu += OnBackMenu;
         }
 
-        private void OnOppaiJson(List<OppaiJson> oppai_infos)
+        private void OnOppaiJson(List<OppaiJson> oppai_infos,Dictionary<string,string> data_dic)
         {
             foreach (var of in ofs)
             {
-                string str = of.Value.Format(oppai_infos);
+                string str = of.Value.Format(oppai_infos,data_dic);
 
                 if (PPShowAllowDumpInfo == true)
                 {

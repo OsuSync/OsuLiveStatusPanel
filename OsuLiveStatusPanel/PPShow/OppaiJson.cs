@@ -39,12 +39,5 @@ namespace OsuLiveStatusPanel
         public string title_unicode;
         public string artist_unicode;
         public string source;
-
-
-        public string beatmap_setlink { get => beatmap_setid > 0 ? (@"https://osu.ppy.sh/s/" + beatmap_setid) : string.Empty; }
-        public string beatmap_link { get => beatmap_id > 0 ? (@"https://osu.ppy.sh/b/" + beatmap_id) : string.Empty; }
-
-        public string title_avaliable { get => title_unicode ?? title; }
-        public string artist_avaliable { get => artist_unicode?? artist; }  
     }
 }

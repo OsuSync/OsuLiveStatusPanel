@@ -17,55 +17,43 @@ namespace OsuLiveStatusPanel
     {
         private string m_format;
 
+        static Regex pattern = new Regex(@"\$\{(.+?)\}");
+
         public OutputFormatter(string format)
         {
             m_format = format;
         }
 
-        public string Format(List<OppaiJson> oppais)
+        public string Format(List<OppaiJson> oppais, Dictionary<string, string> data_dic)
         {
-            string result=m_format;
-            var type = oppais[0].GetType();
-            var members=type.GetProperties();
-            foreach (var m in members)
+            string result_str=m_format;
+
+            var result = pattern.Match(result_str);
+
+            while (result.Success)
             {
-                string member = m.Name;
+                var key=result.Groups[1].Value.Trim();
 
-                switch (member)
+                string val;
+
+                if (!data_dic.TryGetValue(key, out val))
                 {
-                    case "mods_str":
-                        member = "mods";
-                        break;
-                    case "num_circles":
-                        member = "circles";
-                        break;
-                    case "num_spinners":
-                        member = "spinners";
-                        break;
+                    val = String.Empty;
                 }
 
-                string str = "";
-                if(m.PropertyType==typeof(float))
-                    str = $"{(float)m.GetValue(oppais[0]):F}";
-                else
-                    str = m.GetValue(oppais[0]).ToString();
-
-                if (member == "pp")
+                //简化一下
+                float data;
+                if (float.TryParse(val,out data))
                 {
-                    foreach (var oppai in oppais)
-                    {
-                        str = $"{(float)m.GetValue(oppai):F}";
-                        result = result.Replace("${pp:" + $"{oppai.accuracy:F}" + "%}", str);
-                    }
+                    val = $"{data:F2}";
+                }
 
-                }
-                else
-                {
-                    result = result.Replace("${" + member + "}", str);
-                }
+                result_str = result_str.Replace(result.Value, val);
+
+                result = result.NextMatch();
             }
 
-            return result;
+            return result_str;
         }
 
         public List<float> GetAccuracyArray()

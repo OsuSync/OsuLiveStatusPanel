@@ -15,13 +15,15 @@ namespace OsuLiveStatusPanel
     class PPCalculator
     {
         public List<float> AccuracyList;
-        public delegate void OnBeatmapChangedEvt(List<OppaiJson> info);
+        public delegate void OnBeatmapChangedEvt(List<OppaiJson> info,Dictionary<string,string> data_dic);
         public event OnBeatmapChangedEvt OnOppainJson;
 
         public delegate void OnBackMenuEvt();
         public event OnBackMenuEvt OnBackMenu;
 
         Process p=null;
+
+        Stopwatch sw;
 
         string oppai;
 
@@ -38,15 +40,16 @@ namespace OsuLiveStatusPanel
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
             p.StartInfo.CreateNoWindow = true;
+            
+            sw= new Stopwatch();
         }
-        
-        public void TrigCalc(string osu_file_path,string mods_list,KeyValuePair<string,string>[] extra=null)
+
+        public void TrigCalc(string osu_file_path, string mods_list, KeyValuePair<string, string>[] extra = null)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+            sw.Restart();
 
             Dictionary<string, string> extra_data = new Dictionary<string, string>();
-            
+
             if (string.IsNullOrWhiteSpace(osu_file_path))
             {
                 OnBackMenu?.Invoke();
@@ -63,13 +66,17 @@ namespace OsuLiveStatusPanel
             }
 
             AddData(osu_file_path, extra_data);
-            
+
             string osu_file = osu_file_path;
             string mods_str = mods_list;
 
             if (mods_str == "None") mods_str = "";
 
             List<OppaiJson> oppai_infos = new List<OppaiJson>();
+
+            Dictionary<string, string> OutputDataMap = new Dictionary<string, string>();
+
+            bool first_init = false;
 
             foreach (float acc in AccuracyList)
             {
@@ -85,63 +92,73 @@ namespace OsuLiveStatusPanel
 
                 p.StandardInput.AutoFlush = true;
 
-                string output = p.StandardOutput.ReadToEnd();       
+                string output = p.StandardOutput.ReadToEnd();
                 string stderr = p.StandardError.ReadToEnd();
-                                                    
+
                 if (stderr.Length != 0)
                 {
-                    IO.CurrentIO.WriteColor("[PPCalculator]Beatmap无法打开或解析,错误:"+stderr, ConsoleColor.Red);
-                    return;
+                    IO.CurrentIO.WriteColor("[PPCalculator]Beatmap无法打开或解析,错误:" + stderr, ConsoleColor.Red);
+                    
+                    //miss return?
+                    //return;
                 }
 
                 var oppai_json = JsonConvert.DeserializeObject<OppaiJson>(output);
-                oppai_json.accuracy = acc;
-                oppai_json.filepath = osu_file;
 
-                oppai_infos.Add(oppai_json);
+                if (!first_init)
+                {
+                    first_init = true;
+
+                    //add info in first time parse
+
+                    var type = oppai_json.GetType();
+                    var members = type.GetProperties();
+
+                    foreach (var prop in members)
+                    {
+                        OutputDataMap[prop.Name] = prop.GetValue(oppai_json).ToString();
+                    }
+                }
+
+                //add pp
+                OutputDataMap[$"pp:{acc:F2}%"] = oppai_json.pp.ToString();
 
                 p.WaitForExit();
                 p.Close();
             }
 
-            oppai_infos.AsParallel().ForAll((oppai_json) => 
+            //add extra info
+            foreach (var pair in extra_data)
             {
-                foreach (var pair in extra_data)
-                {
-                    switch (pair.Key)
-                    {
-                        case "beatmap_id":
-                            oppai_json.beatmap_id = int.Parse(pair.Value);
-                            break;
-                        case "source":
-                            oppai_json.source = pair.Value;
-                            break;
-                        case "beatmap_setid":
-                            oppai_json.beatmap_id = int.Parse(pair.Value);
-                            break;
-                        case "title_unicode":
-                            oppai_json.title_unicode = pair.Value;
-                            break;
-                        case "artist_unicode":
-                            oppai_json.artist_unicode = pair.Value;
-                            break;
-                        case "min_bpm":
-                            oppai_json.min_bpm = float.Parse(pair.Value);
-                            break;
-                        case "max_bpm":
-                            oppai_json.max_bpm = float.Parse(pair.Value);
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                OutputDataMap[pair.Key] = pair.Value;
+            }
 
-            });
+            AddExtraInfo(OutputDataMap);
 
-            OnOppainJson?.Invoke(oppai_infos);
+            OnOppainJson?.Invoke(oppai_infos, OutputDataMap);
+            
+            IO.CurrentIO.WriteColor($"[PPCalculator]执行结束,用时 {sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
+        }
 
-            IO.CurrentIO.WriteColor($"[PPCalculator]执行结束,用时 {sw.ElapsedMilliseconds}ms",ConsoleColor.Green);
-            sw.Stop();
+        private void AddExtraInfo(Dictionary<string,string> dic)
+        {
+            dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid","-1")) > 0 ? (@"https://osu.ppy.sh/s/"+dic["beatmap_setid"]) : "";
+            dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id","-1")) > 0 ? (@"https://osu.ppy.sh/b/"+dic["beatmap_id"]) : string.Empty;
+
+            dic["title_avaliable"] = _TryGetValue("title_unicode") ?? dic["title"];
+            dic["artist_avaliable"] = _TryGetValue("artist_unicode") ?? dic["artist"];
+
+            dic["mods"] = dic["mods_str"];
+            dic["circles"] = dic["num_circles"];
+            dic["spinners"] = dic["num_spinners"];
+
+            string _TryGetValue(string key,string default_val="")
+            {
+                string val;
+                if (!dic.TryGetValue(key, out val))
+                    return default_val;
+                return val;
+            }
         }
 
         private void AddData(string file_path,Dictionary<string,string> extra_data)
