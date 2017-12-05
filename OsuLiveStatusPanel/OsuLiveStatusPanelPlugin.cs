@@ -3,6 +3,7 @@ using Sync;
 using Sync.Plugins;
 using Sync.Tools;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -71,7 +72,7 @@ namespace OsuLiveStatusPanel
         private CancellationTokenSource token;
         private object locker = new object();
 
-        public PPShowPlugin PPShowPluginInstance { get;}
+        public PPShowPlugin PPShowPluginInstance { get; private set; }
 
         private string CurrentOsuPath = "";
         
@@ -282,6 +283,7 @@ namespace OsuLiveStatusPanel
             //添加Mods
             if (MemoryReaderWrapperInstance.current_mod != null)
             {
+                //处理不能用的PP
                 mod = $"{MemoryReaderWrapperInstance.current_mod.ShortName}";
             }
 
@@ -350,7 +352,7 @@ namespace OsuLiveStatusPanel
                 
             #endregion GetInfo
             
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId}", ConsoleColor.Green);
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
         }
 
         #region tool func

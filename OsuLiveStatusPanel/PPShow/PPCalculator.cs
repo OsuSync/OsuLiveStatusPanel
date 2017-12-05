@@ -14,6 +14,8 @@ namespace OsuLiveStatusPanel
 {
     class PPCalculator
     {
+        static readonly string[] OPPAI_SUPPORT_MODS = new[] {"nf","ez","hd","hr","dt","ht","nc","fl","so"};
+
         public List<float> AccuracyList;
         public delegate void OnBeatmapChangedEvt(List<OppaiJson> info,Dictionary<string,string> data_dic);
         public event OnBeatmapChangedEvt OnOppainJson;
@@ -44,7 +46,7 @@ namespace OsuLiveStatusPanel
             sw= new Stopwatch();
         }
 
-        public void TrigCalc(string osu_file_path, string mods_list, KeyValuePair<string, string>[] extra = null)
+        public void TrigCalc(string osu_file_path, string raw_mod_list, KeyValuePair<string, string>[] extra = null)
         {
             sw.Restart();
 
@@ -68,9 +70,20 @@ namespace OsuLiveStatusPanel
             AddData(osu_file_path, extra_data);
 
             string osu_file = osu_file_path;
-            string mods_str = mods_list;
+            string mods_str=string.Empty;
 
-            if (mods_str == "None") mods_str = "";
+            if (raw_mod_list == "None")
+                raw_mod_list = "";
+
+            if (!string.IsNullOrWhiteSpace(raw_mod_list))
+            {
+                for (int i = 0; i < raw_mod_list.Length/2; i++)
+                {
+                    var mod_chk = $"{raw_mod_list[0 + i * 2]}{raw_mod_list[1 + i * 2]}".ToLower();
+                    if (OPPAI_SUPPORT_MODS.Contains(mod_chk))
+                        mods_str += mod_chk;
+                }
+            }
 
             List<OppaiJson> oppai_infos = new List<OppaiJson>();
 
@@ -80,9 +93,7 @@ namespace OsuLiveStatusPanel
 
             foreach (float acc in AccuracyList)
             {
-                string oppai_cmd = $"\"{osu_file}\" {acc}% -ojson";
-                if (mods_str.Length != 0)
-                    oppai_cmd = $"\"{osu_file}\" {acc}% +{mods_str} -ojson";
+                string oppai_cmd = $"\"{osu_file}\" {acc}% {(string.IsNullOrWhiteSpace(mods_str) ? string.Empty:$"+{mods_str}")} -ojson";
 
                 oppai_cmd = oppai_cmd.Replace("\r", string.Empty).Replace("\n", string.Empty);
 
@@ -122,6 +133,7 @@ namespace OsuLiveStatusPanel
 
                 //add pp
                 OutputDataMap[$"pp:{acc:F2}%"] = oppai_json.pp.ToString();
+                OutputDataMap["mods_str"] = raw_mod_list;
 
                 p.WaitForExit();
                 p.Close();
@@ -145,8 +157,8 @@ namespace OsuLiveStatusPanel
             dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid","-1")) > 0 ? (@"https://osu.ppy.sh/s/"+dic["beatmap_setid"]) : "";
             dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id","-1")) > 0 ? (@"https://osu.ppy.sh/b/"+dic["beatmap_id"]) : string.Empty;
 
-            dic["title_avaliable"] = _TryGetValue("title_unicode") ?? dic["title"];
-            dic["artist_avaliable"] = _TryGetValue("artist_unicode") ?? dic["artist"];
+            dic["title_avaliable"] = _TryGetValue("title_unicode", dic["title"]);
+            dic["artist_avaliable"] = _TryGetValue("artist_unicode", dic["artist"]);
 
             dic["mods"] = dic["mods_str"];
             dic["circles"] = dic["num_circles"];

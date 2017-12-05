@@ -33,7 +33,7 @@ namespace OsuLiveStatusPanel
         {
             beatmapSetID = beatmap.BeatmapSetID;
         }
-
+        
         public void OnCurrentModsChange(ModsInfo mod)
         {
             current_mod = mod;
@@ -56,7 +56,7 @@ namespace OsuLiveStatusPanel
                     BeatmapSetId = beatmapSetID,
                     OsuFilePath = OsuFilePath
                 };
-
+                
                 RefPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap= beatmap });
             }
         }

@@ -129,7 +129,7 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        public void CalculateAndDump(string osu_file_path,string mods_list)
+        public void CalculateAndDump(string osu_file_path, string mods_list)
         {
             PP.TrigCalc(osu_file_path, mods_list);
         }
