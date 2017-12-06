@@ -10,6 +10,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -281,7 +282,7 @@ namespace OsuLiveStatusPanel
 
             string mod = string.Empty;
             //添加Mods
-            if (MemoryReaderWrapperInstance.current_mod != null)
+            if (MemoryReaderWrapperInstance.current_mod.Mod != MemoryReader.Mods.ModsInfo.Mods.Unknown)
             {
                 //处理不能用的PP
                 mod = $"{MemoryReaderWrapperInstance.current_mod.ShortName}";
@@ -357,10 +358,17 @@ namespace OsuLiveStatusPanel
 
         #region tool func
 
-        private void OutputBlurImage(string bgPath)
+        private void OutputBlurImage(string bgPath,int t=3)
         {
+            if (t==0)
+            {
+                IO.CurrentIO.WriteColor($"无法处理或者保存图片:{bgPath}", ConsoleColor.Red);
+                return;
+            }
+
             if (!File.Exists(bgPath))
             {
+                IO.CurrentIO.WriteColor($"找不到图片:{bgPath}", ConsoleColor.Red);
                 return;
             }
 
@@ -371,7 +379,17 @@ namespace OsuLiveStatusPanel
                 {
                     using (var blurImage = GetBlurImage(bgImage))
                     {
-                        blurImage.Save(OutputBackgroundImageFilePath);
+                        try
+                        {
+                            blurImage.Save(OutputBackgroundImageFilePath);
+                        }catch(ExternalException e)
+                        {
+                            if (e.Message.Trim().ToUpper().StartsWith("GDI"))
+                            {
+                                Thread.Sleep(50);
+                                OutputBlurImage(bgPath, --t);
+                            }
+                        }
                     }
                 }
             }

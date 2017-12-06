@@ -19,7 +19,11 @@ namespace OsuLiveStatusPanel
 
         private int beatmapID, beatmapSetID;
 
+        private OsuStatus current_status;
+
         public string OsuFilePath;
+
+        private bool trig = false;
 
         public MemoryReaderWrapper(OsuLiveStatusPanelPlugin p) => RefPlugin = p;
 
@@ -40,11 +44,11 @@ namespace OsuLiveStatusPanel
         
         public void OnCurrentModsChange(ModsInfo mod)
         {
-            if (current_mod == mod) return;
+            if (current_mod.Mod == mod.Mod) return;
 
             current_mod = mod;
 
-            if (mod==null)
+            if (mod.Mod==ModsInfo.Mods.Unknown)
             {
                 //Not Playing
                 RefPlugin.OnBeatmapChanged(null);
@@ -52,19 +56,23 @@ namespace OsuLiveStatusPanel
             else
             {
                 //Start to play
-                BeatmapEntry beatmap = new BeatmapEntry()
+                //if (mod.Mod!=ModsInfo.Mods.None&&current_status == OsuStatus.Playing)
                 {
-                    BeatmapId = beatmapID,
-                    BeatmapSetId = beatmapSetID,
-                    OsuFilePath = OsuFilePath
-                };
+                    BeatmapEntry beatmap = new BeatmapEntry()
+                    {
+                        BeatmapId = beatmapID,
+                        BeatmapSetId = beatmapSetID,
+                        OsuFilePath = OsuFilePath
+                    };
 
-                RefPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+                    RefPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+                }
             }
         }
 
         public void OnStatusChange(OsuStatus last_status, OsuStatus status)
         {
+            current_status = status;
             /*
             if (last_status == status) return;
             if (status != OsuStatus.Playing)
