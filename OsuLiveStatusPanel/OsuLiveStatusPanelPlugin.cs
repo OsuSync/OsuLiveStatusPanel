@@ -145,7 +145,7 @@ namespace OsuLiveStatusPanel
                     reader.ListenerManager.OnBeatmapChanged += MemoryReaderWrapperInstance.OnCurrentBeatmapChange;
                     reader.ListenerManager.OnBeatmapSetChanged += MemoryReaderWrapperInstance.OnCurrentBeatmapSetChange;
                     reader.ListenerManager.OnStatusChanged += MemoryReaderWrapperInstance.OnStatusChange;
-                    reader.ListenerManager.OnCurrentMods += MemoryReaderWrapperInstance.OnCurrentModsChange;
+                    reader.ListenerManager.OnModsChanged += MemoryReaderWrapperInstance.OnCurrentModsChange;
 
                     source = UsingSource.MemoryReader;
 
