@@ -1,13 +1,14 @@
-﻿using MemoryReader.BeatmapInfo;
-using MemoryReader.Mods;
+﻿using OsuRTDataProvider.BeatmapInfo;
+using OsuRTDataProvider.Mods;
 using NowPlaying;
+using OsuRTDataProvider.BeatmapInfo;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static MemoryReader.Listen.OSUListenerManager;
+using static OsuRTDataProvider.Listen.OsuListenerManager;
 
 namespace OsuLiveStatusPanel
 {

@@ -15,7 +15,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using static MemoryReader.Listen.OSUListenerManager;
+using System.Windows;
+using System.Windows.Media.Effects;
+using static OsuRTDataProvider.Listen.OsuListenerManager;
 
 namespace OsuLiveStatusPanel
 {
@@ -125,8 +127,9 @@ namespace OsuLiveStatusPanel
                     TryRegisterSourceFromMemoryReader(host);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                IO.CurrentIO.WriteColor($"Load dependency plugin failed:{e.Message}", ConsoleColor.Red);
                 source = UsingSource.None;
             }
         }
@@ -135,10 +138,10 @@ namespace OsuLiveStatusPanel
         {
             foreach (var plugin in host.EnumPluings())
             {
-                if (plugin.Name == "MemoryReader")
+                if (plugin.Name == "OsuRTDataProvider")
                 {
-                    IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found MemoryReader Plugin.", ConsoleColor.Green);
-                    MemoryReader.MemoryReader reader = plugin as MemoryReader.MemoryReader;
+                    IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found OsuRTDataProvider Plugin.", ConsoleColor.Green);
+                    OsuRTDataProvider.OsuRTDataProviderPlugin reader = plugin as OsuRTDataProvider.OsuRTDataProviderPlugin;
 
                     MemoryReaderWrapperInstance = new MemoryReaderWrapper(this);
 
@@ -282,7 +285,7 @@ namespace OsuLiveStatusPanel
 
             string mod = string.Empty;
             //添加Mods
-            if (MemoryReaderWrapperInstance.current_mod.Mod != MemoryReader.Mods.ModsInfo.Mods.Unknown)
+            if (MemoryReaderWrapperInstance.current_mod.Mod != OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown)
             {
                 //处理不能用的PP
                 mod = $"{MemoryReaderWrapperInstance.current_mod.ShortName}";
@@ -473,7 +476,7 @@ namespace OsuLiveStatusPanel
             try
             {
                 rawbitmap = Bitmap.FromFile(bgFilePath);
-                Bitmap bitmap = new Bitmap(rawbitmap, new Size(int.Parse(Width), int.Parse(Height)));
+                Bitmap bitmap = new Bitmap(rawbitmap, new System.Drawing.Size(int.Parse(Width), int.Parse(Height)));
                 return bitmap;
             }
             catch
