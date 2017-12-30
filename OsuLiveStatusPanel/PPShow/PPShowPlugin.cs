@@ -44,7 +44,13 @@ namespace OsuLiveStatusPanel
             ofs = new Dictionary<OutputConfig, OutputFormatter>();
 
             foreach (var o in Config.Instance.output_list)
+            {
+                if(!Directory.Exists(Path.GetDirectoryName(o.output_file)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(o.output_file));
+                }
                 ofs[o] = new OutputFormatter(o.output_format);
+            }
 
             List<float> acc_list = new List<float>();
 
