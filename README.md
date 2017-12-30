@@ -9,7 +9,7 @@
 * [OsuSync/NowPlayingPlugin (MIT License)](https://github.com/Deliay/SyncPlugin/tree/master/NowPlaying)
 * [PPShowPlugin](https://coding.net/u/KedamaOvO/p/PPShowPlugin/git)(已经内置,不再支持外置调用)
 * [oppai (GPL-3.0 License)](https://github.com/Francesco149/oppai)
-* [MemoryReader]()
+* [OsuRTDataProvider(原MemoryReader)](https://github.com/KedamaOvO/OsuRTDataProvider-Release)
 
 ## 截图
 ![](https://puu.sh/xAeUS/3fd87076b7.png)
