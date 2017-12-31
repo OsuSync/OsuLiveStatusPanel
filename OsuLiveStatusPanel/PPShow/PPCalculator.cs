@@ -77,12 +77,7 @@ namespace OsuLiveStatusPanel
 
             if (!string.IsNullOrWhiteSpace(raw_mod_list))
             {
-                for (int i = 0; i < raw_mod_list.Length/2; i++)
-                {
-                    var mod_chk = $"{raw_mod_list[0 + i * 2]}{raw_mod_list[1 + i * 2]}".ToLower();
-                    if (OPPAI_SUPPORT_MODS.Contains(mod_chk))
-                        mods_str += mod_chk;
-                }
+                mods_str=String.Join(",",raw_mod_list.Split(',').Where(s => OPPAI_SUPPORT_MODS.Contains(s.ToLower())));
             }
 
             List<OppaiJson> oppai_infos = new List<OppaiJson>();
