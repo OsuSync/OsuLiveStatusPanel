@@ -14,7 +14,7 @@ namespace OsuLiveStatusPanel
 {
     class PPCalculator
     {
-        static readonly string[] OPPAI_SUPPORT_MODS = new[] {"nf","ez","hd","hr","dt","ht","nc","fl","so"};
+        static readonly string[] OPPAI_SUPPORT_MODS = new[] {"NF","EZ","HD","HR","DT","HT","NC","FL","SO"};
 
         public List<float> AccuracyList;
         public delegate void OnBeatmapChangedEvt(List<OppaiJson> info,Dictionary<string,string> data_dic);
@@ -77,7 +77,7 @@ namespace OsuLiveStatusPanel
 
             if (!string.IsNullOrWhiteSpace(raw_mod_list))
             {
-                mods_str=String.Join(",",raw_mod_list.Split(',').Where(s => OPPAI_SUPPORT_MODS.Contains(s.ToLower())));
+                mods_str=String.Join(",",raw_mod_list.Split(',').Where(s => OPPAI_SUPPORT_MODS.Contains(s)));
             }
 
             List<OppaiJson> oppai_infos = new List<OppaiJson>();
