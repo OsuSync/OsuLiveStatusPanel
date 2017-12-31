@@ -122,7 +122,10 @@ namespace OsuLiveStatusPanel
 
                     foreach (var prop in members)
                     {
-                        OutputDataMap[prop.Name] = prop.GetValue(oppai_json).ToString();
+                        if(prop.PropertyType==typeof(int)|| prop.PropertyType == typeof(string))
+                            OutputDataMap[prop.Name] = prop.GetValue(oppai_json).ToString();
+                        else
+                            OutputDataMap[prop.Name] = $"{prop.GetValue(oppai_json):F2}";
                     }
                 }
 
@@ -230,9 +233,6 @@ namespace OsuLiveStatusPanel
                         case 2: //TimingPoints
                             if (string.IsNullOrWhiteSpace(line))
                             {
-
-                                max_bpm /= 2;//我也不知道为啥要加这个
-
 #if DEBUG
                                 IO.CurrentIO.Write($"[Oppai]BPM:{min_bpm} ~ {max_bpm}");
 #endif
@@ -245,6 +245,8 @@ namespace OsuLiveStatusPanel
                             }
 
                             string[] data = line.Split(',');
+                            if (data[3] != "2") break;//2是红线
+
                             if (data.Length<8)
                             {
                                 break;
@@ -261,6 +263,7 @@ namespace OsuLiveStatusPanel
                             {
                                 float mul = Math.Abs(100 + val)/100.0f;
                                 val = current_bpm * (1 + mul);
+                                break;
                             }
 
                             val = (float)Math.Round(val);

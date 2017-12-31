@@ -41,13 +41,6 @@ namespace OsuLiveStatusPanel
                     val = String.Empty;
                 }
 
-                //简化一下
-                float data;
-                if (float.TryParse(val,out data))
-                {
-                    val = $"{data:F2}";
-                }
-
                 result_str = result_str.Replace(result.Value, val);
 
                 result = result.NextMatch();
