@@ -122,10 +122,7 @@ namespace OsuLiveStatusPanel
 
                     foreach (var prop in members)
                     {
-                        if(prop.PropertyType==typeof(int)|| prop.PropertyType == typeof(string))
-                            OutputDataMap[prop.Name] = prop.GetValue(oppai_json).ToString();
-                        else
-                            OutputDataMap[prop.Name] = $"{prop.GetValue(oppai_json):F2}";
+                        OutputDataMap[prop.Name] = prop.GetValue(oppai_json).ToString();
                     }
                 }
 

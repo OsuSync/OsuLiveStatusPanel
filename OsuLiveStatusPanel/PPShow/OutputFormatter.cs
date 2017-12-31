@@ -41,6 +41,16 @@ namespace OsuLiveStatusPanel
                     val = String.Empty;
                 }
 
+                //简化一下 
+                if (int.TryParse(val, out int idata))
+                {
+                    val = $"{idata}";
+                }
+                else if (float.TryParse(val, out float fdata))
+                {
+                    val = $"{fdata:F2}";
+                }
+
                 result_str = result_str.Replace(result.Value, val);
 
                 result = result.NextMatch();
