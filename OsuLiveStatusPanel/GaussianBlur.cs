@@ -456,10 +456,9 @@ namespace OsuLiveStatusPanel
             var newBlue = new int[_width * _height];
             var dest = new int[_width * _height];
 
-            Parallel.Invoke(
-                () => gaussBlur_4(_red, newRed, radial),
-                () => gaussBlur_4(_green, newGreen, radial),
-                () => gaussBlur_4(_blue, newBlue, radial));
+            gaussBlur_4(_red, newRed, radial);
+            gaussBlur_4(_green, newGreen, radial);
+            gaussBlur_4(_blue, newBlue, radial);
 
             Parallel.For(0, dest.Length, _pOptions, i =>
             {

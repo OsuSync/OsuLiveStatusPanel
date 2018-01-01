@@ -389,7 +389,7 @@ namespace OsuLiveStatusPanel
                         {
                             if (e.Message.Trim().ToUpper().StartsWith("GDI"))
                             {
-                                Thread.Sleep(50);
+                                Thread.Sleep(1000);
                                 OutputBlurImage(bgPath, --t);
                             }
                         }
