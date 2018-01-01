@@ -67,8 +67,6 @@ namespace OsuLiveStatusPanel
                 }
             }
 
-            AddData(osu_file_path, extra_data);
-
             string osu_file = osu_file_path;
             string mods_str=string.Empty;
 
@@ -79,6 +77,9 @@ namespace OsuLiveStatusPanel
             {
                 mods_str=String.Join(",",raw_mod_list.Split(',').Where(s => OPPAI_SUPPORT_MODS.Contains(s)));
             }
+
+            AddData(osu_file_path, extra_data, raw_mod_list);
+
 
             List<OppaiJson> oppai_infos = new List<OppaiJson>();
 
@@ -150,10 +151,10 @@ namespace OsuLiveStatusPanel
             IO.CurrentIO.WriteColor($"[PPCalculator]执行结束,用时 {sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
         }
 
-        private void AddExtraInfo(Dictionary<string,string> dic)
+        private void AddExtraInfo(Dictionary<string, string> dic)
         {
-            dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid","-1")) > 0 ? (@"https://osu.ppy.sh/s/"+dic["beatmap_setid"]) : "";
-            dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id","-1")) > 0 ? (@"https://osu.ppy.sh/b/"+dic["beatmap_id"]) : string.Empty;
+            dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid", "-1")) > 0 ? (@"https://osu.ppy.sh/s/" + dic["beatmap_setid"]) : "";
+            dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id", "-1")) > 0 ? (@"https://osu.ppy.sh/b/" + dic["beatmap_id"]) : string.Empty;
 
             dic["title_avaliable"] = _TryGetValue("title_unicode", dic["title"]);
             dic["artist_avaliable"] = _TryGetValue("artist_unicode", dic["artist"]);
@@ -162,7 +163,7 @@ namespace OsuLiveStatusPanel
             dic["circles"] = dic["num_circles"];
             dic["spinners"] = dic["num_spinners"];
 
-            string _TryGetValue(string key,string default_val="")
+            string _TryGetValue(string key, string default_val = "")
             {
                 string val;
                 if (!dic.TryGetValue(key, out val))
@@ -171,10 +172,10 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        private void AddData(string file_path,Dictionary<string,string> extra_data)
+        private void AddData(string file_path,Dictionary<string,string> extra_data,string mods)
         {
             int status = 0;
-            float min_bpm = int.MaxValue,max_bpm = int.MinValue,current_bpm =0;
+            double min_bpm = int.MaxValue,max_bpm = int.MinValue,current_bpm =0;
 
             using (StreamReader reader = File.OpenText(file_path))
             {
@@ -233,6 +234,23 @@ namespace OsuLiveStatusPanel
                         case 2: //TimingPoints
                             if (string.IsNullOrWhiteSpace(line))
                             {
+                                min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
+                                max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+
+                                if (mods.Contains("DT")|| mods.Contains("NC"))
+                                {
+                                    min_bpm *= 1.5;
+                                    max_bpm *= 1.5;
+                                    min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
+                                    max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+                                }
+                                if (mods.Contains("HT"))
+                                {
+                                    min_bpm *= 0.75;
+                                    max_bpm *= 0.75;
+                                    min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
+                                    max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+                                }
 #if DEBUG
                                 IO.CurrentIO.Write($"[Oppai]BPM:{min_bpm} ~ {max_bpm}");
 #endif
@@ -252,8 +270,7 @@ namespace OsuLiveStatusPanel
                                 break;
                             }
 
-                            float val = float.Parse(data[1]);
-
+                            double val = double.Parse(data[1]);
                             if (val>0)
                             {
                                 val = 60000 / val;
@@ -261,12 +278,10 @@ namespace OsuLiveStatusPanel
                             }
                             else
                             {
-                                float mul = Math.Abs(100 + val)/100.0f;
+                                double mul = Math.Abs(100 + val)/100.0f;
                                 val = current_bpm * (1 + mul);
                                 break;
                             }
-
-                            val = (float)Math.Round(val);
 
                             min_bpm = Math.Min(val, min_bpm);
                             max_bpm = Math.Max(val, max_bpm);
