@@ -245,7 +245,7 @@ namespace OsuLiveStatusPanel
                             }
 
                             string[] data = line.Split(',');
-                            if (data[3] != "2") break;//2是红线
+                            if (data[6] != "1") break;//1是红线
 
                             if (data.Length<8)
                             {
