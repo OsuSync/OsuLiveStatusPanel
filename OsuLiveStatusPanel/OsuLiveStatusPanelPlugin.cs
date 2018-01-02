@@ -96,7 +96,8 @@ namespace OsuLiveStatusPanel
 
             OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
 
-            CheckPPShowPlugin();
+            //init PPShow
+            PPShowPluginInstance = new PPShowPlugin(PPShowJsonConfigFilePath);
 
             Sync.Tools.IO.CurrentIO.WriteColor(this.Name + " by " + this.Author, System.ConsoleColor.DarkCyan);
         }
@@ -241,13 +242,6 @@ namespace OsuLiveStatusPanel
             if (!(source == UsingSource.MemoryReader ? ChangeOsuStatusforMemoryReader(beatmap) : ChangeOsuStatusforNowPlaying(beatmap)))
             {
                 CleanOsuStatus();
-            }
-        }
-        private void CheckPPShowPlugin()
-        {
-            if (PPShowPluginInstance == null)
-            {
-                PPShowPluginInstance = new PPShowPlugin(PPShowJsonConfigFilePath);
             }
         }
 
@@ -400,8 +394,6 @@ namespace OsuLiveStatusPanel
 
         private void OutputInfomation(string osu_file_path,string mod_list)
         {
-            CheckPPShowPlugin();
-
             PPShowPluginInstance.CalculateAndDump(osu_file_path, mod_list);
         }
 
