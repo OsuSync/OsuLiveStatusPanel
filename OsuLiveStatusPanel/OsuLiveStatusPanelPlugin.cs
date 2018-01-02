@@ -130,8 +130,17 @@ namespace OsuLiveStatusPanel
             }
             catch (Exception e)
             {
-                IO.CurrentIO.WriteColor($"Load dependency plugin failed:{e.Message}", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Load dependency plugin failed:{e.Message}", ConsoleColor.Red);
                 source = UsingSource.None;
+            }
+
+            if (source==UsingSource.None)
+            {
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Init plugin failed,Please check if NowPlayin/OsuRTDataProvider have been exsited your loaded plugins or your config file", ConsoleColor.Red);
+            }
+            else
+            {
+                IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Init OsuLiveStatusPanelPlugin successfully!", ConsoleColor.Green);
             }
         }
 
