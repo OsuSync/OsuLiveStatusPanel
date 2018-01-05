@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsuLiveStatusPanel", "OsuLiveStatusPanel\OsuLiveStatusPanel.csproj", "{E02FB65D-E428-46AA-8774-6FAB675D1FEE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{770ED37F-4859-43DB-9154-1449F4A92B1F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPShowPlugin", "E:\PPShowPlugin\PPShowPlugin\PPShowPlugin.csproj", "{02C9CAD5-214D-4BC3-9341-BE2428BD3321}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +21,11 @@ Global
 		{770ED37F-4859-43DB-9154-1449F4A92B1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{770ED37F-4859-43DB-9154-1449F4A92B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{770ED37F-4859-43DB-9154-1449F4A92B1F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{02C9CAD5-214D-4BC3-9341-BE2428BD3321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{02C9CAD5-214D-4BC3-9341-BE2428BD3321}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{02C9CAD5-214D-4BC3-9341-BE2428BD3321}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{02C9CAD5-214D-4BC3-9341-BE2428BD3321}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {24E5686B-D1FB-4FAD-851D-D7357DDDECE3}
 	EndGlobalSection
 EndGlobal

@@ -32,7 +32,14 @@ namespace OsuLiveStatusPanel
         {
             string config_json = File.ReadAllText(config_path);
 
-            Instance = JsonConvert.DeserializeObject<Config>(config_json);
+            try
+            {
+                Instance = JsonConvert.DeserializeObject<Config>(config_json);
+            }
+            catch (Exception e)
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor($"JsonConvert::DeserializeObject Error,{e.Message}",ConsoleColor.Red);
+            }
         }
 
         public static void InitConfigFile(string config_path) => File.WriteAllText(config_path, JsonConvert.SerializeObject(new Config(), Formatting.Indented));
