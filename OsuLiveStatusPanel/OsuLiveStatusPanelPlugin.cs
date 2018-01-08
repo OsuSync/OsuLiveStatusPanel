@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Effects;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
+using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
@@ -44,7 +45,9 @@ namespace OsuLiveStatusPanel
 
         public ConfigurationElement Width { get; set; } = "1920";
         public ConfigurationElement Height { get; set; } = "1080";
-         
+
+        public ConfigurationElement EnableGenerateNormalImageFile { get; set; } = "1";
+            
         public ConfigurationElement EnableGenerateBlurImageFile { get; set; } = "0";
         public ConfigurationElement BlurRadius { get; set; } = "7";
         
@@ -83,7 +86,7 @@ namespace OsuLiveStatusPanel
 
         public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora & KedamavOvO >///<")
         {
-            
+            I18n.Instance.ApplyLanguage(new Languages());
         }
 
         public override void OnEnable()
@@ -130,17 +133,17 @@ namespace OsuLiveStatusPanel
             }
             catch (Exception e)
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Load dependency plugin failed:{e.Message}", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{LOAD_PLUGIN_DEPENDENCY_FAILED}:{e.Message}", ConsoleColor.Red);
                 source = UsingSource.None;
             }
 
             if (source==UsingSource.None)
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Init plugin failed,Please check if NowPlayin/OsuRTDataProvider have been exsited your loaded plugins or your config file", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_PLUGIN_FAILED_CAUSE_NO_DEPENDENCY}", ConsoleColor.Red);
             }
             else
             {
-                IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Init OsuLiveStatusPanelPlugin successfully!", ConsoleColor.Green);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_SUCCESS}", ConsoleColor.Green);
             }
         }
 
@@ -150,7 +153,7 @@ namespace OsuLiveStatusPanel
             {
                 if (plugin.Name == "OsuRTDataProvider")
                 {
-                    IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found OsuRTDataProvider Plugin.", ConsoleColor.Green);
+                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSURTDP_FOUND}", ConsoleColor.Green);
                     OsuRTDataProvider.OsuRTDataProviderPlugin reader = plugin as OsuRTDataProvider.OsuRTDataProviderPlugin;
 
                     MemoryReaderWrapperInstance = new MemoryReaderWrapper(this);
@@ -166,7 +169,7 @@ namespace OsuLiveStatusPanel
                 }
             }
 
-            IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]MemoryReader Plugin is not found,Please check your plugins folder", ConsoleColor.Red);
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSURTDP_NOTFOUND}", ConsoleColor.Red);
 
             source = UsingSource.None;
         }
@@ -177,7 +180,7 @@ namespace OsuLiveStatusPanel
             {
                 if (plugin.Name == "Now Playing")
                 {
-                    IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Found NowPlaying Plugin.", ConsoleColor.Green);
+                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NOWPLAYING_FOUND}.", ConsoleColor.Green);
                     NowPlaying.NowPlaying np = plugin as NowPlaying.NowPlaying;
                     NowPlayingEvents.Instance.BindEvent<NowPlaying.CurrentPlayingBeatmapChangedEvent>((beatmap)=> {
                         this.OnBeatmapChanged(new BeatmapChangedParameter() {
@@ -196,7 +199,7 @@ namespace OsuLiveStatusPanel
                 }
             }
 
-            IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]NowPlaying Plugin is not found,Please check your plugins folder", ConsoleColor.Red);
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NOWPLAYING_NOTFOUND}", ConsoleColor.Red);
 
             source = UsingSource.None;
         }
@@ -212,7 +215,7 @@ namespace OsuLiveStatusPanel
             if (new_beatmap == null || osu_process == null)
             {
                 if (osu_process == null)
-                    IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]osu program is not found!", ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSU_PROCESS_NOTFOUND}!", ConsoleColor.Red);
                 CleanOsuStatus();
                 return;
             }   
@@ -231,7 +234,7 @@ namespace OsuLiveStatusPanel
 
         private void CleanOsuStatus()
         {
-            IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Clean Status", ConsoleColor.Green);
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CLEAN_STATUS}", ConsoleColor.Green);
 
             CleanPPShow(); 
 
@@ -270,7 +273,7 @@ namespace OsuLiveStatusPanel
 
                     if (string.IsNullOrWhiteSpace(beatmap_osu_file))
                     {
-                        IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Cant get current beatmap file path.", ConsoleColor.Red);
+                        IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NO_BEATMAP_PATH}", ConsoleColor.Red);
                         return false;
                     }
                 }
@@ -321,7 +324,7 @@ namespace OsuLiveStatusPanel
 
             if (string.IsNullOrWhiteSpace(beatmap_osu_file))
             {
-                IO.CurrentIO.WriteColor("[OsuLiveStatusPanelPlugin]Cant get current beatmap file path.", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NO_BEATMAP_PATH}", ConsoleColor.Red);
                 return false;
             }
 
@@ -343,7 +346,7 @@ namespace OsuLiveStatusPanel
 
             if (!File.Exists(bgPath)&&EnableDebug=="1")
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputBlurImage]BG Files Not Exsit:{bgPath}", ConsoleColor.Yellow);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputBlurImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
 
                 try
                 {
@@ -368,13 +371,13 @@ namespace OsuLiveStatusPanel
         {
             if (t==0)
             {
-                IO.CurrentIO.WriteColor($"无法处理或者保存图片:{bgPath}", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{bgPath}", ConsoleColor.Red);
                 return;
             }
 
             if (!File.Exists(bgPath))
             {
-                IO.CurrentIO.WriteColor($"找不到图片:{bgPath}", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{IMAGE_NOT_FOUND}:{bgPath}", ConsoleColor.Red);
                 return;
             }
 

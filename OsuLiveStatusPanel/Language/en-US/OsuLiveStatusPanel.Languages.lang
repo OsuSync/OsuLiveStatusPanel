@@ -1,0 +1,18 @@
+[en-US]
+LOAD_PLUGIN_DEPENDENCY_FAILED=Load dependent plugins failed,Message:
+INIT_PLUGIN_FAILED_CAUSE_NO_DEPENDENCY=Init failed,please check if NowPlaying/Osu!RTDP is exsited in Plugins folder ,or check settings in file "config.ini".
+INIT_SUCCESS=Init Successfully!
+OSURTDP_FOUND=Found dependent plugin:Osu!RTDP.
+OSURTDP_NOTFOUND=Osu!RTDP not found,please check if it is exsited in Plugins folder.
+NOWPLAYING_FOUND=Found dependent plugin:NowPlaying
+NOWPLAYING_NOTFOUND=NowPlaying not found,please check if it is exsited in Plugins folder.
+OSU_PROCESS_NOTFOUND=osu! isnt running.
+CLEAN_STATUS=Clean Status.
+NO_BEATMAP_PATH=cant get current beatmap .osu file path.
+IMAGE_NOT_FOUND=picture file path isnt exsited:
+CANT_PROCESS_IMAGE=cant process picture.
+PPSHOW_BEATMAP_PARSE_ERROR=beatmap parsing occured error.
+PPSHOW_FINISH=execution finished,time cost 
+PPSHOW_CONFIG_NOT_FOUND=can't find config file by path:{0},now is created new one and please modfy it by yourself.
+PPSHOW_CONFIG_PARSE_ERROR=can't parse config path.
+PPSHOW_IO_ERROR=[PPShow]can't write to file "{0}",message:{1}

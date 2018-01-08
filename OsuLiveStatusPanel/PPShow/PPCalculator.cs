@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Sync.Tools;
+using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
@@ -104,7 +105,7 @@ namespace OsuLiveStatusPanel
 
                 if (stderr.Length != 0)
                 {
-                    IO.CurrentIO.WriteColor("[PPCalculator]Beatmap无法打开或解析,错误:" + stderr, ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor("[PPCalculator]"+PPSHOW_BEATMAP_PARSE_ERROR + stderr, ConsoleColor.Red);
                     
                     //miss return?
                     //return;
@@ -148,7 +149,7 @@ namespace OsuLiveStatusPanel
 
             OnOppainJson?.Invoke(oppai_infos, OutputDataMap);
             
-            IO.CurrentIO.WriteColor($"[PPCalculator]执行结束,用时 {sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
+            IO.CurrentIO.WriteColor($"[PPCalculator]{PPSHOW_FINISH}{sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
         }
 
         private void AddExtraInfo(Dictionary<string, string> dic)

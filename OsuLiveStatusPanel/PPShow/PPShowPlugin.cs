@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
@@ -27,7 +28,7 @@ namespace OsuLiveStatusPanel
             if (!File.Exists(config_path))
             {
                 Config.InitConfigFile(config_path);
-                throw new Exception($"不存在指定路径的PPShowPlugin的配置文件({config_path}).现在已经创建默认配置文件，请自行配置");
+                throw new Exception(string.Format(PPSHOW_CONFIG_NOT_FOUND, config_path));
             }
 
             LoadConfig(config_path);
@@ -65,7 +66,7 @@ namespace OsuLiveStatusPanel
 
             if (Config.Instance.input_file.Length == 0)
             {
-                throw new Exception("无法解析指定的PPShow配置文件");
+                throw new Exception(PPSHOW_CONFIG_PARSE_ERROR);
             }
             
             string oppai_path = Config.Instance.oppai;
@@ -100,7 +101,7 @@ namespace OsuLiveStatusPanel
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"[PPShow]无法写入{of.Key.output_file},原因{e.Message}", ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, of.Key.output_file, e.Message), ConsoleColor.Red);
                 }
             }
         }
@@ -118,7 +119,7 @@ namespace OsuLiveStatusPanel
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"[PPShow]无法写入{o.output_file},原因{e.Message}", ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.output_file, e.Message), ConsoleColor.Red);
                 }
             }
 
@@ -130,7 +131,7 @@ namespace OsuLiveStatusPanel
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"[PPShow]无法写入{o.output_file},原因{e.Message}", ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.output_file, e.Message), ConsoleColor.Red);
                 }
             }
         }
