@@ -22,6 +22,7 @@ using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
+    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33","1.0.0")]
     public class OsuLiveStatusPanelPlugin : Plugin, IConfigurable
     {
         private enum UsingSource
@@ -47,7 +48,7 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement Height { get; set; } = "1080";
 
         public ConfigurationElement EnableGenerateNormalImageFile { get; set; } = "1";
-            
+
         public ConfigurationElement EnableGenerateBlurImageFile { get; set; } = "0";
         public ConfigurationElement BlurRadius { get; set; } = "7";
         
@@ -346,7 +347,7 @@ namespace OsuLiveStatusPanel
 
             if (!File.Exists(bgPath)&&EnableDebug=="1")
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputBlurImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
 
                 try
                 {
@@ -354,8 +355,19 @@ namespace OsuLiveStatusPanel
                 }
                 catch { }
             }
-            
-            if (EnableGenerateBlurImageFile == "1")
+
+            if (EnableGenerateNormalImageFile == "1")
+            {
+                try
+                {
+                    File.Copy(bgPath,OutputBackgroundImageFilePath);
+                }
+                catch (Exception e)
+                {
+                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
+                }
+            }
+            else if (EnableGenerateBlurImageFile == "1")
             {
                 OutputBlurImage(bgPath);
             }
