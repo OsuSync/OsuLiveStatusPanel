@@ -31,12 +31,7 @@ namespace OsuLiveStatusPanel
         public void OnCurrentBeatmapChange(Beatmap beatmap)
         {
             beatmapID = beatmap.BeatmapID;
-            OsuFilePath = beatmap.LocationFile;
-        }
-
-        public void OnCurrentBeatmapSetChange(BeatmapSet beatmap)
-        {
-            beatmapSetID = beatmap.BeatmapSetID;
+            OsuFilePath = beatmap.FilenameFull;
         }
 
         /*
