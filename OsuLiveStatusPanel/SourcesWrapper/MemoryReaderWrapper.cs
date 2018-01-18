@@ -47,7 +47,7 @@ namespace OsuLiveStatusPanel
             if (mod.Mod==ModsInfo.Mods.Unknown)
             {
                 //Not Playing
-                RefPlugin.OnBeatmapChanged(null);
+                //RefPlugin.OnBeatmapChanged(null);
             }
             else
             {
@@ -69,25 +69,16 @@ namespace OsuLiveStatusPanel
         public void OnStatusChange(OsuStatus last_status, OsuStatus status)
         {
             current_status = status;
-            /*
+            
             if (last_status == status) return;
-            if (status != OsuStatus.Playing)
+            if ((status != OsuStatus.Playing) && (status != OsuStatus.Rank))
             {
                 RefPlugin.OnBeatmapChanged(null);
             }
             else
             {
-                //load
-                BeatmapEntry beatmap = new BeatmapEntry()
-                {
-                    BeatmapId = beatmapID,
-                    BeatmapSetId = beatmapSetID,
-                    OsuFilePath = OsuFilePath
-                };
-                
-                RefPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap= beatmap });
+
             }
-            */
         }
     }
 }
