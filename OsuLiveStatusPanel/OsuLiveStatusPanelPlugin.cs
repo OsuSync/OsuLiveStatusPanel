@@ -39,7 +39,7 @@ namespace OsuLiveStatusPanel
 
         #region Options
 
-        public ConfigurationElement AllowUsedMemoryReader { get; set; } = "0";
+        public ConfigurationElement AllowUsedOsuRTDataProvider { get; set; } = "0";
         public ConfigurationElement AllowUsedNowPlaying { get; set; } = "1";
 
         public ConfigurationElement AllowGetDiffNameFromOsuAPI { get; set; } = "1";
@@ -125,7 +125,7 @@ namespace OsuLiveStatusPanel
                 {
                     TryRegisterSourceFromNowPlaying(host);
                 }
-                else if (((string)AllowUsedMemoryReader).Trim() == "1")
+                else if (((string)AllowUsedOsuRTDataProvider).Trim() == "1")
                 {
                     TryRegisterSourceFromMemoryReader(host);
                 }
