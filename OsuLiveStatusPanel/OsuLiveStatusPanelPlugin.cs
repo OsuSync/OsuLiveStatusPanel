@@ -353,6 +353,11 @@ namespace OsuLiveStatusPanel
                 catch { }
             }
 
+            if (File.Exists(OutputBackgroundImageFilePath))
+            {
+                File.Delete(OutputBackgroundImageFilePath);
+            }
+
             if (EnableGenerateNormalImageFile == "1")
             {
                 try
