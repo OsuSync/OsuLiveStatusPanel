@@ -265,15 +265,21 @@ namespace OsuLiveStatusPanel
                                 break;
                             }
 
+                            bool is_red_line = true;
                             string[] data = line.Split(',');
-                            if (data[6] != "1") break;//1是红线
 
-                            if (data.Length<8)
+                            if(data.Length>=7)
                             {
-                                break;
+                                if (data[6] == "1" || string.IsNullOrWhiteSpace(data[6]))
+                                    is_red_line = true;
+                                else
+                                    is_red_line = false;
                             }
 
+                            if (!is_red_line) break;//1是红线
+
                             double val = double.Parse(data[1]);
+
                             if (val>0)
                             {
                                 val = 60000 / val;
