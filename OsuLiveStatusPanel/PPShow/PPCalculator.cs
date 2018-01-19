@@ -43,8 +43,10 @@ namespace OsuLiveStatusPanel
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
             p.StartInfo.CreateNoWindow = true;
-            
-            sw= new Stopwatch();
+            p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+            p.StartInfo.StandardErrorEncoding = Encoding.UTF8;
+
+            sw = new Stopwatch();
         }
 
         public void TrigCalc(string osu_file_path, string raw_mod_list, KeyValuePair<string, string>[] extra = null)
