@@ -98,11 +98,6 @@ namespace OsuLiveStatusPanel
             manager = new PluginConfigurationManager(this);
             manager.AddItem(this);
 
-            OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
-
-            //init PPShow
-            PPShowPluginInstance = new PPShowPlugin(PPShowJsonConfigFilePath);
-
             Sync.Tools.IO.CurrentIO.WriteColor(this.Name + " by " + this.Author, System.ConsoleColor.DarkCyan);
         }
 
@@ -118,6 +113,23 @@ namespace OsuLiveStatusPanel
         private void OsuLiveStatusPanelPlugin_onLoadComplete(PluginEvents.LoadCompleteEvent evt)
         {
             SyncHost host = evt.Host;
+
+            SetupPlugin(host);
+        }
+
+        #region Commands
+
+        #endregion
+
+        private void SetupPlugin(SyncHost host)
+        {
+            //(re)load settings in config.ini
+            manager?.GetInstance(this)?.ForceLoad();
+
+            OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
+
+            //init PPShow
+            PPShowPluginInstance = new PPShowPlugin(PPShowJsonConfigFilePath);
 
             try
             {
@@ -136,7 +148,7 @@ namespace OsuLiveStatusPanel
                 source = UsingSource.None;
             }
 
-            if (source==UsingSource.None)
+            if (source == UsingSource.None)
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_PLUGIN_FAILED_CAUSE_NO_DEPENDENCY}", ConsoleColor.Red);
             }
