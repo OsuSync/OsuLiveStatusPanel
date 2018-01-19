@@ -32,10 +32,7 @@ namespace OsuLiveStatusPanel
             None
         }
 
-        #region MemoryReader
-        
-        MemoryReaderWrapper MemoryReaderWrapperInstance;
-        #endregion MemoryReader
+        SourceWrapperBase SourceWrapper;
 
         #region Options
 
@@ -157,6 +154,12 @@ namespace OsuLiveStatusPanel
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_SUCCESS}", ConsoleColor.Green);
             }
         }
+        
+        private void TermPlugin()
+        {
+            //source clean itself
+            SourceWrapper.Detach();
+        }
 
         public void TryRegisterSourceFromMemoryReader(SyncHost host)
         {
@@ -167,13 +170,12 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSURTDP_FOUND}", ConsoleColor.Green);
                     OsuRTDataProvider.OsuRTDataProviderPlugin reader = plugin as OsuRTDataProvider.OsuRTDataProviderPlugin;
 
-                    MemoryReaderWrapperInstance = new MemoryReaderWrapper(this);
+                    SourceWrapper = new MemoryReaderWrapper(reader, this);
 
-                    reader.ListenerManager.OnBeatmapChanged += MemoryReaderWrapperInstance.OnCurrentBeatmapChange;
-                    reader.ListenerManager.OnStatusChanged += MemoryReaderWrapperInstance.OnStatusChange;
-                    reader.ListenerManager.OnModsChanged += MemoryReaderWrapperInstance.OnCurrentModsChange;
-
-                    source = UsingSource.MemoryReader;
+                    if (SourceWrapper.Attach())
+                    {
+                        source = UsingSource.MemoryReader;
+                    }
 
                     return;
                 }
@@ -192,18 +194,13 @@ namespace OsuLiveStatusPanel
                 {
                     IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NOWPLAYING_FOUND}.", ConsoleColor.Green);
                     NowPlaying.NowPlaying np = plugin as NowPlaying.NowPlaying;
-                    NowPlayingEvents.Instance.BindEvent<NowPlaying.CurrentPlayingBeatmapChangedEvent>((beatmap)=> {
-                        this.OnBeatmapChanged(new BeatmapChangedParameter() {
-                            beatmap= beatmap.NewBeatmap==null?null:new BeatmapEntry()
-                            {
-                                OsuFilePath=beatmap.NewBeatmap.OsuFilePath,
-                                BeatmapId=beatmap.NewBeatmap.BeatmapId,
-                                BeatmapSetId=beatmap.NewBeatmap.BeatmapSetId
-                            }
-                        });
-                    });
 
-                    source = UsingSource.NowPlaying;
+                    SourceWrapper = new NowPlayingWrapper(np, this);
+
+                    if (SourceWrapper.Attach())
+                    {
+                        source = UsingSource.NowPlaying;
+                    }
 
                     return;
                 }
@@ -216,8 +213,13 @@ namespace OsuLiveStatusPanel
 
         #region Kernal
 
-        public void OnBeatmapChanged(BeatmapChangedParameter evt)
+        public void OnBeatmapChanged(SourceWrapperBase source,BeatmapChangedParameter evt)
         {
+            if (source!=SourceWrapper)
+            {
+                return;
+            }
+
             BeatmapEntry new_beatmap = evt?.beatmap;
 
             var osu_process = Process.GetProcessesByName("osu!")?.First();
@@ -269,6 +271,8 @@ namespace OsuLiveStatusPanel
 
         private bool ChangeOsuStatusforMemoryReader(BeatmapEntry current_beatmap)
         {
+            MemoryReaderWrapper MemoryReaderWrapperInstance = SourceWrapper as MemoryReaderWrapper;
+
             string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
 
             string beatmap_osu_file = current_beatmap.OsuFilePath;

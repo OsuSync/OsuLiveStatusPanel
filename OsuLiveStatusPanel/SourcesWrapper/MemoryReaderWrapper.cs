@@ -9,13 +9,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
+using OsuRTDataProvider;
 
 namespace OsuLiveStatusPanel
 {
-    class MemoryReaderWrapper
+    public class MemoryReaderWrapper:SourceWrapperBase<OsuRTDataProviderPlugin>
     {
-        OsuLiveStatusPanelPlugin RefPlugin;
-
         public ModsInfo current_mod;
 
         private int beatmapID, beatmapSetID;
@@ -26,7 +25,10 @@ namespace OsuLiveStatusPanel
 
         private bool trig = false;
 
-        public MemoryReaderWrapper(OsuLiveStatusPanelPlugin p) => RefPlugin = p;
+        public MemoryReaderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
+        {
+
+        }
 
         public void OnCurrentBeatmapChange(Beatmap beatmap)
         {
@@ -62,7 +64,7 @@ namespace OsuLiveStatusPanel
                         OsuFilePath = OsuFilePath
                     };
 
-                    RefPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+                    RefPanelPlugin.OnBeatmapChanged(this,new BeatmapChangedParameter() { beatmap = beatmap });
                 }
             }
         }
@@ -74,12 +76,28 @@ namespace OsuLiveStatusPanel
             if (last_status == status) return;
             if ((status != OsuStatus.Playing) && (status != OsuStatus.Rank))
             {
-                RefPlugin.OnBeatmapChanged(null);
+                RefPanelPlugin.OnBeatmapChanged(this,null);
             }
             else
             {
 
             }
+        }
+
+        public override void Detach()
+        {
+            RefPlugin.ListenerManager.OnBeatmapChanged -= OnCurrentBeatmapChange;
+            RefPlugin.ListenerManager.OnStatusChanged -= OnStatusChange;
+            RefPlugin.ListenerManager.OnModsChanged -= OnCurrentModsChange;
+        }
+
+        public override bool Attach()
+        {
+            RefPlugin.ListenerManager.OnBeatmapChanged += OnCurrentBeatmapChange;
+            RefPlugin.ListenerManager.OnStatusChanged += OnStatusChange;
+            RefPlugin.ListenerManager.OnModsChanged += OnCurrentModsChange;
+
+            return true;
         }
     }
 }

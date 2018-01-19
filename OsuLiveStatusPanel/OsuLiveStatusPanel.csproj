@@ -63,6 +63,8 @@
     <Compile Include="PPShow\PPCalculator.cs" />
     <Compile Include="PPShow\PPShowPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SourcesWrapper\NowPlayingWrapper.cs" />
+    <Compile Include="SourcesWrapper\SourceWrapperBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MemoryReader\OsuRTDataProvider.csproj">
