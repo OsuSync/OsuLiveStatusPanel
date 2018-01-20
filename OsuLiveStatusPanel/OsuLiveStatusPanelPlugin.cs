@@ -102,9 +102,29 @@ namespace OsuLiveStatusPanel
         {
             @event.Commands.Dispatch.bind("livestatuspanel", (args) =>
             {
-                IO.CurrentIO.Write($"CurrentOsuPath = {CurrentOsuPath}");
+                if (args.Count()==0)
+                {
+                    Help();
+                    return true;
+                }
+
+                switch (args[0])
+                {
+                    case "help":
+                        Help();
+                        break;
+                    case "restart":
+                        ReInitizePlugin();
+                        break;
+                    case "status":
+                        Status();
+                        break;
+                    default:
+                        break;
+                }
+
                 return true;
-            }, "获取屙屎状态面板的数据");
+            }, COMMAND_DESC);
         }
 
         private void OsuLiveStatusPanelPlugin_onLoadComplete(PluginEvents.LoadCompleteEvent evt)
@@ -115,6 +135,25 @@ namespace OsuLiveStatusPanel
         }
 
         #region Commands
+
+        public void ReInitizePlugin()
+        {
+            TermPlugin();
+
+            SetupPlugin(getHoster());
+
+            IO.CurrentIO.WriteColor(REINIT_SUCCESS, ConsoleColor.Green);
+        }
+
+        public void Help()
+        {
+            IO.CurrentIO.WriteColor(COMMAND_HELP, ConsoleColor.Yellow);
+        }
+
+        public void Status()
+        {
+            IO.CurrentIO.WriteColor(string.Format(CONNAND_STATUS, source.ToString(),PPShowJsonConfigFilePath), ConsoleColor.Green);
+        }
 
         #endregion
 
@@ -127,6 +166,8 @@ namespace OsuLiveStatusPanel
 
             //init PPShow
             PPShowPluginInstance = new PPShowPlugin(PPShowJsonConfigFilePath);
+
+            source = UsingSource.None;
 
             try
             {

@@ -16,3 +16,7 @@ PPSHOW_FINISH=execution finished,time cost
 PPSHOW_CONFIG_NOT_FOUND=can't find config file by path:{0},now is created new one and please modfy it by yourself.
 PPSHOW_CONFIG_PARSE_ERROR=can't parse config path.
 PPSHOW_IO_ERROR=[PPShow]can't write to file "{0}",message:{1}
+COMMAND_HELP=OsuLiveStatusPanel Plugin can output current playing info to file for OBS user. You can type param insert to end of command "livestatuspanel": \n\thelp\t:show help\n\tstatus\t:show current status\n\trestart\t:re initize plugin and reload plugin settings.
+CONNAND_STATUS=Current reference plugin:{0}\ncurrent load ppshow config file path:{1}
+REINIT_SUCCESS=Re initize successfully~
+COMMAND_DESC=Get info about OsuLiveStatusPanel Plugin. type "help" for details.

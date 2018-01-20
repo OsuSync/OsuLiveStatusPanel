@@ -9,9 +9,13 @@ namespace OsuLiveStatusPanel
 {
     public class Languages : I18nProvider
     {
+        public static LanguageElement COMMAND_DESC = "获取屙屎状态面板的数据";
+        public static LanguageElement COMMAND_HELP = "本插件可以通过NowPlaying/OsuRTDataProvider插件的来源提供当前游戏铺面.可在命令livestatuspanel后面添加参数来执行各种操作:\n\thelp\t:显示本插件帮助\n\tstatus\t:显示本插件当前状态\n\trestart\t:重新初始化本插件并重新读取配置";
+        public static LanguageElement CONNAND_STATUS = "当前依赖的插件:{0}\n当前读取的PPShow配置文件:{1}";
         public static LanguageElement LOAD_PLUGIN_DEPENDENCY_FAILED = "加载本插件依赖的插件失败,原因";
         public static LanguageElement INIT_PLUGIN_FAILED_CAUSE_NO_DEPENDENCY = "初始化本插件失败,请检查Sync是否有NowPlaying插件或者Osu!RTDataProvider插件,以及是否config.ini中对应配置正确.";
         public static LanguageElement INIT_SUCCESS = "初始化成功~";
+        public static LanguageElement REINIT_SUCCESS = "重新初始化完成~";
         public static LanguageElement OSURTDP_FOUND = "找到插件Osu!RTDP.";
         public static LanguageElement OSURTDP_NOTFOUND = "Osu!RTDP未找到,请检查Sync中的插件目录是否存在这货.";
         public static LanguageElement NOWPLAYING_FOUND = "找到插件NowPlaying";

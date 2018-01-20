@@ -16,3 +16,7 @@ PPSHOW_FINISH=执行结束,用时
 PPSHOW_CONFIG_NOT_FOUND=不存在指定路径的PPShowPlugin的配置文件{0}.现在已经创建默认配置文件，请自行配置
 PPSHOW_CONFIG_PARSE_ERROR=无法解析指定的PPShow配置文件
 PPSHOW_IO_ERROR=[PPShow]无法写入{0},原因{1}
+COMMAND_HELP=本插件可以通过NowPlaying/OsuRTDataProvider插件的来源提供当前游戏铺面.可在命令livestatuspanel后面添加参数来执行各种操作:\n\thelp\t:显示本插件帮助\n\tstatus\t:显示本插件当前状态\n\trestart\t:重新初始化本插件并重新读取配置
+CONNAND_STATUS=当前依赖的插件:{0}\n当前读取的PPShow配置文件:{1}
+REINIT_SUCCESS=重新初始化完成~
+COMMAND_DESC=获取屙屎状态面板的数据
