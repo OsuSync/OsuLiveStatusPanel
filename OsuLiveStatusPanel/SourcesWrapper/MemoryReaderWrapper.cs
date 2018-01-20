@@ -13,7 +13,7 @@ using OsuRTDataProvider;
 
 namespace OsuLiveStatusPanel
 {
-    public class MemoryReaderWrapper:SourceWrapperBase<OsuRTDataProviderPlugin>
+    public class OsuRTDataProviderWrapper:SourceWrapperBase<OsuRTDataProviderPlugin>
     {
         public ModsInfo current_mod;
 
@@ -25,7 +25,7 @@ namespace OsuLiveStatusPanel
 
         private bool trig = false;
 
-        public MemoryReaderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
+        public OsuRTDataProviderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
 
         }

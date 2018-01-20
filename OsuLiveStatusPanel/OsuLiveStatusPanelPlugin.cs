@@ -27,7 +27,7 @@ namespace OsuLiveStatusPanel
     {
         private enum UsingSource
         {
-            MemoryReader,
+            OsuRTDataProvider,
             NowPlaying,
             None
         }
@@ -136,7 +136,7 @@ namespace OsuLiveStatusPanel
                 }
                 else if (((string)AllowUsedOsuRTDataProvider).Trim() == "1")
                 {
-                    TryRegisterSourceFromMemoryReader(host);
+                    TryRegisterSourceFromOsuRTDataProvider(host);
                 }
             }
             catch (Exception e)
@@ -161,7 +161,7 @@ namespace OsuLiveStatusPanel
             SourceWrapper.Detach();
         }
 
-        public void TryRegisterSourceFromMemoryReader(SyncHost host)
+        public void TryRegisterSourceFromOsuRTDataProvider(SyncHost host)
         {
             foreach (var plugin in host.EnumPluings())
             {
@@ -170,11 +170,11 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSURTDP_FOUND}", ConsoleColor.Green);
                     OsuRTDataProvider.OsuRTDataProviderPlugin reader = plugin as OsuRTDataProvider.OsuRTDataProviderPlugin;
 
-                    SourceWrapper = new MemoryReaderWrapper(reader, this);
+                    SourceWrapper = new OsuRTDataProviderWrapper(reader, this);
 
                     if (SourceWrapper.Attach())
                     {
-                        source = UsingSource.MemoryReader;
+                        source = UsingSource.OsuRTDataProvider;
                     }
 
                     return;
@@ -263,15 +263,15 @@ namespace OsuLiveStatusPanel
         private void TryChangeOsuStatus(object obj)
         {
             BeatmapEntry beatmap = obj as BeatmapEntry;
-            if (!(source == UsingSource.MemoryReader ? ChangeOsuStatusforMemoryReader(beatmap) : ChangeOsuStatusforNowPlaying(beatmap)))
+            if (!(source == UsingSource.OsuRTDataProvider ? ChangeOsuStatusforOsuRTDataProvider(beatmap) : ChangeOsuStatusforNowPlaying(beatmap)))
             {
                 CleanOsuStatus();
             }
         }
 
-        private bool ChangeOsuStatusforMemoryReader(BeatmapEntry current_beatmap)
+        private bool ChangeOsuStatusforOsuRTDataProvider(BeatmapEntry current_beatmap)
         {
-            MemoryReaderWrapper MemoryReaderWrapperInstance = SourceWrapper as MemoryReaderWrapper;
+            OsuRTDataProviderWrapper OsuRTDataProviderWrapperInstance = SourceWrapper as OsuRTDataProviderWrapper;
 
             string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
 
@@ -305,10 +305,10 @@ namespace OsuLiveStatusPanel
 
             string mod = string.Empty;
             //添加Mods
-            if (MemoryReaderWrapperInstance.current_mod.Mod != OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown)
+            if (OsuRTDataProviderWrapperInstance.current_mod.Mod != OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown)
             {
                 //处理不能用的PP
-                mod = $"{MemoryReaderWrapperInstance.current_mod.ShortName}";
+                mod = $"{OsuRTDataProviderWrapperInstance.current_mod.ShortName}";
             }
 
             OuputContent(current_beatmap, mod);
