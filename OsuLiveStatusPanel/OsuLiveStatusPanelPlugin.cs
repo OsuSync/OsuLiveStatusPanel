@@ -397,14 +397,8 @@ namespace OsuLiveStatusPanel
 
         #region tool func
 
-        private void OutputBlurImage(string bgPath,int t=3)
+        private void OutputBlurImage(string bgPath)
         {
-            if (t==0)
-            {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{bgPath}", ConsoleColor.Red);
-                return;
-            }
-
             if (!File.Exists(bgPath))
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{IMAGE_NOT_FOUND}:{bgPath}", ConsoleColor.Red);
@@ -426,7 +420,7 @@ namespace OsuLiveStatusPanel
                             if (e.Message.Trim().ToUpper().StartsWith("GDI"))
                             {
                                 Thread.Sleep(1000);
-                                OutputBlurImage(bgPath, --t);
+                                OutputBlurImage(bgPath);
                             }
                         }
                     }
