@@ -13,7 +13,7 @@ using OsuRTDataProvider;
 
 namespace OsuLiveStatusPanel
 {
-    public class OsuRTDataProviderWrapper:SourceWrapperBase<OsuRTDataProviderPlugin>
+    internal class OsuRTDataProviderWrapper:SourceWrapperBase<OsuRTDataProviderPlugin>
     {
         public ModsInfo current_mod;
 

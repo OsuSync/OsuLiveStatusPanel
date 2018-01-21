@@ -8,7 +8,7 @@ using Sync.Tools;
 
 namespace OsuLiveStatusPanel
 {
-    public class NowPlayingWrapper : SourceWrapperBase<NowPlaying.NowPlaying>
+    internal class NowPlayingWrapper : SourceWrapperBase<NowPlaying.NowPlaying>
     {
         public NowPlayingWrapper(NowPlaying.NowPlaying ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
