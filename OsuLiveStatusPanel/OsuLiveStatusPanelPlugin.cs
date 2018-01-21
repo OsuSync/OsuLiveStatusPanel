@@ -159,9 +159,6 @@ namespace OsuLiveStatusPanel
 
         private void SetupPlugin(SyncHost host)
         {
-            //(re)load settings in config.ini
-            manager?.GetInstance(this)?.ForceLoad();
-
             OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
 
             //init PPShow
@@ -194,8 +191,10 @@ namespace OsuLiveStatusPanel
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_SUCCESS}", ConsoleColor.Green);
             }
+            
+            CleanOsuStatus();
         }
-        
+
         private void TermPlugin()
         {
             //source clean itself
@@ -364,7 +363,7 @@ namespace OsuLiveStatusPanel
 
         private void CleanPPShow()
         {
-            PPShowPluginInstance.CalculateAndDump(string.Empty, string.Empty);
+            PPShowPluginInstance?.CalculateAndDump(string.Empty, string.Empty);
         }
 
         private bool ChangeOsuStatusforNowPlaying(BeatmapEntry current_beatmap)
@@ -599,10 +598,17 @@ namespace OsuLiveStatusPanel
 
         public void onConfigurationLoad()
         {
+
         }
 
         public void onConfigurationSave()
         {
+
+        }
+
+        public void onConfigurationReload()
+        {
+            ReInitizePlugin();
         }
 
         #endregion tool func
