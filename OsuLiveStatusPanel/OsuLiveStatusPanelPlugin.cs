@@ -39,8 +39,6 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement AllowUsedOsuRTDataProvider { get; set; } = "0";
         public ConfigurationElement AllowUsedNowPlaying { get; set; } = "1";
 
-        public ConfigurationElement AllowGetDiffNameFromOsuAPI { get; set; } = "1";
-
         public ConfigurationElement Width { get; set; } = "1920";
         public ConfigurationElement Height { get; set; } = "1080";
 
@@ -60,8 +58,6 @@ namespace OsuLiveStatusPanel
         /// 当前谱面背景文件保存路径
         /// </summary>
         public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png"; 
-
-        public ConfigurationElement DebugOutputBGMatchFailedListFilePath{get;set;} =@"..\failed_list.txt";
 
         public ConfigurationElement EnableDebug{set;get;} =@"0";
 

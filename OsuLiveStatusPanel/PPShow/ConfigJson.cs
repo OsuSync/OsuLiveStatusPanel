@@ -24,7 +24,6 @@ namespace OsuLiveStatusPanel
         public string input_file = "";
         public string input_format = "${beatmap_file}@${mods}";
         public List<OutputConfig> output_list = new List<OutputConfig>();
-        public List<OutputConfig> clean_list = new List<OutputConfig>();
         public List<OutputConfig> listen_list = new List<OutputConfig>();
 
         private Config() { }
