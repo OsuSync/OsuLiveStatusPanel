@@ -71,13 +71,14 @@ namespace OsuLiveStatusPanel
 
             string osu_file = osu_file_path;
 
+            if (raw_mod_list == "None")
+                raw_mod_list = "";
+
             AddData(osu_file_path, extra_data, raw_mod_list);
 
             if (output_type == OutputType.Play)
             {
                 string mods_str = string.Empty;
-                if (raw_mod_list == "None")
-                    raw_mod_list = "";
 
                 if (!string.IsNullOrWhiteSpace(raw_mod_list))
                 {
@@ -123,6 +124,9 @@ namespace OsuLiveStatusPanel
                     OutputDataMap[prop.Name] = $"{prop.GetValue(oppai_json):F2}";
             }
             #endregion
+
+            //Fix mod adding.
+            OutputDataMap["mods_str"] = raw_mod_list;
 
             //add extra info(shortcut arguments)
             foreach (var pair in extra_data)
