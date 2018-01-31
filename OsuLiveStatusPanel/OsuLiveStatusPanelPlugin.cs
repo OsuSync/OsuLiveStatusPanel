@@ -44,6 +44,8 @@ namespace OsuLiveStatusPanel
 
         public ConfigurationElement EnableGenerateNormalImageFile { get; set; } = "1";
 
+        public ConfigurationElement EnableListenOutputImageFile { get; set; } = "1";
+
         public ConfigurationElement EnableGenerateBlurImageFile { get; set; } = "0";
         public ConfigurationElement BlurRadius { get; set; } = "7";
         
@@ -367,12 +369,6 @@ namespace OsuLiveStatusPanel
             if (!File.Exists(bgPath)&&EnableDebug=="1")
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
-
-                try
-                {
-                    File.AppendAllText(DebugOutputBGMatchFailedListFilePath, $"[({DateTime.Now.ToShortDateString()}){DateTime.Now.ToShortTimeString()}]{beatmap_osu_file}{Environment.NewLine}");
-                }
-                catch { }
             }
 
             if (File.Exists(OutputBackgroundImageFilePath))
@@ -380,24 +376,27 @@ namespace OsuLiveStatusPanel
                 File.Delete(OutputBackgroundImageFilePath);
             }
 
-            if (EnableGenerateNormalImageFile == "1")
+            if (EnableListenOutputImageFile=="1"||current_beatmap.OutputType==OutputType.Play)
             {
-                try
+                if (EnableGenerateNormalImageFile == "1")
                 {
-                    File.Copy(bgPath,OutputBackgroundImageFilePath);
+                    try
+                    {
+                        File.Copy(bgPath, OutputBackgroundImageFilePath);
+                    }
+                    catch (Exception e)
+                    {
+                        IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
+                    }
                 }
-                catch (Exception e)
+                else if (EnableGenerateBlurImageFile == "1")
                 {
-                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
+                    OutputBlurImage(bgPath);
                 }
             }
-            else if (EnableGenerateBlurImageFile == "1")
-            {
-                OutputBlurImage(bgPath);
-            }
-                
+
             #endregion GetInfo
-            
+
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
         }
 
