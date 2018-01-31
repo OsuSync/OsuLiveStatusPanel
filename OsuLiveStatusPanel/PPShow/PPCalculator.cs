@@ -49,99 +49,82 @@ namespace OsuLiveStatusPanel
             sw = new Stopwatch();
         }
 
-        public void TrigCalc(string osu_file_path, string raw_mod_list, KeyValuePair<string, string>[] extra = null)
+        public void TrigOutput(OutputType output_type,string osu_file_path, string raw_mod_list, KeyValuePair<string, string>[] extra = null)
         {
             sw.Restart();
 
             Dictionary<string, string> extra_data = new Dictionary<string, string>();
 
-            if (string.IsNullOrWhiteSpace(osu_file_path))
-            {
-                OnBackMenu?.Invoke();
-                return;
-            }
-
-
             if (extra != null)
-            {
+            {   
                 foreach (var data in extra)
                 {
                     extra_data[data.Key] = data.Value;
                 }
             }
 
-            string osu_file = osu_file_path;
-            string mods_str=string.Empty;
-
-            if (raw_mod_list == "None")
-                raw_mod_list = "";
-
-            if (!string.IsNullOrWhiteSpace(raw_mod_list))
-            {
-                mods_str=String.Join(",",raw_mod_list.Split(',').Where(s => OPPAI_SUPPORT_MODS.Contains(s)));
-            }
-
-            AddData(osu_file_path, extra_data, raw_mod_list);
-
+            Dictionary<string, string> OutputDataMap = new Dictionary<string, string>();
 
             List<OppaiJson> oppai_infos = new List<OppaiJson>();
 
-            Dictionary<string, string> OutputDataMap = new Dictionary<string, string>();
+            string oppai_cmd;
 
-            bool first_init = false;
+            string osu_file = osu_file_path;
 
-            foreach (float acc in AccuracyList)
+            AddData(osu_file_path, extra_data, raw_mod_list);
+
+            if (output_type == OutputType.Play)
             {
-                string oppai_cmd = $"\"{osu_file}\" {acc}% {(string.IsNullOrWhiteSpace(mods_str) ? string.Empty:$"+{mods_str}")} -ojson";
+                string mods_str = string.Empty;
+                if (raw_mod_list == "None")
+                    raw_mod_list = "";
 
-                oppai_cmd = oppai_cmd.Replace("\r", string.Empty).Replace("\n", string.Empty);
-
-                p.StartInfo.Arguments = oppai_cmd;
-
-                p.Start();
-
-                p.StandardInput.AutoFlush = true;
-
-                string output = p.StandardOutput.ReadToEnd();
-                string stderr = p.StandardError.ReadToEnd();
-
-                if (stderr.Length != 0)
+                if (!string.IsNullOrWhiteSpace(raw_mod_list))
                 {
-                    IO.CurrentIO.WriteColor("[PPCalculator]"+PPSHOW_BEATMAP_PARSE_ERROR + stderr, ConsoleColor.Red);
-                    
-                    //miss return?
-                    //return;
+                    mods_str = String.Join(",", raw_mod_list.Split(',').Where(s => OPPAI_SUPPORT_MODS.Contains(s)));
                 }
 
-                var oppai_json = JsonConvert.DeserializeObject<OppaiJson>(output);
-
-                if (!first_init)
+                foreach (float acc in AccuracyList)
                 {
-                    first_init = true;
+                    oppai_cmd = $"\"{osu_file}\" {acc}% {(string.IsNullOrWhiteSpace(mods_str) ? string.Empty : $"+{mods_str}")} -ojson";
 
-                    //add info in first time parse
+                    var oppai_result = GetOppaiResult(oppai_cmd);
 
-                    var type = oppai_json.GetType();
-                    var members = type.GetProperties();
+                    oppai_infos.Add(oppai_result);
 
-                    foreach (var prop in members)
-                    {
-                        if(prop.PropertyType==typeof(int)|| prop.PropertyType == typeof(string))
-                            OutputDataMap[prop.Name] = prop.GetValue(oppai_json).ToString();		
-                        else
-                            OutputDataMap[prop.Name] = $"{prop.GetValue(oppai_json):F2}";
-                    }
+                    //add pp
+                    OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString();
+                    OutputDataMap["mods_str"] = raw_mod_list;
+
+                    p.WaitForExit();
+                    p.Close();
                 }
+            }
+            else
+            {
+                //Listen,so call oppai once only.
+                oppai_cmd = $"\"{osu_file}\" -ojson";
 
-                //add pp
-                OutputDataMap[$"pp:{acc:F2}%"] = oppai_json.pp.ToString();
-                OutputDataMap["mods_str"] = raw_mod_list;
+                var oppai_result = GetOppaiResult(oppai_cmd);
 
-                p.WaitForExit();
-                p.Close();
+                oppai_infos.Add(oppai_result);
             }
 
-            //add extra info
+            #region GetBaseInfo
+            var oppai_json = oppai_infos.First();
+            var type = oppai_json.GetType();
+            var members = type.GetProperties();
+
+            foreach (var prop in members)
+            {
+                if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string))
+                    OutputDataMap[prop.Name] = prop.GetValue(oppai_json).ToString();
+                else
+                    OutputDataMap[prop.Name] = $"{prop.GetValue(oppai_json):F2}";
+            }
+            #endregion
+
+            //add extra info(shortcut arguments)
             foreach (var pair in extra_data)
             {
                 OutputDataMap[pair.Key] = pair.Value;
@@ -152,6 +135,27 @@ namespace OsuLiveStatusPanel
             OnOppainJson?.Invoke(oppai_infos, OutputDataMap);
             
             IO.CurrentIO.WriteColor($"[PPCalculator]{PPSHOW_FINISH}{sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
+        }
+
+        private OppaiJson GetOppaiResult(string oppai_cmd)
+        {
+            oppai_cmd = oppai_cmd.Replace("\r", string.Empty).Replace("\n", string.Empty);
+
+            p.StartInfo.Arguments = oppai_cmd;
+
+            p.Start();
+
+            string output = p.StandardOutput.ReadToEnd();
+            string stderr = p.StandardError.ReadToEnd();
+
+            var oppai_result = JsonConvert.DeserializeObject<OppaiJson>(output);
+
+            if (stderr.Length != 0)
+            {
+                IO.CurrentIO.WriteColor("[PPCalculator]" + PPSHOW_BEATMAP_PARSE_ERROR + stderr, ConsoleColor.Red);
+            }
+
+            return JsonConvert.DeserializeObject<OppaiJson>(output);
         }
 
         private void AddExtraInfo(Dictionary<string, string> dic)

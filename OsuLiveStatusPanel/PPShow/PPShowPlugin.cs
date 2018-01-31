@@ -23,7 +23,7 @@ namespace OsuLiveStatusPanel
 
         public Dictionary<string,string> CurrentOutputInfo { get => current_data_dic; }
 
-        public PPShowPlugin(string config_path)/*(string Name, string Author) : base("PPShowPlugin", "Mikira Sora")*/
+        public PPShowPlugin(string config_path)
         {
             if (!File.Exists(config_path))
             {
@@ -106,22 +106,27 @@ namespace OsuLiveStatusPanel
             }
         }
 
-
-        private void OnBackMenu()
+        private void CleanFileList(List<OutputConfig> list)
         {
-            current_data_dic = null;
-
-            foreach (var o in Config.Instance.output_list)
+            foreach (var o in list)
             {
                 try
                 {
-                    File.WriteAllText($"{o.output_file}", "");
+                    File.WriteAllText($"{o.output_file}",string.Empty);
                 }
                 catch (Exception e)
                 {
                     IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.output_file, e.Message), ConsoleColor.Red);
                 }
             }
+        }
+
+        private void OnBackMenu()
+        {
+            current_data_dic = null;
+
+            CleanFileList(Config.Instance.output_list);
+            CleanFileList(Config.Instance.listen_list);
 
             foreach (var o in Config.Instance.clean_list)
             {
@@ -136,9 +141,15 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        public void CalculateAndDump(string osu_file_path, string mods_list)
+        public void CalculateAndDump(OutputType output_type,string osu_file_path, string mods_list)
         {
-            PP.TrigCalc(osu_file_path, mods_list);
+            if (output_type==OutputType.Clean)
+            {
+                OnBackMenu();
+                return;
+            }
+
+            PP.TrigOutput(output_type,osu_file_path, mods_list);
         }
 
         public void onConfigurationLoad()

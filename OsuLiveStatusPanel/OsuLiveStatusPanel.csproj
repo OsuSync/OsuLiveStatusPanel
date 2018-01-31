@@ -53,6 +53,7 @@
     <Compile Include="BeatmapHashHelper.cs" />
     <Compile Include="GaussianBlur.cs" />
     <Compile Include="Language.cs" />
+    <Compile Include="PPShow\OutputType.cs" />
     <Compile Include="SourcesWrapper\BeatmapChangedParameter.cs" />
     <Compile Include="SourcesWrapper\BeatmapEntry.cs" />
     <Compile Include="SourcesWrapper\MemoryReaderWrapper.cs" />

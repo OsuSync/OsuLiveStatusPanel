@@ -363,7 +363,7 @@ namespace OsuLiveStatusPanel
 
         private void CleanPPShow()
         {
-            PPShowPluginInstance?.CalculateAndDump(string.Empty, string.Empty);
+            PPShowPluginInstance?.CalculateAndDump(OutputType.Clean,string.Empty, string.Empty);
         }
 
         private bool ChangeOsuStatusforNowPlaying(BeatmapEntry current_beatmap)
@@ -470,7 +470,7 @@ namespace OsuLiveStatusPanel
 
         private void OutputInfomation(string osu_file_path,string mod_list)
         {
-            PPShowPluginInstance.CalculateAndDump(osu_file_path, mod_list);
+            PPShowPluginInstance.CalculateAndDump(OutputType.Play,osu_file_path, mod_list);
         }
 
         private string GetBeatmapFolderPath(string beatmap_sid)
