@@ -11,7 +11,7 @@ using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
-    public class PPShowPlugin /*: Plugin*/
+    public class PPShowPlugin
     {
         Dictionary<OutputConfig, OutputFormatter> ofs;
 
@@ -167,16 +167,6 @@ namespace OsuLiveStatusPanel
             }
 
             PP.TrigOutput(output_type,osu_file_path, mods_list);
-        }
-
-        public void onConfigurationLoad()
-        {
-
-        }
-
-        public void onConfigurationSave()
-        {
-
         }
     }
 }

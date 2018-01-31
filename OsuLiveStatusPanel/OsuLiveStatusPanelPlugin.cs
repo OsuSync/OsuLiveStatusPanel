@@ -395,7 +395,7 @@ namespace OsuLiveStatusPanel
             
             OutputInfomation(beatmap_osu_file, mod); 
             
-            var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)))\""",RegexOptions.IgnoreCase);
+            var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""",RegexOptions.IgnoreCase);
             string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
 
             if (!File.Exists(bgPath)&&EnableDebug=="1")
