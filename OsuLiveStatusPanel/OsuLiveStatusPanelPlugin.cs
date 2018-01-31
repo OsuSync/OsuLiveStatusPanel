@@ -333,7 +333,7 @@ namespace OsuLiveStatusPanel
 
         private void CleanPPShow()
         {
-            PPShowPluginInstance?.CalculateAndDump(OutputType.Clean,string.Empty, string.Empty);
+            PPShowPluginInstance?.CalculateAndDump(OutputType.Listen,string.Empty, string.Empty);
         }
 
         private bool ChangeOsuStatusforNowPlaying(BeatmapEntry current_beatmap)
@@ -494,6 +494,12 @@ namespace OsuLiveStatusPanel
         public void onConfigurationReload()
         {
             ReInitizePlugin();
+        }
+
+        public override void OnExit()
+        {
+            base.OnExit();
+            CleanPPShow();
         }
 
         #endregion tool func

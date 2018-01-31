@@ -47,7 +47,6 @@ namespace OsuLiveStatusPanel
             var register_list = new List<OutputConfig>();
             register_list.AddRange(Config.Instance.output_list);
             register_list.AddRange(Config.Instance.listen_list);
-            register_list.AddRange(Config.Instance.clean_list);
 
             foreach (var o in register_list)
             {
@@ -87,7 +86,6 @@ namespace OsuLiveStatusPanel
             
             CleanFileList(Config.Instance.output_list);
             CleanFileList(Config.Instance.listen_list);
-            CleanFileList(Config.Instance.clean_list);
 
             switch (output_type)
             {
@@ -96,8 +94,6 @@ namespace OsuLiveStatusPanel
                     break;
                 case OutputType.Play:
                     _OutputFiles(Config.Instance.output_list);
-                    break;
-                case OutputType.Clean:
                     break;
                 default:
                     break;
@@ -152,14 +148,13 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        private void OnBackMenu()
+        private void ListenClean()
         {
             current_data_dic = null;
 
             CleanFileList(Config.Instance.output_list);
-            CleanFileList(Config.Instance.listen_list);
 
-            foreach (var o in Config.Instance.clean_list)
+            foreach (var o in Config.Instance.listen_list)
             {
                 try
                 {
@@ -174,9 +169,9 @@ namespace OsuLiveStatusPanel
 
         public void CalculateAndDump(OutputType output_type,string osu_file_path, string mods_list)
         {
-            if (output_type==OutputType.Clean)
+            if (output_type==OutputType.Listen&&String.IsNullOrWhiteSpace(osu_file_path))
             {
-                OnBackMenu();
+                ListenClean();
                 return;
             }
 
