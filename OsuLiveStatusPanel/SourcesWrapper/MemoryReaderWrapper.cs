@@ -1,7 +1,6 @@
 ﻿using OsuRTDataProvider.BeatmapInfo;
 using OsuRTDataProvider.Mods;
 using NowPlaying;
-using OsuRTDataProvider.BeatmapInfo;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
@@ -22,8 +21,6 @@ namespace OsuLiveStatusPanel
         private OsuStatus current_status;
 
         public string OsuFilePath;
-
-        private bool trig = false;
 
         public OsuRTDataProviderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {

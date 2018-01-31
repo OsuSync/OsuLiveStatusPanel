@@ -313,36 +313,6 @@ namespace OsuLiveStatusPanel
         {
             OsuRTDataProviderWrapper OsuRTDataProviderWrapperInstance = SourceWrapper as OsuRTDataProviderWrapper;
 
-            string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
-
-            string beatmap_osu_file = current_beatmap.OsuFilePath;
-
-            if (string.IsNullOrWhiteSpace(beatmap_osu_file))
-            {
-                beatmap_osu_file = GetCurrentBeatmapOsuFilePathByBeatmapID(current_beatmap.BeatmapId.ToString(), beatmap_folder);
-                
-                if (string.IsNullOrWhiteSpace(beatmap_osu_file))
-                {
-                    beatmap_osu_file = GetCurrentBeatmapOsuFilePathByAPI(current_beatmap.BeatmapId.ToString(), beatmap_folder);
-
-                    if (string.IsNullOrWhiteSpace(beatmap_osu_file))
-                    {
-                        IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NO_BEATMAP_PATH}", ConsoleColor.Red);
-                        return false;
-                    }
-                }
-            }
-
-            string osuFileContent = File.ReadAllText(beatmap_osu_file);
-
-            int beatmapId = current_beatmap.BeatmapId, beatmapSetId = current_beatmap.BeatmapSetId;
-            //补完beatmap必需内容
-            /*current_beatmap = OsuFileParser.ParseText(osuFileContent);*/
-
-            current_beatmap.BeatmapId = current_beatmap.BeatmapId == -1 ? beatmapId : current_beatmap.BeatmapId;
-            current_beatmap.BeatmapSetId = current_beatmap.BeatmapSetId == -1 ? beatmapSetId : current_beatmap.BeatmapSetId;
-            current_beatmap.OsuFilePath = beatmap_osu_file;
-
             string mod = string.Empty;
             //添加Mods
             if (OsuRTDataProviderWrapperInstance.current_mod.Mod != OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown)
@@ -485,58 +455,6 @@ namespace OsuLiveStatusPanel
             return query_result.First();
         }
 
-        private string GetCurrentBeatmapOsuFilePathByDiffName(string diff_name, string beatmapPath)
-        {
-            if (string.IsNullOrWhiteSpace(beatmapPath))
-            {
-                return string.Empty;
-            }
-
-            var query_list = Directory.EnumerateFiles(beatmapPath);
-            foreach (var path in query_list)
-            {
-                if (path.Contains($"[{diff_name}].osu"))
-                    return path;
-            }
-
-            return string.Empty;
-        }
-
-        private string GetCurrentBeatmapOsuFilePathByBeatmapID(string beatmapID, string beatmapPath)
-        {
-            if (string.IsNullOrWhiteSpace(beatmapPath))
-            {
-                return string.Empty;
-            }
-
-            var query_list = Directory.EnumerateFiles(beatmapPath, "*.osu");
-
-            string check_str = $"BeatmapID:{beatmapID}";
-
-            var query_result = query_list.AsParallel().Where((path) =>
-            {
-                using (StreamReader reader = new StreamReader(File.OpenRead(path)))
-                {
-                    while (!reader.EndOfStream)
-                    {
-                        string line = reader.ReadLine();
-
-                        if (line == check_str)
-                        {
-                            return true;
-                        }
-
-                        if (line == "[Difficulty]")
-                            break;
-                    }
-                }
-
-                return false;
-            });
-
-            return query_result.Count() == 0 ? string.Empty : query_result.First();
-        }
-
         private Bitmap GetBeatmapBackgroundImage(string bgFilePath)
         {
             Image rawbitmap = null;
@@ -561,39 +479,6 @@ namespace OsuLiveStatusPanel
         {
             GaussianBlur blur = new GaussianBlur(bitmap);
             return blur.Process(int.Parse(BlurRadius));
-        }
-
-        private string GetCurrentBeatmapOsuFilePathByAPI(string beatmapID, string folder_path)
-        {
-            string uri = @"https://osu.ppy.sh/api/get_beatmaps?" +
-                $@"k=b9f8ca3fc035078a5b111380bc21cd0b8e79d7b5&b={beatmapID}&limit=1";
-
-            HttpWebRequest request = HttpWebRequest.Create(uri) as HttpWebRequest;
-            request.Method = "GET";
-
-            try
-            {
-                var response = (HttpWebResponse)request.GetResponse();
-                var stream = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                string data = stream.ReadToEnd();
-                string diff_name = GetJSONValue(ref data, "version"); //diffName
-
-                return GetCurrentBeatmapOsuFilePathByDiffName(diff_name.Trim(), folder_path);
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        private string GetJSONValue(ref string text, string key)
-        {
-            var result = Regex.Match(text, $"{key}\":\"(.+?)\"");
-
-            if (!result.Success)
-                return null;
-
-            return result.Groups[1].Value;
         }
 
         public void onConfigurationLoad()

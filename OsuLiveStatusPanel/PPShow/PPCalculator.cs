@@ -173,8 +173,7 @@ namespace OsuLiveStatusPanel
 
             string _TryGetValue(string key, string default_val = "")
             {
-                string val;
-                if (!dic.TryGetValue(key, out val))
+                if (!dic.TryGetValue(key, out string val))
                     return default_val;
                 return val;
             }
