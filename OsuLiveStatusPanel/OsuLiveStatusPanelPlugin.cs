@@ -363,7 +363,7 @@ namespace OsuLiveStatusPanel
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
             
-            OutputInfomation(beatmap_osu_file, mod); 
+            OutputInfomation(current_beatmap.OutputType, beatmap_osu_file, mod); 
             
             var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""",RegexOptions.IgnoreCase);
             string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
@@ -438,9 +438,9 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        private void OutputInfomation(string osu_file_path,string mod_list)
+        private void OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
         {
-            PPShowPluginInstance.CalculateAndDump(OutputType.Play,osu_file_path, mod_list);
+            PPShowPluginInstance.CalculateAndDump(output_type,osu_file_path, mod_list);
         }
 
         private string GetBeatmapFolderPath(string beatmap_sid)

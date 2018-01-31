@@ -44,7 +44,12 @@ namespace OsuLiveStatusPanel
         {
             ofs = new Dictionary<OutputConfig, OutputFormatter>();
 
-            foreach (var o in Config.Instance.output_list)
+            var register_list = new List<OutputConfig>();
+            register_list.AddRange(Config.Instance.output_list);
+            register_list.AddRange(Config.Instance.listen_list);
+            register_list.AddRange(Config.Instance.clean_list);
+
+            foreach (var o in register_list)
             {
                 if(!Directory.Exists(Path.GetDirectoryName(o.output_file)))
                 {
@@ -79,6 +84,10 @@ namespace OsuLiveStatusPanel
         private void OnOutput(OutputType output_type,List<OppaiJson> oppai_infos,Dictionary<string,string> data_dic)
         {
             current_data_dic = data_dic;
+            
+            CleanFileList(Config.Instance.output_list);
+            CleanFileList(Config.Instance.listen_list);
+            CleanFileList(Config.Instance.clean_list);
 
             switch (output_type)
             {
@@ -129,6 +138,11 @@ namespace OsuLiveStatusPanel
             {
                 try
                 {
+                    if (!File.Exists(o.output_file))
+                    {
+                        continue;
+                    }
+
                     File.WriteAllText($"{o.output_file}",string.Empty);
                 }
                 catch (Exception e)

@@ -21,6 +21,7 @@ namespace OsuLiveStatusPanel
                 {
                     beatmap = beatmap.NewBeatmap == null ? null : new BeatmapEntry()
                     {
+                        OutputType=OutputType.Play,
                         OsuFilePath = beatmap.NewBeatmap.OsuFilePath,
                         BeatmapId = beatmap.NewBeatmap.BeatmapId,
                         BeatmapSetId = beatmap.NewBeatmap.BeatmapSetId

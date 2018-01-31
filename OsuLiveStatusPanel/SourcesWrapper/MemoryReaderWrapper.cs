@@ -32,6 +32,11 @@ namespace OsuLiveStatusPanel
             beatmapID = beatmap.BeatmapID;
             beatmapSetID = beatmap.BeatmapSetID;
             OsuFilePath = beatmap.FilenameFull;
+
+            if (current_status == OsuStatus.Listening)
+            {
+                TrigListen();
+            }
         }
 
         /*
@@ -54,16 +59,23 @@ namespace OsuLiveStatusPanel
                 //Start to play
                 //if (mod.Mod!=ModsInfo.Mods.None&&current_status == OsuStatus.Playing)
                 {
-                    BeatmapEntry beatmap = new BeatmapEntry()
-                    {
-                        BeatmapId = beatmapID,
-                        BeatmapSetId = beatmapSetID,
-                        OsuFilePath = OsuFilePath
-                    };
+                    var beatmap = GetCurrentBeatmap();
+
+                    beatmap.OutputType = OutputType.Play;
 
                     RefPanelPlugin.OnBeatmapChanged(this,new BeatmapChangedParameter() { beatmap = beatmap });
                 }
             }
+        }
+
+        private BeatmapEntry GetCurrentBeatmap()
+        {
+            return new BeatmapEntry()
+            {
+                BeatmapId = beatmapID,
+                BeatmapSetId = beatmapSetID,
+                OsuFilePath = OsuFilePath
+            };
         }
 
         public void OnStatusChange(OsuStatus last_status, OsuStatus status)
@@ -73,12 +85,35 @@ namespace OsuLiveStatusPanel
             if (last_status == status) return;
             if ((status != OsuStatus.Playing) && (status != OsuStatus.Rank))
             {
-                RefPanelPlugin.OnBeatmapChanged(this,null);
+                if (status==OsuStatus.Listening)
+                {
+                    TrigListen();
+                }
+                else
+                {
+                    RefPanelPlugin.OnBeatmapChanged(this, null);
+                }
             }
             else
             {
+                BeatmapEntry beatmap = new BeatmapEntry()
+                {
+                    BeatmapId = beatmapID,
+                    BeatmapSetId = beatmapSetID,
+                    OsuFilePath = OsuFilePath
+                };
 
+                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
             }
+        }
+
+        private void TrigListen()
+        {
+            var beatmap = GetCurrentBeatmap();
+
+            beatmap.OutputType = OutputType.Listen;
+
+            RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
         }
 
         public override void Detach()
@@ -93,7 +128,6 @@ namespace OsuLiveStatusPanel
             RefPlugin.ListenerManager.OnBeatmapChanged += OnCurrentBeatmapChange;
             RefPlugin.ListenerManager.OnStatusChanged += OnStatusChange;
             RefPlugin.ListenerManager.OnModsChanged += OnCurrentModsChange;
-
             return true;
         }
     }
