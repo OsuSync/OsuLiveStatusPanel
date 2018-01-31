@@ -18,11 +18,8 @@ namespace OsuLiveStatusPanel
         static readonly string[] OPPAI_SUPPORT_MODS = new[] {"NF","EZ","HD","HR","DT","HT","NC","FL","SO"};
 
         public List<float> AccuracyList;
-        public delegate void OnBeatmapChangedEvt(List<OppaiJson> info,Dictionary<string,string> data_dic);
-        public event OnBeatmapChangedEvt OnOppainJson;
-
-        public delegate void OnBackMenuEvt();
-        public event OnBackMenuEvt OnBackMenu;
+        public delegate void OnOutputFunc(OutputType output_type,List<OppaiJson> info,Dictionary<string,string> data_dic);
+        public event OnOutputFunc OnOutputEvent;
 
         Process p=null;
 
@@ -136,7 +133,7 @@ namespace OsuLiveStatusPanel
 
             AddExtraInfo(OutputDataMap);
 
-            OnOppainJson?.Invoke(oppai_infos, OutputDataMap);
+            OnOutputEvent?.Invoke(output_type,oppai_infos, OutputDataMap);
             
             IO.CurrentIO.WriteColor($"[PPCalculator]{PPSHOW_FINISH}{sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
         }

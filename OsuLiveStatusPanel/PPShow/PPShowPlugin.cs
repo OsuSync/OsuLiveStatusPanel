@@ -73,35 +73,52 @@ namespace OsuLiveStatusPanel
 
             PP = new PPCalculator(oppai_path, acc_list);
 
-            PP.OnOppainJson += OnOppaiJson;
-            PP.OnBackMenu += OnBackMenu;
+            PP.OnOutputEvent += OnOutput;
         }
 
-        private void OnOppaiJson(List<OppaiJson> oppai_infos,Dictionary<string,string> data_dic)
+        private void OnOutput(OutputType output_type,List<OppaiJson> oppai_infos,Dictionary<string,string> data_dic)
         {
             current_data_dic = data_dic;
 
-            foreach (var of in ofs)
+            switch (output_type)
             {
-                string str = of.Value.Format(oppai_infos,data_dic);
-
-                if (PPShowAllowDumpInfo == true)
+                case OutputType.Listen:
+                    _OutputFiles(Config.Instance.listen_list);
+                    break;
+                case OutputType.Play:
+                    _OutputFiles(Config.Instance.output_list);
+                    break;
+                case OutputType.Clean:
+                    break;
+                default:
+                    break;
+            }
+            
+            void _OutputFiles(List<OutputConfig> list)
+            {
+                foreach (var output in list)
                 {
+                    var of = ofs[output];
+                    string str = of.Format(oppai_infos, data_dic);
 
-                    IO.CurrentIO.WriteColor("[PPShow][", ConsoleColor.White, false);
-                    IO.CurrentIO.WriteColor($"{of.Key.output_file}", ConsoleColor.Red, false);
+                    if (PPShowAllowDumpInfo == true)
+                    {
 
-                    IO.CurrentIO.WriteColor("]", ConsoleColor.White, false);
-                    IO.CurrentIO.WriteColor($"{str}", ConsoleColor.White);
-                }
+                        IO.CurrentIO.WriteColor("[PPShow][", ConsoleColor.White, false);
+                        IO.CurrentIO.WriteColor($"{output.output_file}", ConsoleColor.Red, false);
 
-                try
-                {
-                    File.WriteAllText(of.Key.output_file, str);
-                }
-                catch (Exception e)
-                {
-                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, of.Key.output_file, e.Message), ConsoleColor.Red);
+                        IO.CurrentIO.WriteColor("]", ConsoleColor.White, false);
+                        IO.CurrentIO.WriteColor($"{str}", ConsoleColor.White);
+                    }
+
+                    try
+                    {
+                        File.WriteAllText(output.output_file, str);
+                    }
+                    catch (Exception e)
+                    {
+                        IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, output.output_file, e.Message), ConsoleColor.Red);
+                    }
                 }
             }
         }
