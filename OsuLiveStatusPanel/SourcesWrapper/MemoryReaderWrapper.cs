@@ -96,8 +96,15 @@ namespace OsuLiveStatusPanel
             }
             else
             {
+                if (current_mod.Mod!=ModsInfo.Mods.Unknown||current_mod.Mod!=ModsInfo.Mods.None)
+                {
+                    //fix for https://puu.sh/zelua/d60b98d496.jpg
+                    return;
+                }
+
                 BeatmapEntry beatmap = new BeatmapEntry()
                 {
+                    OutputType=OutputType.Listen,
                     BeatmapId = beatmapID,
                     BeatmapSetId = beatmapSetID,
                     OsuFilePath = OsuFilePath

@@ -357,7 +357,7 @@ namespace OsuLiveStatusPanel
 
             #endregion GetInfo
 
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done! setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
         }
 
         #region tool func
