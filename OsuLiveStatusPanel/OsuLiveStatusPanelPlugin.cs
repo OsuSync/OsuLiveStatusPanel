@@ -45,24 +45,15 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement EnableGenerateNormalImageFile { get; set; } = "1";
 
         public ConfigurationElement EnableListenOutputImageFile { get; set; } = "1";
-
-        public ConfigurationElement EnableGenerateBlurImageFile { get; set; } = "0";
-        public ConfigurationElement BlurRadius { get; set; } = "7";
         
         public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = @"..\PPShowConfig.json";
         public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0"; 
-        /// <summary>
-        /// 供PPShowPlugin使用的文件保存路径,必须和前者设置一样否则无效
-        /// </summary>
-        public ConfigurationElement OutputOsuFilePath { get; set; } = @"..\in_current_playing.txt";
          
         /// <summary>
         /// 当前谱面背景文件保存路径
         /// </summary>
         public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png"; 
-
-        public ConfigurationElement EnableDebug{set;get;} =@"0";
-
+        
         #endregion Options
 
         private UsingSource source = UsingSource.None;
@@ -70,9 +61,6 @@ namespace OsuLiveStatusPanel
         private PluginConfigurationManager manager;
 
         private string OsuSyncPath;
-
-        private CancellationTokenSource token;
-        private object locker = new object();
 
         public PPShowPlugin PPShowPluginInstance { get; private set; }
 
@@ -352,7 +340,7 @@ namespace OsuLiveStatusPanel
             var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""",RegexOptions.IgnoreCase);
             string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
 
-            if (!File.Exists(bgPath)&&EnableDebug=="1")
+            if (!File.Exists(bgPath))
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
             }
@@ -372,10 +360,6 @@ namespace OsuLiveStatusPanel
                         IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
                     }
                 }
-                else if (EnableGenerateBlurImageFile == "1")
-                {
-                    OutputBlurImage(bgPath);
-                }
             }
 
             #endregion GetInfo
@@ -384,38 +368,6 @@ namespace OsuLiveStatusPanel
         }
 
         #region tool func
-
-        private void OutputBlurImage(string bgPath)
-        {
-            if (!File.Exists(bgPath))
-            {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{IMAGE_NOT_FOUND}:{bgPath}", ConsoleColor.Red);
-                return;
-            }
-
-            //draw background image with blur etc.
-            using (var bgImage = GetBeatmapBackgroundImage(bgPath))
-            {
-                if (bgImage != null)
-                {
-                    using (var blurImage = GetBlurImage(bgImage))
-                    {
-                        try
-                        {
-                            using (var fp=File.Open(OutputBackgroundImageFilePath,FileMode.Create,FileAccess.Write,FileShare.Read))
-                                blurImage.Save(fp,ImageFormat.Png);
-                        }catch(ExternalException e)
-                        {
-                            if (e.Message.Trim().ToUpper().StartsWith("GDI"))
-                            {
-                                Thread.Sleep(1000);
-                                OutputBlurImage(bgPath);
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         private void OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
         {
@@ -452,12 +404,6 @@ namespace OsuLiveStatusPanel
             {
                 rawbitmap?.Dispose();
             }
-        }
-
-        private Bitmap GetBlurImage(Bitmap bitmap)
-        {
-            GaussianBlur blur = new GaussianBlur(bitmap);
-            return blur.Process(int.Parse(BlurRadius));
         }
 
         public void onConfigurationLoad()
