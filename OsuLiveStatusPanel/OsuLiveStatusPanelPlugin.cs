@@ -286,15 +286,10 @@ namespace OsuLiveStatusPanel
         {
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CLEAN_STATUS}", ConsoleColor.Green);
 
-            CleanPPShow(); 
+            CleanPPShow();
 
-            if (File.Exists(OutputBackgroundImageFilePath))
+            using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
-                try
-                {
-                    File.Delete(OutputBackgroundImageFilePath);
-                }
-                catch { }
             }
         }
 
@@ -371,18 +366,15 @@ namespace OsuLiveStatusPanel
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
             }
 
-            if (File.Exists(OutputBackgroundImageFilePath))
-            {
-                File.Delete(OutputBackgroundImageFilePath);
-            }
-
             if (EnableListenOutputImageFile=="1"||current_beatmap.OutputType==OutputType.Play)
             {
                 if (EnableGenerateNormalImageFile == "1")
                 {
                     try
                     {
-                        File.Copy(bgPath, OutputBackgroundImageFilePath);
+                        using (var dst = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+                        using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                            src.CopyTo(dst);
                     }
                     catch (Exception e)
                     {
@@ -419,7 +411,8 @@ namespace OsuLiveStatusPanel
                     {
                         try
                         {
-                            blurImage.Save(OutputBackgroundImageFilePath);
+                            using (var fp=File.Open(OutputBackgroundImageFilePath,FileMode.Create,FileAccess.Write,FileShare.Read))
+                                blurImage.Save(fp,ImageFormat.Png);
                         }catch(ExternalException e)
                         {
                             if (e.Message.Trim().ToUpper().StartsWith("GDI"))
