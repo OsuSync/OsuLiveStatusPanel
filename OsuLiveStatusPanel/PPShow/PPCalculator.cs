@@ -13,7 +13,7 @@ using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
-    class PPCalculator
+    class BeatmapInfomationGenerator
     {
         static readonly string[] OPPAI_SUPPORT_MODS = new[] {"NF","EZ","HD","HR","DT","HT","NC","FL","SO"};
 
@@ -27,7 +27,7 @@ namespace OsuLiveStatusPanel
 
         string oppai;
 
-        public PPCalculator(string oppai,List<float> acc_list)
+        public BeatmapInfomationGenerator(string oppai,List<float> acc_list)
         {
             AccuracyList = acc_list;
 
@@ -71,7 +71,7 @@ namespace OsuLiveStatusPanel
             if (raw_mod_list == "None")
                 raw_mod_list = "";
 
-            AddData(osu_file_path, extra_data, raw_mod_list);
+            AddExtraInfomationFromBeatmapFile(osu_file_path, extra_data, raw_mod_list);
 
             if (output_type == OutputType.Play)
             {
@@ -131,7 +131,7 @@ namespace OsuLiveStatusPanel
                 OutputDataMap[pair.Key] = pair.Value;
             }
 
-            AddExtraInfo(OutputDataMap);
+            AddExtraInfomation(OutputDataMap);
 
             OnOutputEvent?.Invoke(output_type,oppai_infos, OutputDataMap);
             
@@ -159,7 +159,7 @@ namespace OsuLiveStatusPanel
             return JsonConvert.DeserializeObject<OppaiJson>(output);
         }
 
-        private void AddExtraInfo(Dictionary<string, string> dic)
+        private void AddExtraInfomation(Dictionary<string, string> dic)
         {
             dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid", "-1")) > 0 ? (@"https://osu.ppy.sh/s/" + dic["beatmap_setid"]) : "";
             dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id", "-1")) > 0 ? (@"https://osu.ppy.sh/b/" + dic["beatmap_id"]) : string.Empty;
@@ -179,7 +179,7 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        private void AddData(string file_path,Dictionary<string,string> extra_data,string mods)
+        private void AddExtraInfomationFromBeatmapFile(string file_path,Dictionary<string,string> extra_data,string mods)
         {
             int status = 0;
             double min_bpm = int.MaxValue,max_bpm = int.MinValue,current_bpm =0;

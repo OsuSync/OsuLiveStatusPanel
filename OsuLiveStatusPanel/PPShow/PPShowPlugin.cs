@@ -11,11 +11,11 @@ using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
-    public class PPShowPlugin
+    public class BeatmapInfomationGeneratorPlugin
     {
         Dictionary<OutputConfig, OutputFormatter> ofs;
 
-        PPCalculator PP;
+        BeatmapInfomationGenerator PP;
 
         Dictionary<string, string> current_data_dic;
 
@@ -23,7 +23,7 @@ namespace OsuLiveStatusPanel
 
         public Dictionary<string,string> CurrentOutputInfo { get => current_data_dic; }
 
-        public PPShowPlugin(string config_path)
+        public BeatmapInfomationGeneratorPlugin(string config_path)
         {
             if (!File.Exists(config_path))
             {
@@ -75,7 +75,7 @@ namespace OsuLiveStatusPanel
             
             string oppai_path = Config.Instance.oppai;
 
-            PP = new PPCalculator(oppai_path, acc_list);
+            PP = new BeatmapInfomationGenerator(oppai_path, acc_list);
 
             PP.OnOutputEvent += OnOutput;
         }
@@ -167,7 +167,7 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        public void CalculateAndDump(OutputType output_type,string osu_file_path, string mods_list)
+        public void Output(OutputType output_type,string osu_file_path, string mods_list)
         {
             if (output_type==OutputType.Listen&&String.IsNullOrWhiteSpace(osu_file_path))
             {
