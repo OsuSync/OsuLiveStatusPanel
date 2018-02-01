@@ -268,18 +268,9 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSU_PROCESS_NOTFOUND}!", ConsoleColor.Red);
                 CleanOsuStatus();
                 return;
-            }   
-
-            if (token != null)
-            {
-                token.Cancel();
             }
 
-            token = new CancellationTokenSource();
-
-            CurrentOsuPath = osu_process.MainModule.FileName.Replace(@"osu!.exe", string.Empty);
-            Task task = new Task(new Action<object>(TryChangeOsuStatus), (object)new_beatmap, token.Token);
-            task.Start();
+            TryChangeOsuStatus(new_beatmap);
         }
 
         private void CleanOsuStatus()
