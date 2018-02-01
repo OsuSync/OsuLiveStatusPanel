@@ -29,6 +29,12 @@ namespace OsuLiveStatusPanel
 
         public void OnCurrentBeatmapChange(Beatmap beatmap)
         {
+            if (beatmap==Beatmap.Empty||string.IsNullOrWhiteSpace(beatmap?.FilenameFull))
+            {
+                //fix empty beatmap
+                return;
+            }
+
             beatmapID = beatmap.BeatmapID;
             beatmapSetID = beatmap.BeatmapSetID;
             OsuFilePath = beatmap.FilenameFull;
