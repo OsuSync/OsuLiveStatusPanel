@@ -16,8 +16,6 @@ namespace OsuLiveStatusPanel
 
     public class Config
     {
-        //private static readonly string s_config_file = "PPShowConfig.json";
-
         public static Config Instance;
 
         public string oppai = "oppai.exe";

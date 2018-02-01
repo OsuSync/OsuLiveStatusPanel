@@ -65,8 +65,6 @@ namespace OsuLiveStatusPanel
         public PPShowPlugin PPShowPluginInstance { get; private set; }
 
         private string CurrentOsuPath = "";
-        
-        //private PluginConfiuration config;
 
         public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora & KedamavOvO >///<")
         {
@@ -298,11 +296,6 @@ namespace OsuLiveStatusPanel
             return true;
         }
 
-        public void InitBuildInPPShow()
-        {
-
-        }
-
         private void CleanPPShow()
         {
             PPShowPluginInstance?.CalculateAndDump(OutputType.Listen,string.Empty, string.Empty);
@@ -312,11 +305,9 @@ namespace OsuLiveStatusPanel
         {
             #region GetInfo
 
-            //string beatmap_folder = GetBeatmapFolderPath(current_beatmap.BeatmapSetId.ToString());
-
             string beatmap_osu_file = string.Empty;
 
-            beatmap_osu_file = /*GetCurrentBeatmapOsuFilePathByDiffName(current_beatmap.Difficulty, beatmap_folder)*/current_beatmap.OsuFilePath;
+            beatmap_osu_file = current_beatmap.OsuFilePath;
 
             if (string.IsNullOrWhiteSpace(beatmap_osu_file))
             {
@@ -372,38 +363,6 @@ namespace OsuLiveStatusPanel
         private void OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
         {
             PPShowPluginInstance.CalculateAndDump(output_type,osu_file_path, mod_list);
-        }
-
-        private string GetBeatmapFolderPath(string beatmap_sid)
-        {
-            var query_result = Directory.EnumerateDirectories(CurrentOsuPath + "Songs", beatmap_sid + " *");
-
-            if (query_result.Count() == 0)
-            {
-                return string.Empty;
-            }
-
-            return query_result.First();
-        }
-
-        private Bitmap GetBeatmapBackgroundImage(string bgFilePath)
-        {
-            Image rawbitmap = null;
-
-            try
-            {
-                rawbitmap = Bitmap.FromFile(bgFilePath);
-                Bitmap bitmap = new Bitmap(rawbitmap, new System.Drawing.Size(int.Parse(Width), int.Parse(Height)));
-                return bitmap;
-            }
-            catch
-            {
-                return null;
-            }
-            finally
-            {
-                rawbitmap?.Dispose();
-            }
         }
 
         public void onConfigurationLoad()
