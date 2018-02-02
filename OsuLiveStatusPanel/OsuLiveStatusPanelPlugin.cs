@@ -342,9 +342,14 @@ namespace OsuLiveStatusPanel
                 {
                     try
                     {
-                        using (var dst = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
-                        using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                            src.CopyTo(dst);
+
+                        using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
+                        using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+                            bitmap.Save(fp, ImageFormat.Png);
+ 
+                        //using (var dst = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+                        //using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        //    src.CopyTo(dst);
                     }
                     catch (Exception e)
                     {
@@ -365,6 +370,68 @@ namespace OsuLiveStatusPanel
         private void OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
         {
             PPShowPluginInstance.Output(output_type,osu_file_path, mod_list);
+        }
+
+        private Bitmap GetFixedResolutionBitmap(string file,int dstw,int dsth)
+        {
+            double r = dstw / (double)dsth;
+            var dbitmap = new Bitmap(dstw, dsth);
+
+            using (var sbitmap = new Bitmap(file))
+            {
+                double w = 0, h = 0;
+
+                w = sbitmap.Width * r;
+                if (w > sbitmap.Width)
+                {
+                    w = sbitmap.Width;
+                    h = sbitmap.Width / r;
+                }
+                if(h > sbitmap.Height)
+                {
+                    w = sbitmap.Height * r;
+                    h = sbitmap.Height;
+                }
+
+                Rectangle rectangle = new Rectangle();
+                rectangle.Width = (int)w;
+                rectangle.Height = (int)h;
+                rectangle.X = (sbitmap.Width - rectangle.Width) / 2;
+                rectangle.Y = (sbitmap.Height - rectangle.Height) / 2;
+
+                var sdata = sbitmap.LockBits(rectangle, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                var ddata = dbitmap.LockBits(new Rectangle(0, 0, dstw, dsth), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+
+                double scalex = sdata.Width / (double)ddata.Width;
+                double scaley = sdata.Height / (double)ddata.Height;
+
+                unsafe
+                {
+                    byte* sptr = (byte*)(sdata.Scan0);
+                    byte* dptr = (byte*)(ddata.Scan0);
+                    byte* dp, sp;
+
+                    for (int i = 0; i < ddata.Height; i++)
+                    {
+                        for (int j = 0; j < ddata.Width; j++)
+                        {
+                            int si = (int)(i * scaley);
+                            int sj = (int)(j * scalex);
+
+                            dp = dptr + (i * ddata.Stride + j * 3);
+                            sp = sptr + (si * sdata.Stride + sj * 3);
+
+                            dp[0] = sp[0];
+                            dp[1] = sp[1];
+                            dp[2] = sp[2];
+                        }
+                    }
+                }
+
+                sbitmap.UnlockBits(sdata);
+                dbitmap.UnlockBits(ddata);
+            }
+            return dbitmap;
         }
 
         public void onConfigurationLoad()
