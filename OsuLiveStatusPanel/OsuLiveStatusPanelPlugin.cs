@@ -42,13 +42,13 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement Width { get; set; } = "1920";
         public ConfigurationElement Height { get; set; } = "1080";
 
-        public ConfigurationElement EnableGenerateNormalImageFile { get; set; } = "1";
+        public ConfigurationElement EnableScaleClipOutputImageFile { get; set; } = "1";
 
         public ConfigurationElement EnableListenOutputImageFile { get; set; } = "1";
         
         public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = @"..\PPShowConfig.json";
-        public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0"; 
-         
+        public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0";
+        
         /// <summary>
         /// 当前谱面背景文件保存路径
         /// </summary>
@@ -323,12 +323,12 @@ namespace OsuLiveStatusPanel
             string beatmap_osu_file = current_beatmap.OsuFilePath;
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
-            
+
             OutputInfomation(current_beatmap.OutputType, beatmap_osu_file, mod);
 
             #region OutputBackgroundImage
 
-            var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""",RegexOptions.IgnoreCase);
+            var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""", RegexOptions.IgnoreCase);
             string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
 
             if (!File.Exists(bgPath))
@@ -336,27 +336,33 @@ namespace OsuLiveStatusPanel
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
             }
 
-            if (EnableListenOutputImageFile=="1"||current_beatmap.OutputType==OutputType.Play)
+            if (EnableListenOutputImageFile == "1" || current_beatmap.OutputType == OutputType.Play)
             {
-                if (EnableGenerateNormalImageFile == "1")
+                try
                 {
-                    try
+                    if (EnableScaleClipOutputImageFile == "1")
                     {
 
                         using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
                         using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                             bitmap.Save(fp, ImageFormat.Png);
- 
+
                         //using (var dst = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                         //using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                         //    src.CopyTo(dst);
                     }
-                    catch (Exception e)
+                    else
                     {
-                        IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
+                        //Copy image file.
+                        File.Copy(bgPath, OutputBackgroundImageFilePath,true);
                     }
                 }
+                catch (Exception e)
+                {
+                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
+                }
             }
+        
 
             #endregion
 
