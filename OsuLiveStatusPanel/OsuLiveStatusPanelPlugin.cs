@@ -346,15 +346,13 @@ namespace OsuLiveStatusPanel
                         using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
                         using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                             bitmap.Save(fp, ImageFormat.Png);
-
-                        //using (var dst = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
-                        //using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        //    src.CopyTo(dst);
                     }
                     else
                     {
                         //Copy image file.
-                        File.Copy(bgPath, OutputBackgroundImageFilePath,true);
+                        using (var dst = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+                        using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                            src.CopyTo(dst);
                     }
                 }
                 catch (Exception e)
