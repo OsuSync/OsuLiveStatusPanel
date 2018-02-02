@@ -416,20 +416,19 @@ namespace OsuLiveStatusPanel
 
                     for (int i = 0; i < ddata.Height; i++, dptr += ddata.Stride - ddata.Width * 3)
                     {
-                        if (i == 0 || i == ddata.Height - 1) continue;
-
                         si = (int)(i * scaley);
+                        if (si == 0 || (si + 1) == sdata.Height) continue;
 
                         for (int j = 0; j < ddata.Width; j++,dptr += 3)
                         {
-                            if (j == 0 || j == ddata.Width - 1) continue;
+                            sj = (int)(j * scalex);
+                            if (sj == 0 || (sj + 1) == sdata.Width) continue;
 
                             int a = 0, b = 0, c = 0;
-                            sj = (int)(j * scalex);
 
                             sp_up = sptr + ((si - 1) * sdata.Stride + sj * 3);
-                            sp_down = sptr + ((si + 1) * sdata.Stride + sj * 3);
-                            sp_left = sptr + (si * sdata.Stride + (sj-1) * 3);
+                            sp_down  = sptr + ((si + 1) * sdata.Stride + sj * 3);
+                            sp_left  = sptr + (si * sdata.Stride + (sj - 1) * 3);
                             sp_right = sptr + (si * sdata.Stride + (sj + 1) * 3);
 
                             a = sp_up[0] + sp_down[0] + sp_left[0] + sp_right[0];
