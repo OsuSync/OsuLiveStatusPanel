@@ -409,22 +409,27 @@ namespace OsuLiveStatusPanel
                 {
                     byte* sptr = (byte*)(sdata.Scan0);
                     byte* dptr = (byte*)(ddata.Scan0);
-                    byte* dp, sp;
+                    byte* sp;
+                    int si = 0, sj = 0;
 
                     for (int i = 0; i < ddata.Height; i++)
                     {
+                        si = (int)(i * scaley);
+
                         for (int j = 0; j < ddata.Width; j++)
                         {
-                            int si = (int)(i * scaley);
-                            int sj = (int)(j * scalex);
+                            sj = (int)(j * scalex);
 
-                            dp = dptr + (i * ddata.Stride + j * 3);
                             sp = sptr + (si * sdata.Stride + sj * 3);
 
-                            dp[0] = sp[0];
-                            dp[1] = sp[1];
-                            dp[2] = sp[2];
+                            dptr[0] = sp[0];
+                            dptr[1] = sp[1];
+                            dptr[2] = sp[2];
+
+                            dptr += 3;
                         }
+
+                        dptr += ddata.Stride - ddata.Width * 3;
                     }
                 }
 
