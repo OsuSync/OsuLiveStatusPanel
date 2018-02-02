@@ -413,31 +413,34 @@ namespace OsuLiveStatusPanel
                     byte* dptr = (byte*)(ddata.Scan0);
                     byte* sp_up,sp_down, sp_left,sp_right;
                     int si = 0, sj = 0;
+                    double u, v;
 
                     for (int i = 0; i < ddata.Height; i++, dptr += ddata.Stride - ddata.Width * 3)
                     {
-                        si = (int)(i * scaley);
+                        double t = i * scaley;
+                        si = (int)(t);
+                        v = t-si;
+
                         if (si == 0 || (si + 1) == sdata.Height) continue;
 
                         for (int j = 0; j < ddata.Width; j++,dptr += 3)
                         {
-                            sj = (int)(j * scalex);
+                            t = j * scalex;
+                            sj = (int)(t);
+                            u = t - sj;
                             if (sj == 0 || (sj + 1) == sdata.Width) continue;
 
-                            int a = 0, b = 0, c = 0;
+                            sp_up    = sptr + ((si - 1) * sdata.Stride + (sj - 1) * 3);//left up 0,0
+                            sp_down  = sptr + ((si + 1) * sdata.Stride + (sj + 1) * 3);//right down 1,1
+                            sp_left  = sptr + ((si + 1) * sdata.Stride + (sj - 1) * 3);//left down 0,1
+                            sp_right = sptr + ((si - 1) * sdata.Stride + (sj + 1) * 3);//rigth up 1,0
 
-                            sp_up = sptr + ((si - 1) * sdata.Stride + sj * 3);
-                            sp_down  = sptr + ((si + 1) * sdata.Stride + sj * 3);
-                            sp_left  = sptr + (si * sdata.Stride + (sj - 1) * 3);
-                            sp_right = sptr + (si * sdata.Stride + (sj + 1) * 3);
+                            double omu = 1 - u;
+                            double omv = 1 - v;
 
-                            a = sp_up[0] + sp_down[0] + sp_left[0] + sp_right[0];
-                            b = sp_up[1] + sp_down[1] + sp_left[1] + sp_right[1];
-                            c = sp_up[2] + sp_down[2] + sp_left[2] + sp_right[2];
-
-                            dptr[0] = (byte)(a >>2);
-                            dptr[1] = (byte)(b >>2);
-                            dptr[2] = (byte)(c >>2);
+                            dptr[0] = (byte)(sp_up[0] * omu * omv + sp_down[0] * u * v + sp_left[0] * omu * v + sp_right[0] * omv * u);
+                            dptr[1] = (byte)(sp_up[1] * omu * omv + sp_down[1] * u * v + sp_left[1] * omu * v + sp_right[1] * omv * u);
+                            dptr[2] = (byte)(sp_up[2] * omu * omv + sp_down[2] * u * v + sp_left[2] * omu * v + sp_right[2] * omv * u);
                         }
                     }
                 }
