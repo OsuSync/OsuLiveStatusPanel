@@ -430,17 +430,18 @@ namespace OsuLiveStatusPanel
                             u = t - sj;
                             if (sj == 0 || (sj + 1) == sdata.Width) continue;
 
-                            sp_up    = sptr + ((si - 1) * sdata.Stride + (sj - 1) * 3);//left up 0,0
-                            sp_down  = sptr + ((si + 1) * sdata.Stride + (sj + 1) * 3);//right down 1,1
-                            sp_left  = sptr + ((si + 1) * sdata.Stride + (sj - 1) * 3);//left down 0,1
-                            sp_right = sptr + ((si - 1) * sdata.Stride + (sj + 1) * 3);//rigth up 1,0
-
                             double omu = 1 - u;
                             double omv = 1 - v;
+                            double a = omu * omv, b = u * v, c = omu * v, d = omv * u;
 
-                            dptr[0] = (byte)(sp_up[0] * omu * omv + sp_down[0] * u * v + sp_left[0] * omu * v + sp_right[0] * omv * u);
-                            dptr[1] = (byte)(sp_up[1] * omu * omv + sp_down[1] * u * v + sp_left[1] * omu * v + sp_right[1] * omv * u);
-                            dptr[2] = (byte)(sp_up[2] * omu * omv + sp_down[2] * u * v + sp_left[2] * omu * v + sp_right[2] * omv * u);
+                            sp_up    = sptr + ((si - 0) * sdata.Stride + (sj - 0) * 3);//left up 0,0
+                            sp_down  = sptr + ((si + 1) * sdata.Stride + (sj + 1) * 3);//right down 1,1
+                            sp_left  = sptr + ((si + 1) * sdata.Stride + (sj - 0) * 3);//left down 0,1
+                            sp_right = sptr + ((si - 0) * sdata.Stride + (sj + 1) * 3);//rigth up 1,0
+
+                            dptr[0] = (byte)(sp_up[0] * a + sp_down[0] * b + sp_left[0] * c + sp_right[0] * d);
+                            dptr[1] = (byte)(sp_up[1] * a + sp_down[1] * b + sp_left[1] * c + sp_right[1] * d);
+                            dptr[2] = (byte)(sp_up[2] * a + sp_down[2] * b + sp_left[2] * c + sp_right[2] * d);
                         }
                     }
                 }
