@@ -380,6 +380,8 @@ namespace OsuLiveStatusPanel
             using (var sbitmap = new Bitmap(file))
             {
                 double w = 0, h = 0;
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
 
                 w = sbitmap.Width * r;
                 if (w > sbitmap.Width)
@@ -409,32 +411,43 @@ namespace OsuLiveStatusPanel
                 {
                     byte* sptr = (byte*)(sdata.Scan0);
                     byte* dptr = (byte*)(ddata.Scan0);
-                    byte* sp;
+                    byte* sp_up,sp_down, sp_left,sp_right;
                     int si = 0, sj = 0;
 
-                    for (int i = 0; i < ddata.Height; i++)
+                    for (int i = 0; i < ddata.Height; i++, dptr += ddata.Stride - ddata.Width * 3)
                     {
+                        if (i == 0 || i == ddata.Height - 1) continue;
+
                         si = (int)(i * scaley);
 
-                        for (int j = 0; j < ddata.Width; j++)
+                        for (int j = 0; j < ddata.Width; j++,dptr += 3)
                         {
+                            if (j == 0 || j == ddata.Width - 1) continue;
+
+                            int a = 0, b = 0, c = 0;
                             sj = (int)(j * scalex);
 
-                            sp = sptr + (si * sdata.Stride + sj * 3);
+                            sp_up = sptr + ((si - 1) * sdata.Stride + sj * 3);
+                            sp_down = sptr + ((si + 1) * sdata.Stride + sj * 3);
+                            sp_left = sptr + (si * sdata.Stride + (sj-1) * 3);
+                            sp_right = sptr + (si * sdata.Stride + (sj + 1) * 3);
 
-                            dptr[0] = sp[0];
-                            dptr[1] = sp[1];
-                            dptr[2] = sp[2];
+                            a = sp_up[0] + sp_down[0] + sp_left[0] + sp_right[0];
+                            b = sp_up[1] + sp_down[1] + sp_left[1] + sp_right[1];
+                            c = sp_up[2] + sp_down[2] + sp_left[2] + sp_right[2];
 
-                            dptr += 3;
+                            dptr[0] = (byte)(a >>2);
+                            dptr[1] = (byte)(b >>2);
+                            dptr[2] = (byte)(c >>2);
                         }
-
-                        dptr += ddata.Stride - ddata.Width * 3;
                     }
                 }
 
                 sbitmap.UnlockBits(sdata);
                 dbitmap.UnlockBits(ddata);
+
+                stopwatch.Stop();
+                IO.CurrentIO.Write($"[OLSP]线性插值:{stopwatch.ElapsedMilliseconds}ms");
             }
             return dbitmap;
         }
