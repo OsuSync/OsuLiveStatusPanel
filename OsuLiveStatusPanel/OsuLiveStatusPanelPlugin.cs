@@ -42,6 +42,16 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement Width { get; set; } = "1920";
         public ConfigurationElement Height { get; set; } = "1080";
 
+        public ConfigurationElement EnableOutputModPicture { get; set; } = "0";
+        public ConfigurationElement OutputModImageFilePath { get; set; } = @"..\output_mod.png";
+
+        public ConfigurationElement ModUnitPixel { get; set; } = "90";
+        public ConfigurationElement ModUnitOffset { get; set; } = "10";
+
+        public ConfigurationElement ModSkinPath { get; set; } = "";
+
+        public ConfigurationElement ModIsHorizon { get; set; } = "1";
+
         public ConfigurationElement EnableScaleClipOutputImageFile { get; set; } = "1";
 
         public ConfigurationElement EnableListenOutputImageFile { get; set; } = "1";
@@ -61,6 +71,8 @@ namespace OsuLiveStatusPanel
         private PluginConfigurationManager manager;
 
         private string OsuSyncPath;
+
+        public ModsPictureGenerator mods_pic_output;
 
         public BeatmapInfomationGeneratorPlugin PPShowPluginInstance { get; private set; }
 
@@ -289,7 +301,29 @@ namespace OsuLiveStatusPanel
                 mod = $"{OsuRTDataProviderWrapperInstance.current_mod.ShortName}";
             }
 
+            if (EnableOutputModPicture=="1"&&mods_pic_output==null)
+            {
+                //init mods_pic_output
+                TryCreateModsPictureGenerator(out mods_pic_output);
+            }
+
             OutputBeatmapInfomation(current_beatmap, mod);
+
+            if (current_beatmap.OutputType==OutputType.Play)
+            {
+                using (Bitmap result = mods_pic_output?.GenerateModsPicture(OsuRTDataProviderWrapperInstance.current_mod.Name.Split(',')))
+                {
+                    result.Save(OutputModImageFilePath, ImageFormat.Png);
+                }
+            }
+            else
+            {
+                //clean
+                if (File.Exists(OutputModImageFilePath))
+                {
+                    File.Delete(OutputModImageFilePath);
+                }
+            }
 
             return true;
         }
@@ -297,6 +331,11 @@ namespace OsuLiveStatusPanel
         private void OutputInfomationClean()
         {
             PPShowPluginInstance?.Output(OutputType.Listen,string.Empty, string.Empty);
+
+            if (File.Exists(OutputModImageFilePath))
+            {
+                File.Delete(OutputModImageFilePath);
+            }
         }
 
         private bool ApplyBeatmapInfomationforNowPlaying(BeatmapEntry current_beatmap)
@@ -370,6 +409,41 @@ namespace OsuLiveStatusPanel
         }
 
         #region tool func
+
+        private void TryCreateModsPictureGenerator(out ModsPictureGenerator modsPictureGenerator)
+        {
+            Process process = Process.GetProcessesByName("osu!")?.First();
+            if (process==null)
+            {
+                modsPictureGenerator = null;
+                return;
+            }
+
+            string osu_path = Path.GetDirectoryName(process.MainModule.FileName);
+            string osu_config_file = Path.Combine(osu_path, $"osu!.{Environment.UserName}.cfg");
+            string using_skin_name=string.Empty;
+
+            var lines = File.ReadLines(osu_config_file);
+            foreach (var line in lines)
+            {
+                if (line.Trim().StartsWith("Skin =")|| line.Trim().StartsWith("Skin="))
+                {
+                    using_skin_name = line.Split('=')[1].Trim();
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(using_skin_name))
+            {
+                modsPictureGenerator = null;
+                return;
+            }
+
+            string using_skin_path = Path.Combine(osu_path,"Skins", using_skin_name);
+
+            IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}",ConsoleColor.Cyan);
+
+            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1");
+        }
 
         private void OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
         {
