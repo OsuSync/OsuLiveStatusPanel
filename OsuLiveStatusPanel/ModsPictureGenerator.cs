@@ -41,8 +41,8 @@ namespace OsuLiveStatusPanel
         private readonly bool is_extra_mod;
         private readonly int output_Pixel_Length;
         private readonly int pixel_Offset;
+        private readonly bool is_2x;
         private readonly bool is_Horizon;
-
         Dictionary<string, Bitmap> cache_mod_bitmap = new Dictionary<string, Bitmap>();
 
         #region Construction
@@ -55,13 +55,14 @@ namespace OsuLiveStatusPanel
         /// <param name="output_pixel_length">输出每个mod图片大小</param>
         /// <param name="pixel_offset">输出每个mod之间的像素空隙</param>
         /// <param name="is_horizon">输出的mods是否水平排列</param>
-        public ModsPictureGenerator(string current_using_skin_path,string mods_skin_folder_path,int output_pixel_length, int pixel_offset,bool is_horizon)
+        public ModsPictureGenerator(string current_using_skin_path,string mods_skin_folder_path,int output_pixel_length, int pixel_offset,bool is_horizon,bool is_2x)
         {
             osu_current_skin_path = current_using_skin_path;
             mods_Skin_Folder_Path = mods_skin_folder_path;
             output_Pixel_Length = output_pixel_length;
             pixel_Offset = pixel_offset;
             is_Horizon = is_horizon;
+            this.is_2x = is_2x;
             is_extra_mod = !string.IsNullOrWhiteSpace(mods_skin_folder_path);
         }
 
@@ -78,7 +79,7 @@ namespace OsuLiveStatusPanel
         private Bitmap LoadModBitmapFromFile(string mod_name)
         {
             string mod_file_path,mod_file_name=GetModFileName(mod_name);
-            mod_file_name += ".png";
+            mod_file_name += (is_2x?"@2x":string.Empty)+".png";
 
             if (is_extra_mod)
             {

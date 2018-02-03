@@ -48,6 +48,8 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement ModUnitPixel { get; set; } = "90";
         public ConfigurationElement ModUnitOffset { get; set; } = "10";
 
+        public ConfigurationElement ModUse2x { get; set; } = "0";
+
         public ConfigurationElement ModSkinPath { get; set; } = "";
 
         public ConfigurationElement ModIsHorizon { get; set; } = "1";
@@ -442,7 +444,7 @@ namespace OsuLiveStatusPanel
 
             IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}",ConsoleColor.Cyan);
 
-            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1");
+            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1",ModUse2x=="1");
         }
 
         private void OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
