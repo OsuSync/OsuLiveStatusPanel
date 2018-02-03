@@ -24,7 +24,17 @@ namespace OsuLiveStatusPanel
 
         public OsuRTDataProviderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
+            RefPanelPlugin.OnSettingChanged += () =>
+            {
+                var beatmap = GetCurrentBeatmap();
 
+                if (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank)
+                    beatmap.OutputType = OutputType.Play;
+                else
+                    beatmap.OutputType = OutputType.Listen;
+
+                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap =  beatmap});
+            };
         }
 
         public void OnCurrentBeatmapChange(Beatmap beatmap)

@@ -10,8 +10,23 @@ namespace OsuLiveStatusPanel
 {
     internal class NowPlayingWrapper : SourceWrapperBase<NowPlaying.NowPlaying>
     {
+        private NowPlaying.BeatmapEntry current_beatmap;
+
         public NowPlayingWrapper(NowPlaying.NowPlaying ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
+            RefPanelPlugin.OnSettingChanged += () =>
+            {
+                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter()
+                {
+                    beatmap = current_beatmap == null ? null : new BeatmapEntry()
+                    {
+                        OutputType = OutputType.Play,
+                        OsuFilePath = current_beatmap.OsuFilePath,
+                        BeatmapId = current_beatmap.BeatmapId,
+                        BeatmapSetId = current_beatmap.BeatmapSetId
+                    }
+                });
+            };
         }
 
         public override bool Attach()
@@ -27,6 +42,7 @@ namespace OsuLiveStatusPanel
                         BeatmapSetId = beatmap.NewBeatmap.BeatmapSetId
                     }
                 });
+                current_beatmap = beatmap.NewBeatmap;
             });
 
             return true;

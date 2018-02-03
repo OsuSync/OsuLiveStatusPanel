@@ -64,9 +64,11 @@ namespace OsuLiveStatusPanel
         /// <summary>
         /// 当前谱面背景文件保存路径
         /// </summary>
-        public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png"; 
-        
+        public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png";
+
         #endregion Options
+
+        public event Action OnSettingChanged;
 
         private UsingSource source = UsingSource.None;
 
@@ -313,9 +315,12 @@ namespace OsuLiveStatusPanel
 
             if (current_beatmap.OutputType==OutputType.Play)
             {
-                using (Bitmap result = mods_pic_output?.GenerateModsPicture(OsuRTDataProviderWrapperInstance.current_mod.Name.Split(',')))
+                if (mods_pic_output != null)
                 {
-                    result.Save(OutputModImageFilePath, ImageFormat.Png);
+                    using (Bitmap result = mods_pic_output.GenerateModsPicture(OsuRTDataProviderWrapperInstance.current_mod.Name.Split(',')))
+                    {
+                        result.Save(OutputModImageFilePath, ImageFormat.Png);
+                    }
                 }
             }
             else
@@ -547,7 +552,8 @@ namespace OsuLiveStatusPanel
 
         public void onConfigurationReload()
         {
-            ReInitizePlugin();
+            mods_pic_output = null;
+            OnSettingChanged();
         }
 
         public override void OnExit()
