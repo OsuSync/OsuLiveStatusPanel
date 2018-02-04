@@ -22,7 +22,7 @@ using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
-    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33","1.0.6")]
+    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33","1.1.0")]
     public class OsuLiveStatusPanelPlugin : Plugin, IConfigurable
     {
         private enum UsingSource
