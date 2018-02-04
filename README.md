@@ -12,8 +12,8 @@
 * [OsuRTDataProvider(原MemoryReader)](https://github.com/KedamaOvO/OsuRTDataProvider-Release)
 
 ## 截图
+![](https://puu.sh/zgbjf/75e7809432.jpg)
 ![](https://puu.sh/xAeUS/3fd87076b7.png)
-![](https://puu.sh/x95HP/94247ebd27.png)
 ![](https://puu.sh/xAeKe/e3bb87eba6.png)
 
 ## 使用方法
@@ -38,19 +38,23 @@
 ## 关于Config.ini中各个设置的解释
 | 设置名称     | 值|默认值| 描述|
 |:---------|:---------|:---------|:-------|
-| Width | uint |1920| 模糊图片后宽度      |
-| Height | uint |1080| 模糊图片后高度     |
-| BlurRadius | uint |7| 高斯模糊半径     |
-| OutputArtistTitleDiffFilePath | string |..\output_current_playing.txt| 输出铺面基本信息文件路径   |
 | OutputBackgroundImageFilePath | string |..\output_result.png| 输出模糊图片文件路径     |
 | AllowUsedMemoryReader | 0/1 |0| 是否允许使用MemoryReader插件来获取当前谱面信息(和AllowUsedNowPlaying二选一)     |
 | AllowUsedNowPlaying | 0/1 |1| 是否允许使用NowPlaying插件来获取当前谱面信息(和AllowUsedMemoryReader二选一)     |
-| AllowGetDiffNameFromOsuAPI | 0/1 |1| 是否允许使用OsuAPI来获取谱面难度名称     |
-| EnableGenerateBlurImageFile | 0/1 |1| 是否允许模糊谱面背景图片并输出     |
 | PPShowJsonConfigFilePath | string |..\PPShowConfig.json| PPShowPlugin配置文件路径     |
 |PPShowAllowDumpInfo|0/1|1|是否允许内置的PPShowPlugin输出解析结果在Sync程序内|
-|EnableDebug|0/1|0|是否允许捕捉不到背景图片的osu路径输出|
 |DebugOutputBGMatchFailedListFilePath|string|..\failed_list.txt|匹配背景图失败的osu路径|
+|EnableOutputModPicture|0/1|0|是否生成Mod图片并输出|
+|OutputModImageFilePath|string|..\output_mod.png|生成的Mod图片保存路径|
+|ModUnitPixel|uint|90|每个Mod图片的大小(屙屎皮肤一般都是90*90)|
+|ModUnitOffset|uint|10|每个Mod图片相距|
+|ModUse2x|0/1|0|是否钦定使用@2x结尾的源Mod图片|
+|ModSkinPath|string||优先选择的Mod皮肤文件夹路径(如果这个文件夹没mod图片,再去当前打图皮肤文件夹找,打图默认皮肤玩家请使用这个强制选择要输出的图片)|
+|ModIsHorizon|0/1|1|是否水平排列输出(否则垂直)|
+|EnableScaleClipOutputImageFile|0/1|1|是否按固定分辨率输出背景图片(否则会直接复制图片到钦定输出路径)|
+| Width | uint |1920| 固定图片宽度(EnableScaleClipOutputImageFile=1有效)     |
+| Height | uint |1080| 固定图片后高度(EnableScaleClipOutputImageFile=1有效)     |
+|EnableListenOutputImageFile|0/1|1|选图界面是否也会输出背景图片(钦定ORTDP源)|
 
 ## 末尾
 若有疑问、建议或出现bugs，可以创建issue或者私发邮件到mikirasora0409@126.com,欢迎提交PR
