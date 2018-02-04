@@ -553,7 +553,11 @@ namespace OsuLiveStatusPanel
         public void onConfigurationReload()
         {
             mods_pic_output = null;
-            OnSettingChanged();
+            if (source==UsingSource.OsuRTDataProvider)
+            {
+                TryCreateModsPictureGenerator(out mods_pic_output);
+            }
+            OnSettingChanged?.Invoke();
         }
 
         public override void OnExit()
