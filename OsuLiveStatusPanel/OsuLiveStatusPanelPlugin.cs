@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Media.Effects;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 using static OsuLiveStatusPanel.Languages;
+using System.Numerics;
 
 namespace OsuLiveStatusPanel
 {
@@ -469,12 +470,12 @@ namespace OsuLiveStatusPanel
 
         private Bitmap GetFixedResolutionBitmap(string file,int dstw,int dsth)
         {
-            double r = dstw / (double)dsth;
+            float r = dstw / (float)dsth;
             var dbitmap = new Bitmap(dstw, dsth);
 
             using (var sbitmap = new Bitmap(file))
             {
-                double w = 0, h = 0;
+                float w = 0, h = 0;
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
@@ -499,8 +500,8 @@ namespace OsuLiveStatusPanel
                 var sdata = sbitmap.LockBits(rectangle, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
                 var ddata = dbitmap.LockBits(new Rectangle(0, 0, dstw, dsth), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
 
-                double scalex = sdata.Width / (double)ddata.Width;
-                double scaley = sdata.Height / (double)ddata.Height;
+                float scalex = sdata.Width / (float)ddata.Width;
+                float scaley = sdata.Height / (float)ddata.Height;
 
                 unsafe
                 {
@@ -508,35 +509,44 @@ namespace OsuLiveStatusPanel
                     byte* dptr = (byte*)(ddata.Scan0);
                     byte* sp_up,sp_down, sp_left,sp_right;
                     int si = 0, sj = 0;
-                    double u, v;
+
+                    float t;
+                    float u, v, omu,omv;
+                    Vector4 abcd;
+                    Vector4 g1, g2, g3;
 
                     for (int i = 0; i < ddata.Height; i++, dptr += ddata.Stride - ddata.Width * 3)
                     {
-                        double t = i * scaley;
+                        t = i * scaley;
                         si = (int)(t);
                         v = t-si;
 
-                        if (si == 0 || (si + 1) == sdata.Height) continue;
+                        if ((si + 1) == sdata.Height) continue;
 
                         for (int j = 0; j < ddata.Width; j++,dptr += 3)
                         {
                             t = j * scalex;
                             sj = (int)(t);
                             u = t - sj;
-                            if (sj == 0 || (sj + 1) == sdata.Width) continue;
+                            if ((sj + 1) == sdata.Width) continue;
 
-                            double omu = 1 - u;
-                            double omv = 1 - v;
-                            double a = omu * omv, b = u * v, c = omu * v, d = omv * u;
+                            omu = 1 - u;
+                            omv = 1 - v;
+
+                            abcd.X = omu * omv;abcd.Y = u * v;abcd.Z = omu * v;abcd.W = omv * u;
 
                             sp_up    = sptr + ((si - 0) * sdata.Stride + (sj - 0) * 3);//left up 0,0
                             sp_down  = sptr + ((si + 1) * sdata.Stride + (sj + 1) * 3);//right down 1,1
                             sp_left  = sptr + ((si + 1) * sdata.Stride + (sj - 0) * 3);//left down 0,1
                             sp_right = sptr + ((si - 0) * sdata.Stride + (sj + 1) * 3);//rigth up 1,0
 
-                            dptr[0] = (byte)(sp_up[0] * a + sp_down[0] * b + sp_left[0] * c + sp_right[0] * d);
-                            dptr[1] = (byte)(sp_up[1] * a + sp_down[1] * b + sp_left[1] * c + sp_right[1] * d);
-                            dptr[2] = (byte)(sp_up[2] * a + sp_down[2] * b + sp_left[2] * c + sp_right[2] * d);
+                            g1.X = sp_up[0]; g1.Y = sp_down[0]; g1.Z = sp_left[0]; g1.W = sp_right[0];
+                            g2.X = sp_up[1]; g2.Y = sp_down[1]; g2.Z = sp_left[1]; g2.W = sp_right[1];
+                            g3.X = sp_up[2]; g3.Y = sp_down[2]; g3.Z = sp_left[2]; g3.W = sp_right[2];
+
+                            dptr[0] = (byte)(Vector4.Dot(g1, abcd));
+                            dptr[1] = (byte)(Vector4.Dot(g2, abcd));
+                            dptr[2] = (byte)(Vector4.Dot(g3, abcd));
                         }
                     }
                 }
