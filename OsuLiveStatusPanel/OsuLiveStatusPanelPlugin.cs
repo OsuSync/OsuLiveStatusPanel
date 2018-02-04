@@ -48,6 +48,9 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement ModUnitPixel { get; set; } = "90";
         public ConfigurationElement ModUnitOffset { get; set; } = "10";
 
+        public ConfigurationElement ModSortReverse { get; set; } = "1";
+        public ConfigurationElement ModDrawReverse { get; set; } = "1";
+
         public ConfigurationElement ModUse2x { get; set; } = "0";
 
         public ConfigurationElement ModSkinPath { get; set; } = "";
@@ -317,7 +320,9 @@ namespace OsuLiveStatusPanel
             {
                 if (mods_pic_output != null)
                 {
-                    using (Bitmap result = mods_pic_output.GenerateModsPicture(OsuRTDataProviderWrapperInstance.current_mod.Name.Split(',')))
+                    var mod_list = OsuRTDataProviderWrapperInstance.current_mod.Name.Split(',');
+
+                    using (Bitmap result = mods_pic_output.GenerateModsPicture(mod_list))
                     {
                         result.Save(OutputModImageFilePath, ImageFormat.Png);
                     }
@@ -449,7 +454,7 @@ namespace OsuLiveStatusPanel
 
             IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}",ConsoleColor.Cyan);
 
-            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1",ModUse2x=="1");
+            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1",ModUse2x=="1",ModSortReverse=="1",ModDrawReverse=="1");
         }
 
         private void OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)

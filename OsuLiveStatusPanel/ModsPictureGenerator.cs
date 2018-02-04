@@ -42,6 +42,8 @@ namespace OsuLiveStatusPanel
         private readonly int output_Pixel_Length;
         private readonly int pixel_Offset;
         private readonly bool is_2x;
+        private readonly bool is_Sort_Reverse;
+        private readonly bool is_Draw_Reverse;
         private readonly bool is_Horizon;
         Dictionary<string, Bitmap> cache_mod_bitmap = new Dictionary<string, Bitmap>();
 
@@ -55,7 +57,7 @@ namespace OsuLiveStatusPanel
         /// <param name="output_pixel_length">输出每个mod图片大小</param>
         /// <param name="pixel_offset">输出每个mod之间的像素空隙</param>
         /// <param name="is_horizon">输出的mods是否水平排列</param>
-        public ModsPictureGenerator(string current_using_skin_path,string mods_skin_folder_path,int output_pixel_length, int pixel_offset,bool is_horizon,bool is_2x)
+        public ModsPictureGenerator(string current_using_skin_path,string mods_skin_folder_path,int output_pixel_length, int pixel_offset,bool is_horizon,bool is_2x,bool is_sort_reverse,bool is_draw_reverse)
         {
             osu_current_skin_path = current_using_skin_path;
             mods_Skin_Folder_Path = mods_skin_folder_path;
@@ -63,6 +65,8 @@ namespace OsuLiveStatusPanel
             pixel_Offset = pixel_offset;
             is_Horizon = is_horizon;
             this.is_2x = is_2x;
+            is_Sort_Reverse = is_sort_reverse;
+            is_Draw_Reverse = is_draw_reverse;
             is_extra_mod = !string.IsNullOrWhiteSpace(mods_skin_folder_path);
         }
 
@@ -120,6 +124,11 @@ namespace OsuLiveStatusPanel
 
         public Bitmap GenerateModsPicture(string[] mods)
         {
+            if (is_Sort_Reverse)
+            {
+                mods = mods.Reverse().ToArray();
+            }
+
             int width, height;
 
             if (is_Horizon)
@@ -138,9 +147,7 @@ namespace OsuLiveStatusPanel
 
             canvas.Clear(Color.FromArgb(0, 0, 0, 0));
 
-            int draw_count = 0; 
-
-            for (int i = 0; i < mods.Length; i++)
+            for (int i = is_Draw_Reverse? mods.Length-1 : 0; is_Draw_Reverse?(i>=0):(i < mods.Length); /*empty*/)
             {
                 string mod_name = mods[i];
 
@@ -150,16 +157,17 @@ namespace OsuLiveStatusPanel
                     continue;
                 }
 
-                int offset = (output_Pixel_Length +pixel_Offset)* draw_count;
+                int offset = (output_Pixel_Length +pixel_Offset)* i;
                 int draw_x = is_Horizon ? offset : 0;
                 int draw_y = is_Horizon ? 0 : offset;
+
                 canvas.DrawImage(mod_bitmap,draw_x,draw_y);
 
 #if DEBUG
-                IO.CurrentIO.WriteColor($"[MPG]Draw {draw_count}th({i}) {mod_name} at ({draw_x},{draw_y})", ConsoleColor.Cyan);
+                IO.CurrentIO.WriteColor($"[MPG]Draw {i}th {mod_name} at ({draw_x},{draw_y})", ConsoleColor.Cyan);
 #endif
-
-                draw_count++;
+                
+                i += (is_Draw_Reverse ? -1 : 1);
             }
 
             canvas.Dispose();
