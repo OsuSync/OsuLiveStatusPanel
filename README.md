@@ -16,24 +16,8 @@
 ![](https://puu.sh/xAeUS/3fd87076b7.png)
 ![](https://puu.sh/xAeKe/e3bb87eba6.png)
 
-## 使用方法
-从[这里](https://github.com/MikiraSora/OsuLiveStatusPanel/releases)下载我编译整理好的压缩包，**将里面的内容直接解压到OsuSync根目录即可**,然后可以自行修改参数.**默认情况下，会在OsuSync根目录有一个output文件夹，里面就是输出各种内容**
-
-### 如何检查这货是否运作正常或者出现其他问题
-* 在默认配置下:
-0. 请先确认您的Sync是否已经实装NowPlaying插件或者MemoryReader插件.检查config.ini文件中的配置,(确认Nowplaying插件是否已经开启.)
-![](https://puu.sh/yuyz5/1be983707c.png)
-<br>**如果没出现那些插件配置文件内容,请先打开一次OsuSync程序并退出**.
-1. 打开osu程序和osuSync,确定是否出现红框之类的内容
-![](https://puu.sh/y9J3S/00ce29c620.png)
-2. 进选图界面(**如果之前选择MemoryReader为源那就要选图一次再return**,MemoryReader才开始运作)
-3. 随便选一张图打然而暂停( 否则直接return会触发清理内容操作的 :P )
-4. 切出osu程序看看文件根目录是否多出png文件以及output文件夹是否多出文件,检查那些文件是否和你所打的图一样的信息
-![](https://puu.sh/y9Jdf/ef62f18023.png)
-
-* **此插件基于NowPlaying,使用前请务必配置好NowPlaying插件的设置**,MemoryReader是可选的插件,你可以选用MemoryReader插件来获取当前铺面信息(但你还是要NowPlaying插件),和Nowplaying有所不同的是,**MemoryReader支持获取当前铺面选用Mod**,如果你选用MemoryReader插件,那你可以在./output/PP.txt获取当前mod(默认配置).但因为后者MemoryReader的特殊性,**我们也不会为此MemoryReader插件的使用造成的损失负任何责任**,怂的话仅仅使用NowPlaying就可以,这是非常安全的.
-
-* 因为osu历史原因,NowPlaying会捕捉不到极少部分图的消息,导致于本插件没能输出任何内容,这锅不背;也因为osu历史原因,少部分谱面捕捉不到,这锅本插件背了;不过通过开启EnableDebug=1和配置DebugOutputBGMatchFailedListFilePath来输出那些没匹配背景图成功的osu路径,并提交给我,由我来改进.
+## 使用方法以及自定义输出
+请去[Wiki](https://github.com/MikiraSora/OsuLiveStatusPanel/wiki)
 
 ## 关于Config.ini中各个设置的解释
 | 设置名称     | 值|默认值| 描述|
@@ -47,6 +31,8 @@
 |EnableOutputModPicture|0/1|0|是否生成Mod图片并输出|
 |OutputModImageFilePath|string|..\output_mod.png|生成的Mod图片保存路径|
 |ModUnitPixel|uint|90|每个Mod图片的大小(屙屎皮肤一般都是90*90)|
+|ModSortReverse|0/1|1|反转Mod传入顺序
+|ModDrawReverse|0/1|1|是否要从右到左(从下到上)依次绘制mod图片(否则相反)
 |ModUnitOffset|uint|10|每个Mod图片相距|
 |ModUse2x|0/1|0|是否钦定使用@2x结尾的源Mod图片|
 |ModSkinPath|string||优先选择的Mod皮肤文件夹路径(如果这个文件夹没mod图片,再去当前打图皮肤文件夹找,打图默认皮肤玩家请使用这个强制选择要输出的图片)|
