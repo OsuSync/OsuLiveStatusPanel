@@ -348,6 +348,11 @@ namespace OsuLiveStatusPanel
             {
                 File.Delete(OutputModImageFilePath);
             }
+
+            if (File.Exists(OutputBackgroundImageFilePath))
+            {
+                File.Delete(OutputBackgroundImageFilePath);
+            }
         }
 
         private bool ApplyBeatmapInfomationforNowPlaying(BeatmapEntry current_beatmap)
