@@ -20,6 +20,7 @@ using System.Windows.Media.Effects;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 using static OsuLiveStatusPanel.Languages;
 using System.Numerics;
+using System.Reflection;
 
 namespace OsuLiveStatusPanel
 {
@@ -79,6 +80,12 @@ namespace OsuLiveStatusPanel
         private PluginConfigurationManager manager;
 
         private string OsuSyncPath;
+
+        #region DDPR_field
+
+        private string current_bg_file_path;
+
+        #endregion
 
         public ModsPictureGenerator mods_pic_output;
 
@@ -559,6 +566,44 @@ namespace OsuLiveStatusPanel
             }
             return dbitmap;
         }
+
+        #region DDPR
+
+        private Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>> DataGetterMap = new Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>>()
+        {
+            {"bg_path",(o)=>o.current_bg_file_path}
+        };
+
+        private bool GetCurrentPluginData(string name, out string value)
+        {
+            value = null;
+
+            if (DataGetterMap.TryGetValue(name, out var picker))
+            {
+                value = picker(this);
+                return true;
+            }
+
+            return false;
+        }
+
+        public string GetData(string name)
+        {
+            if (GetCurrentPluginData(name,out string result))
+            {
+                return result;
+            }
+
+            //try get from ppshow
+            if (PPShowPluginInstance?.CurrentOutputInfo?.TryGetValue(name,out result)?? false)
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        #endregion
 
         public void onConfigurationLoad()
         {
