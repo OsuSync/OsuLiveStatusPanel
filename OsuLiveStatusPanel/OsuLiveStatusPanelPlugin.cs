@@ -109,7 +109,7 @@ namespace OsuLiveStatusPanel
 
         private void OsuLiveStatusPanelPlugin_onInitCommand(PluginEvents.InitCommandEvent @event)
         {
-            @event.Commands.Dispatch.bind("livestatuspanel", (args) =>
+            @event.Commands.Dispatch.bind("olsp", (args) =>
             {
                 if (args.Count()==0)
                 {
@@ -121,6 +121,9 @@ namespace OsuLiveStatusPanel
                 {
                     case "help":
                         Help();
+                        break;
+                    case "get":
+                        IO.CurrentIO.WriteColor($"{args[1]}\t=\t{GetData(args[1])}", ConsoleColor.Cyan);
                         break;
                     case "restart":
                         ReInitizePlugin();
@@ -289,10 +292,6 @@ namespace OsuLiveStatusPanel
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CLEAN_STATUS}", ConsoleColor.Green);
 
             OutputInfomationClean();
-
-            using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
-            {
-            }
         }
 
         private void TryApplyBeatmapInfomation(object obj)
@@ -352,6 +351,8 @@ namespace OsuLiveStatusPanel
         {
             PPShowPluginInstance?.Output(OutputType.Listen,string.Empty, string.Empty);
 
+            current_bg_file_path = string.Empty;
+
             if (File.Exists(OutputModImageFilePath))
             {
                 File.Delete(OutputModImageFilePath);
@@ -393,7 +394,7 @@ namespace OsuLiveStatusPanel
             #region OutputBackgroundImage
 
             var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""", RegexOptions.IgnoreCase);
-            string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
+            string bgPath = current_bg_file_path = beatmap_folder + @"\" + match.Groups[1].Value;
 
             if (!File.Exists(bgPath))
             {
@@ -571,7 +572,12 @@ namespace OsuLiveStatusPanel
 
         private Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>> DataGetterMap = new Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>>()
         {
-            {"bg_path",(o)=>o.current_bg_file_path}
+            {"olsp_bg_path",o=>o.current_bg_file_path},
+            {"olsp_status",o=>o.SourceWrapper?.CurrentOutputType.ToString()},
+            {"olsp_bg_save_path",o=>o.OutputBackgroundImageFilePath },
+            {"olsp_mod_save_path",o=>o.OutputModImageFilePath },
+            {"olsp_ppshow_config_path",o=>o.PPShowJsonConfigFilePath },
+            {"olsp_source",o=>o.source.ToString() }
         };
 
         private bool GetCurrentPluginData(string name, out string value)

@@ -28,5 +28,6 @@ namespace OsuLiveStatusPanel
     {
         public abstract void Detach();
         public abstract bool Attach();
+        public OutputType CurrentOutputType { get; protected set; } = OutputType.Listen;
     }
 }
