@@ -27,7 +27,7 @@ namespace OsuLiveStatusPanel
         {
             if (!File.Exists(config_path))
             {
-                Config.InitConfigFile(config_path);
+                Config.CreateDefaultPPShowConfig(config_path);
                 throw new Exception(string.Format(PPSHOW_CONFIG_NOT_FOUND, config_path));
             }
 
@@ -37,7 +37,7 @@ namespace OsuLiveStatusPanel
 
         private void LoadConfig(string config_path)
         {
-            Config.InitConfig(config_path);
+            Config.LoadPPShowConfig(config_path);
         }
 
         private void Init()
@@ -68,11 +68,6 @@ namespace OsuLiveStatusPanel
                     ).ToList();
             }
 
-            if (Config.Instance.input_file.Length == 0)
-            {
-                throw new Exception(PPSHOW_CONFIG_PARSE_ERROR);
-            }
-            
             string oppai_path = Config.Instance.oppai;
 
             PP = new BeatmapInfomationGenerator(oppai_path, acc_list);
