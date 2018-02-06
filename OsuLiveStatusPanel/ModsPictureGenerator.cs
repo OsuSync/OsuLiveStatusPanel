@@ -34,7 +34,13 @@ namespace OsuLiveStatusPanel
                 {"ScoreV2" , "selection-mod-scorev2" }
             };
 
-        private static string GetModFileName(string mod_name)=>ModsFileNameTranslateMap[mod_name];
+        private static string GetModFileName(string mod_name)
+        {
+            if (ModsFileNameTranslateMap.TryGetValue(mod_name, out string result))
+                return result;
+            return null;
+        }
+
         
         private readonly string osu_current_skin_path;
         private readonly string mods_Skin_Folder_Path;
@@ -83,6 +89,12 @@ namespace OsuLiveStatusPanel
         private Bitmap LoadModBitmapFromFile(string mod_name)
         {
             string mod_file_path,mod_file_name=GetModFileName(mod_name);
+
+            if (mod_file_name==null)
+            {
+                return null;
+            }
+
             mod_file_name += (is_2x?"@2x":string.Empty)+".png";
 
             if (is_extra_mod)
@@ -147,7 +159,7 @@ namespace OsuLiveStatusPanel
 
             canvas.Clear(Color.FromArgb(0, 0, 0, 0));
 
-            for (int i = is_Draw_Reverse? mods.Length-1 : 0; is_Draw_Reverse?(i>=0):(i < mods.Length); /*empty*/)
+            for (int i = is_Draw_Reverse? mods.Length-1 : 0; is_Draw_Reverse?(i>=0):(i < mods.Length); i += (is_Draw_Reverse ? -1 : 1))
             {
                 string mod_name = mods[i];
 
@@ -167,7 +179,7 @@ namespace OsuLiveStatusPanel
                 IO.CurrentIO.WriteColor($"[MPG]Draw {i}th {mod_name} at ({draw_x},{draw_y})", ConsoleColor.Cyan);
 #endif
                 
-                i += (is_Draw_Reverse ? -1 : 1);
+                
             }
 
             canvas.Dispose();
