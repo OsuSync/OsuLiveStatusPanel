@@ -162,15 +162,15 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        public void Output(OutputType output_type,string osu_file_path, string mods_list)
+        public bool Output(OutputType output_type,string osu_file_path, string mods_list)
         {
             if (output_type==OutputType.Listen&&String.IsNullOrWhiteSpace(osu_file_path))
             {
                 ListenClean();
-                return;
+                return true;
             }
 
-            PP.TrigOutput(output_type,osu_file_path, mods_list);
+            return PP.TrigOutput(output_type,osu_file_path, mods_list);
         }
     }
 }

@@ -381,7 +381,11 @@ namespace OsuLiveStatusPanel
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
 
-            OutputInfomation(current_beatmap.OutputType, beatmap_osu_file, mod);
+            if(!OutputInfomation(current_beatmap.OutputType, beatmap_osu_file, mod))
+            {
+                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Cant output info {current_beatmap.BeatmapSetId}.", ConsoleColor.Yellow);
+                return;
+            }
 
             #region OutputBackgroundImage
 
@@ -463,9 +467,9 @@ namespace OsuLiveStatusPanel
             modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1",ModUse2x=="1",ModSortReverse=="1",ModDrawReverse=="1");
         }
 
-        private void OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
+        private bool OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
         {
-            PPShowPluginInstance.Output(output_type,osu_file_path, mod_list);
+            return PPShowPluginInstance.Output(output_type,osu_file_path, mod_list);
         }
 
         private Bitmap GetFixedResolutionBitmap(string file,int dstw,int dsth)

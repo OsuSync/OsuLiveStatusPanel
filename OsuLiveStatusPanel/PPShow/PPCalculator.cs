@@ -46,7 +46,7 @@ namespace OsuLiveStatusPanel
             sw = new Stopwatch();
         }
 
-        public void TrigOutput(OutputType output_type,string osu_file_path, string raw_mod_list, KeyValuePair<string, string>[] extra = null)
+        public bool TrigOutput(OutputType output_type,string osu_file_path, string raw_mod_list, KeyValuePair<string, string>[] extra = null)
         {
             sw.Restart();
 
@@ -121,6 +121,12 @@ namespace OsuLiveStatusPanel
             }
 
             #region GetBaseInfo
+
+            if (oppai_infos.Count==0)
+            {
+                return false;
+            }
+
             var oppai_json = oppai_infos.First();
             var type = oppai_json.GetType();
             var members = type.GetProperties();
@@ -155,6 +161,8 @@ namespace OsuLiveStatusPanel
             OnOutputEvent?.Invoke(output_type,oppai_infos, OutputDataMap);
             
             IO.CurrentIO.WriteColor($"[PPCalculator]{PPSHOW_FINISH}{sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
+
+            return true;
         }
 
         private OppaiJson GetOppaiResult(string oppai_cmd)
