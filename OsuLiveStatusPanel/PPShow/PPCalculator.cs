@@ -88,14 +88,21 @@ namespace OsuLiveStatusPanel
 
                     var oppai_result = GetOppaiResult(oppai_cmd);
 
-                    oppai_infos.Add(oppai_result);
+                    p.WaitForExit();
+                    p.Close();
+
+                    if (oppai_result!=null)
+                    {
+                        oppai_infos.Add(oppai_result);
+                    }
+                    else
+                    {
+                        break;
+                    }
 
                     //add pp
                     OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString();
                     OutputDataMap["mods_str"] = raw_mod_list;
-
-                    p.WaitForExit();
-                    p.Close();
                 }
             }
             else
@@ -104,6 +111,11 @@ namespace OsuLiveStatusPanel
                 oppai_cmd = $"\"{osu_file}\" -ojson";
 
                 var oppai_result = GetOppaiResult(oppai_cmd);
+
+                if (oppai_result==null)
+                {
+                    oppai_result = BeatmapReader.GetJsonFromFile(osu_file_path);
+                }
 
                 oppai_infos.Add(oppai_result);
             }
@@ -115,10 +127,17 @@ namespace OsuLiveStatusPanel
 
             foreach (var prop in members)
             {
+                var val=prop.GetValue(oppai_json);
+
+                if (val==null)
+                {
+                    continue;
+                }
+
                 if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string))
-                    OutputDataMap[prop.Name] = prop.GetValue(oppai_json).ToString();
+                    OutputDataMap[prop.Name] = val.ToString();
                 else
-                    OutputDataMap[prop.Name] = $"{prop.GetValue(oppai_json):F2}";
+                    OutputDataMap[prop.Name] = $"{val:F2}";
             }
             #endregion
 
@@ -153,10 +172,11 @@ namespace OsuLiveStatusPanel
 
             if (stderr.Length != 0)
             {
-                IO.CurrentIO.WriteColor("[PPCalculator]" + PPSHOW_BEATMAP_PARSE_ERROR + stderr, ConsoleColor.Red);
+                return null;
+                //IO.CurrentIO.WriteColor("[PPCalculator]" + PPSHOW_BEATMAP_PARSE_ERROR + stderr, ConsoleColor.Red);
             }
 
-            return JsonConvert.DeserializeObject<OppaiJson>(output);
+            return oppai_result;
         }
 
         private void AddExtraInfomation(Dictionary<string, string> dic)
@@ -164,8 +184,8 @@ namespace OsuLiveStatusPanel
             dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid", "-1")) > 0 ? (@"https://osu.ppy.sh/s/" + dic["beatmap_setid"]) : "";
             dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id", "-1")) > 0 ? (@"https://osu.ppy.sh/b/" + dic["beatmap_id"]) : string.Empty;
 
-            dic["title_avaliable"] = _TryGetValue("title_unicode", dic["title"]);
-            dic["artist_avaliable"] = _TryGetValue("artist_unicode", dic["artist"]);
+            dic["title_avaliable"] = _TryGetValue("title_unicode", _TryGetValue("title",string.Empty));
+            dic["artist_avaliable"] = _TryGetValue("artist_unicode", _TryGetValue("artist", string.Empty));
 
             dic["mods"] = dic["mods_str"];
             dic["circles"] = dic["num_circles"];
