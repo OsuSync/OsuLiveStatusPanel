@@ -28,10 +28,7 @@ namespace OsuLiveStatusPanel
             {
                 var beatmap = GetCurrentBeatmap();
 
-                if (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank)
-                    beatmap.OutputType = OutputType.Play;
-                else
-                    beatmap.OutputType = OutputType.Listen;
+                beatmap.OutputType = CurrentOutputType = (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank) ? OutputType.Play : OutputType.Listen;
 
                 RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap =  beatmap});
             };
@@ -77,7 +74,7 @@ namespace OsuLiveStatusPanel
                 {
                     var beatmap = GetCurrentBeatmap();
 
-                    beatmap.OutputType = OutputType.Play;
+                    beatmap.OutputType = CurrentOutputType = OutputType.Play;
 
                     RefPanelPlugin.OnBeatmapChanged(this,new BeatmapChangedParameter() { beatmap = beatmap });
                 }
@@ -120,7 +117,7 @@ namespace OsuLiveStatusPanel
 
                 BeatmapEntry beatmap = new BeatmapEntry()
                 {
-                    OutputType=OutputType.Listen,
+                    OutputType= CurrentOutputType = OutputType.Listen,
                     BeatmapId = beatmapID,
                     BeatmapSetId = beatmapSetID,
                     OsuFilePath = OsuFilePath
@@ -134,7 +131,7 @@ namespace OsuLiveStatusPanel
         {
             var beatmap = GetCurrentBeatmap();
 
-            beatmap.OutputType = OutputType.Listen;
+            beatmap.OutputType = CurrentOutputType  = OutputType.Listen;
 
             RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
         }

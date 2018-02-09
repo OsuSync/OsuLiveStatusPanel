@@ -20,7 +20,7 @@ namespace OsuLiveStatusPanel
                 {
                     beatmap = current_beatmap == null ? null : new BeatmapEntry()
                     {
-                        OutputType = OutputType.Play,
+                        OutputType = CurrentOutputType = OutputType.Play,
                         OsuFilePath = current_beatmap.OsuFilePath,
                         BeatmapId = current_beatmap.BeatmapId,
                         BeatmapSetId = current_beatmap.BeatmapSetId
@@ -36,7 +36,7 @@ namespace OsuLiveStatusPanel
                 {
                     beatmap = beatmap.NewBeatmap == null ? null : new BeatmapEntry()
                     {
-                        OutputType=OutputType.Play,
+                        OutputType= CurrentOutputType = OutputType.Play,
                         OsuFilePath = beatmap.NewBeatmap.OsuFilePath,
                         BeatmapId = beatmap.NewBeatmap.BeatmapId,
                         BeatmapSetId = beatmap.NewBeatmap.BeatmapSetId
