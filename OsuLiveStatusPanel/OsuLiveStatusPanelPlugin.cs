@@ -362,6 +362,8 @@ namespace OsuLiveStatusPanel
             {
                 File.Delete(OutputBackgroundImageFilePath);
             }
+
+            EventBus.RaiseEvent(new OutputInfomationEvent(OutputType.Listen));
         }
 
         private bool ApplyBeatmapInfomationforNowPlaying(BeatmapEntry current_beatmap)
@@ -425,11 +427,13 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
                 }
             }
-        
+
 
             #endregion
 
             #endregion GetInfo
+
+            EventBus.RaiseEvent(new OutputInfomationEvent(current_beatmap.OutputType));
 
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
         }

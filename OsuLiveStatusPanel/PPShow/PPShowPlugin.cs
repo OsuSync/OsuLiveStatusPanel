@@ -175,7 +175,9 @@ namespace OsuLiveStatusPanel
                 return;
             }
 
-            PP.TrigOutput(output_type,osu_file_path, mods_list);
+            KeyValuePair<string, string> extra_Data = new KeyValuePair<string, string>("osu_file_path", osu_file_path);
+
+            PP.TrigOutput(output_type,osu_file_path, mods_list, new[] { extra_Data });
         }
     }
 }
