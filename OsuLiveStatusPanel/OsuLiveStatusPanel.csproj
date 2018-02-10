@@ -54,11 +54,8 @@
   <ItemGroup>
     <Compile Include="Language.cs" />
     <Compile Include="ModsPictureGenerator.cs" />
-<<<<<<< HEAD
     <Compile Include="PPShow\Beatmap\BeatmapReader.cs" />
-=======
     <Compile Include="OutputInfomationEvent.cs" />
->>>>>>> ddpr
     <Compile Include="PPShow\OutputType.cs" />
     <Compile Include="SourcesWrapper\BeatmapChangedParameter.cs" />
     <Compile Include="SourcesWrapper\BeatmapEntry.cs" />
