@@ -177,7 +177,7 @@ namespace OsuLiveStatusPanel
 
         #region DDRP
 
-        public string GetData(string name)
+        public object GetData(string name)
         {
             if (CurrentOutputInfo == null)
                 return null;
@@ -185,17 +185,26 @@ namespace OsuLiveStatusPanel
             if (name != "pp")
             {
                 if (CurrentOutputInfo.TryGetValue(name, out string result))
+                {
+                    if (int.TryParse(result, out var ival))
+                        return ival;
+                    else if (double.TryParse(result, out var dval))
+                        return dval;
                     return result;
+                }
             }
             else
             {
                 //output pp
-                var dir = new Dictionary<string, string>();
+                var list = new List<object>();
                 foreach (var acc in PP.AccuracyList)
                     if (CurrentOutputInfo.TryGetValue($"pp:{acc:F2}%", out string pp))
-                        dir[$"{acc:F2}%"] = pp;
+                    {
+                        if(double.TryParse(pp, out var dval))
+                            list.Add(new { acc, pp=dval });
+                    }
 
-                return Newtonsoft.Json.JsonConvert.SerializeObject(dir);
+                return list;
             }
 
             return null;

@@ -603,7 +603,7 @@ namespace OsuLiveStatusPanel
             return false;
         }
 
-        public string GetData(string name)
+        public object GetData(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
