@@ -174,5 +174,33 @@ namespace OsuLiveStatusPanel
 
             return PP.TrigOutput(output_type,osu_file_path, mods_list, new[] { extra_Data });
         }
+
+        #region DDRP
+
+        public string GetData(string name)
+        {
+            if (CurrentOutputInfo == null)
+                return null;
+
+            if (name != "pp")
+            {
+                if (CurrentOutputInfo.TryGetValue(name, out string result))
+                    return result;
+            }
+            else
+            {
+                //output pp
+                var dir = new Dictionary<string, string>();
+                foreach (var acc in PP.AccuracyList)
+                    if (CurrentOutputInfo.TryGetValue($"pp:{acc:F2}%", out string pp))
+                        dir[$"{acc:F2}%"] = pp;
+
+                return Newtonsoft.Json.JsonConvert.SerializeObject(dir);
+            }
+
+            return null;
+        }
+
+        #endregion
     }
 }

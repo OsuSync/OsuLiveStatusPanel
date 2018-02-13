@@ -578,6 +578,8 @@ namespace OsuLiveStatusPanel
 
         #region DDPR
 
+        static readonly string[] ppshow_provideable_data_array = new[] { "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners" };
+
         private Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>> DataGetterMap = new Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>>()
         {
             {"olsp_bg_path",o=>o.current_bg_file_path},
@@ -614,23 +616,16 @@ namespace OsuLiveStatusPanel
             }
 
             //try get from ppshow
-            if (PPShowPluginInstance?.CurrentOutputInfo?.TryGetValue(name,out result)?? false)
-            {
-                return result;
-            }
-
-            return null;
+            return PPShowPluginInstance?.GetData(name);
         }
 
         public IEnumerable<string> EnumProvidableDataName()
         {
-            var list = new List<string>(PPShowPluginInstance?.CurrentOutputInfo?.Keys);
-            list.AddRange(DataGetterMap.Keys);
-
-            foreach (var name in list)
-            {
+            foreach (var name in DataGetterMap.Keys)
                 yield return name;
-            }
+
+            foreach (var name in ppshow_provideable_data_array)
+                yield return name;
         }
 
         #endregion
