@@ -603,6 +603,11 @@ namespace OsuLiveStatusPanel
 
         public string GetData(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return null;
+            }
+
             if (GetCurrentPluginData(name,out string result))
             {
                 return result;
@@ -615,6 +620,17 @@ namespace OsuLiveStatusPanel
             }
 
             return null;
+        }
+
+        public IEnumerable<string> EnumProvidableDataName()
+        {
+            var list = new List<string>(PPShowPluginInstance?.CurrentOutputInfo?.Keys);
+            list.AddRange(DataGetterMap.Keys);
+
+            foreach (var name in list)
+            {
+                yield return name;
+            }
         }
 
         #endregion
