@@ -28,7 +28,6 @@ namespace OsuLiveStatusPanel
             if (!File.Exists(config_path))
             {
                 Config.CreateDefaultPPShowConfig(config_path);
-                throw new Exception(string.Format(PPSHOW_CONFIG_NOT_FOUND, config_path));
             }
 
             LoadConfig(config_path);
