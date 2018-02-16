@@ -391,7 +391,7 @@ namespace OsuLiveStatusPanel
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
 
-            if(!OutputInfomation(current_beatmap.OutputType, beatmap_osu_file, mod))
+            if(!OutputInfomation(current_beatmap.OutputType, current_beatmap, mod))
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Cant output info {current_beatmap.BeatmapSetId}.", ConsoleColor.Yellow);
                 return;
@@ -479,9 +479,16 @@ namespace OsuLiveStatusPanel
             modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1",ModUse2x=="1",ModSortReverse=="1",ModDrawReverse=="1");
         }
 
-        private bool OutputInfomation(OutputType output_type, string osu_file_path,string mod_list)
+        private bool OutputInfomation(OutputType output_type, BeatmapEntry entry,string mod_list)
         {
-            return PPShowPluginInstance.Output(output_type,osu_file_path, mod_list);
+            KeyValuePair<string, string>[] extra_Data_arr = new[] 
+            {
+                new KeyValuePair<string, string>( "osu_file_path", entry.OsuFilePath ),
+                new KeyValuePair<string, string>( "beatmap_id", entry.BeatmapId.ToString() ),
+                new KeyValuePair<string, string>( "beatmap_setid", entry.BeatmapSetId.ToString() )
+            };
+
+            return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mod_list, extra_Data_arr);
         }
 
         private Bitmap GetFixedResolutionBitmap(string file,int dstw,int dsth)

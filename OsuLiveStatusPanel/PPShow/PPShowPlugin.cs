@@ -161,7 +161,7 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        public bool Output(OutputType output_type,string osu_file_path, string mods_list)
+        public bool Output(OutputType output_type,string osu_file_path, string mods_list, params KeyValuePair<string, string>[] extra)
         {
             if (output_type==OutputType.Listen&&String.IsNullOrWhiteSpace(osu_file_path))
             {
@@ -169,9 +169,7 @@ namespace OsuLiveStatusPanel
                 return true;
             }
 
-            KeyValuePair<string, string> extra_Data = new KeyValuePair<string, string>("osu_file_path", osu_file_path);
-
-            return PP.TrigOutput(output_type,osu_file_path, mods_list, new[] { extra_Data });
+            return PP.TrigOutput(output_type,osu_file_path, mods_list, extra);
         }
 
         #region DDRP

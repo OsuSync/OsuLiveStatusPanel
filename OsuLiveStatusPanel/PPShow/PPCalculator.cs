@@ -46,7 +46,7 @@ namespace OsuLiveStatusPanel
             sw = new Stopwatch();
         }
 
-        public bool TrigOutput(OutputType output_type,string osu_file_path, string raw_mod_list, KeyValuePair<string, string>[] extra = null)
+        public bool TrigOutput(OutputType output_type,string osu_file_path, string raw_mod_list,params KeyValuePair<string, string>[] extra)
         {
             sw.Restart();
 
