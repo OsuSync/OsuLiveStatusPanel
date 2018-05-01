@@ -20,14 +20,17 @@ namespace OsuLiveStatusPanel.ProcessEvent
         string bg_output_path;
         private string EnableListenOutputImageFile;
         private string EnableScaleClipOutputImageFile;
-        private string beatmap_folder;
-        private string Width;
-        private string Height;
+        private int Width;
+        private int Height;
 
         public BeatmapPictureOutputProcessRevevices(string output_path,string EnableListenOutputImageFile,string EnableScaleClipOutputImageFile
-            ,string beatmap_folder,int Width,int Height)
+            ,int Width,int Height)
         {
             bg_output_path = output_path;
+            this.EnableListenOutputImageFile = EnableListenOutputImageFile;
+            this.EnableScaleClipOutputImageFile = EnableScaleClipOutputImageFile;
+            this.Width = Width;
+            this.Height = Height;
         }
 
         public override void OnEventRegister(BaseEventDispatcher<IPluginEvent> EventBus)
@@ -44,39 +47,42 @@ namespace OsuLiveStatusPanel.ProcessEvent
             }
         }
 
-        public void OnChangeBeatmap(BeatmapChangedProcessEvent beatmap)
+        public async void OnChangeBeatmap(BeatmapChangedProcessEvent beatmap)
         {
             string osuFileContent = File.ReadAllText(beatmap.Beatmap.OsuFilePath);
             var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""", RegexOptions.IgnoreCase);
-            string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
+            string beatmap_folder = Directory.GetParent(beatmap.Beatmap.OsuFilePath).FullName;
+            string bgPath = Path.Combine(beatmap_folder , match.Groups[1].Value);
 
             if (!File.Exists(bgPath))
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
             }
 
-            try
+            await Task.Run(() =>
             {
-                if (EnableScaleClipOutputImageFile == "1")
+                try
                 {
+                    if (EnableScaleClipOutputImageFile == "1")
+                    {
 
-                    using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
-                    using (var fp = File.Open(bg_output_path, FileMode.Create, FileAccess.Write, FileShare.Read))
-                        bitmap.Save(fp, ImageFormat.Png);
+                        using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, Width, Height))
+                        using (var fp = File.Open(bg_output_path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                            bitmap.Save(fp, ImageFormat.Png);
+                    }
+                    else
+                    {
+                        //Copy image file.
+                        using (var dst = File.Open(bg_output_path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                        using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                            src.CopyTo(dst);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    //Copy image file.
-                    using (var dst = File.Open(bg_output_path, FileMode.Create, FileAccess.Write, FileShare.Read))
-                    using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        src.CopyTo(dst);
+                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
                 }
-            }
-            catch (Exception e)
-            {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
-            }
-
+            });
         }
         
         private Bitmap GetFixedResolutionBitmap(string file, int dstw, int dsth)

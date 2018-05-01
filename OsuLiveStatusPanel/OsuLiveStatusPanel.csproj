@@ -58,6 +58,7 @@
     <Compile Include="PPShow\Beatmap\BeatmapReader.cs" />
     <Compile Include="OutputInfomationEvent.cs" />
     <Compile Include="ProcessEvent\BeatmapPictureOutputProcessRevevices.cs" />
+    <Compile Include="ProcessEvent\ModsPictureOutputProcessReveicer.cs" />
     <Compile Include="ProcessEvent\PPCalculatorOutputProcessReceiver.cs" />
     <Compile Include="ProcessEvent\ProcessEvent\BeatmapChangedProcessEvent.cs" />
     <Compile Include="ProcessEvent\ProcessEvent\BeatmapPictureProcessEvent.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="ProcessEvent\Base\ProcessRecevierBase.cs" />
     <Compile Include="ProcessEvent\ProcessEvent\PackedMetadataProcessEvent.cs" />
     <Compile Include="ProcessEvent\ProcessEvent\StatusChangeProcessEvent.cs" />
+    <Compile Include="ProcessEvent\RestfulAPIGetterReceiver.cs" />
     <Compile Include="SourcesWrapper\BeatmapChangedParameter.cs" />
     <Compile Include="SourcesWrapper\BeatmapEntry.cs" />
     <Compile Include="SourcesWrapper\MemoryReaderWrapper.cs" />

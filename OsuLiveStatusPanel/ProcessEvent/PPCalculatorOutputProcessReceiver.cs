@@ -26,7 +26,7 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
         OutputType? output_type;
 
-        string current_mods,current_osu_file_path;
+        string current_mods,current_osu_file_path,full_mods;
 
         public PPCalculatorOutputProcessReceiver(string oppai_path,List<float> acc_list)
         {
@@ -62,7 +62,7 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
         public void OnClear(ClearProcessEvent e)
         {
-            current_mods = null;
+            current_mods= full_mods = null;
             current_osu_file_path = null;
             output_type = null;
         }
@@ -74,9 +74,17 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
         public void OnGetModString(MetadataProcessEvent metadata)
         {
-            if (current_mods!=null||metadata.Name != "mods")
-                return;
-            TrigCondition(metadata.Value);
+            switch (metadata.Name)
+            {
+                case "mods":
+                    TrigCondition(metadata.Value);
+                    break;
+                case "mods_full":
+                    full_mods = metadata.Value;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void TrigCondition(string mods=null,string path=null)
@@ -141,6 +149,8 @@ namespace OsuLiveStatusPanel.ProcessEvent
                     //add pp
                     OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString();
                     OutputDataMap["mods_str"] = raw_mod_list;
+
+                    IO.CurrentIO.Write($"{acc}  ->  {oppai_result.pp}pp");
                 }
             }
             else
@@ -186,6 +196,7 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
             //Fix mod adding.
             OutputDataMap["mods_str"] = raw_mod_list;
+            OutputDataMap["mods_full"] = full_mods;
 
             //add extra info(shortcut arguments)
             foreach (var pair in extra_data)
@@ -204,7 +215,7 @@ namespace OsuLiveStatusPanel.ProcessEvent
         {
             Utils.RecordTime("OutputResult", () =>
             {
-                info.ForEach(p => data_dic[$"pp:{p.accuracy:F2}%"] = p.pp.ToString());
+                //info.ForEach(p => data_dic[$"pp:{p.accuracy:F2}%"] = p.pp.ToString());
 
                 RaiseProcessEvent(new PackedMetadataProcessEvent()
                 {

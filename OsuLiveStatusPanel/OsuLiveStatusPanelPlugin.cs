@@ -145,6 +145,13 @@ namespace OsuLiveStatusPanel
             SyncHost host = evt.Host;
 
             SetupPlugin(host);
+            
+            RegisterProcess(new ProcessEvent.BeatmapPictureOutputProcessRevevices(OutputBackgroundImageFilePath, EnableListenOutputImageFile, EnableScaleClipOutputImageFile, int.Parse(Width), int.Parse(Height)));
+            
+            
+            if (EnableOutputModPicture=="1")
+                RegisterProcess(new ProcessEvent.ModsPictureOutputProcessReveicer(OutputModImageFilePath, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1", ModUse2x == "1", ModSortReverse == "1", ModDrawReverse == "1"));
+            
         }
 
         #region Commands
@@ -322,51 +329,9 @@ namespace OsuLiveStatusPanel
         private void OutputInfomationClean()
         {
             this.RaiseProcessEvent(new ClearProcessEvent());
-
-            current_bg_file_path = string.Empty;
-
-            if (File.Exists(OutputModImageFilePath))
-            {
-                File.Delete(OutputModImageFilePath);
-            }
         }
         
         #region tool func
-
-        private void TryCreateModsPictureGenerator(out ModsPictureGenerator modsPictureGenerator)
-        {
-            Process process = Process.GetProcessesByName("osu!")?.First();
-            if (process==null)
-            {
-                modsPictureGenerator = null;
-                return;
-            }
-
-            string osu_path = Path.GetDirectoryName(process.MainModule.FileName);
-            string osu_config_file = Path.Combine(osu_path, $"osu!.{Environment.UserName}.cfg");
-            string using_skin_name=string.Empty;
-
-            var lines = File.ReadLines(osu_config_file);
-            foreach (var line in lines)
-            {
-                if (line.Trim().StartsWith("Skin =")|| line.Trim().StartsWith("Skin="))
-                {
-                    using_skin_name = line.Split('=')[1].Trim();
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(using_skin_name))
-            {
-                modsPictureGenerator = null;
-                return;
-            }
-
-            string using_skin_path = Path.Combine(osu_path,"Skins", using_skin_name);
-
-            IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}",ConsoleColor.Cyan);
-
-            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1",ModUse2x=="1",ModSortReverse=="1",ModDrawReverse=="1");
-        }
         /*
         #region DDPR
 
@@ -435,10 +400,6 @@ namespace OsuLiveStatusPanel
         public void onConfigurationReload()
         {
             mods_pic_output = null;
-            if (source==UsingSource.OsuRTDataProvider)
-            {
-                TryCreateModsPictureGenerator(out mods_pic_output);
-            }
             OnSettingChanged?.Invoke();
         }
 

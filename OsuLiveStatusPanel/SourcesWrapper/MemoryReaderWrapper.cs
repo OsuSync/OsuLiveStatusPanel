@@ -30,6 +30,12 @@ namespace OsuLiveStatusPanel
                 Value = mods.ShortName
             });
 
+            ref_plugin.ListenerManager.OnModsChanged += mods => plugin.RaiseProcessEvent(new ProcessEvent.MetadataProcessEvent()
+            {
+                Name = "mods_full",
+                Value = mods.Name
+            });
+
             RefPanelPlugin.OnSettingChanged += () =>
             {
                 var beatmap = GetCurrentBeatmap();
@@ -82,8 +88,8 @@ namespace OsuLiveStatusPanel
 
                     //beatmap.OutputType = CurrentOutputType = OutputType.Play;
 
-                    RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
                     RefPanelPlugin.RaiseProcessEvent(new ProcessEvent.StatusChangeProcessEvent() { OutputType = OutputType.Play });
+                    RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
                 }
             }
         }
@@ -107,8 +113,8 @@ namespace OsuLiveStatusPanel
             {
                 if (status==OsuStatus.Listening)
                 {
-                    TrigListen();
                     RefPanelPlugin.RaiseProcessEvent(new ProcessEvent.StatusChangeProcessEvent() { OutputType = OutputType.Listen });
+                    TrigListen();
                 }
                 else
                 {
