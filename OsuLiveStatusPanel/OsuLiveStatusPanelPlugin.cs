@@ -21,6 +21,7 @@ using static OsuRTDataProvider.Listen.OsuListenerManager;
 using static OsuLiveStatusPanel.Languages;
 using System.Numerics;
 using System.Reflection;
+using OsuLiveStatusPanel.ProcessEvent;
 
 namespace OsuLiveStatusPanel
 {
@@ -123,7 +124,7 @@ namespace OsuLiveStatusPanel
                         Help();
                         break;
                     case "get":
-                        IO.CurrentIO.WriteColor($"{args[1]}\t=\t{GetData(args[1])}", ConsoleColor.Cyan);
+                        //IO.CurrentIO.WriteColor($"{args[1]}\t=\t{GetData(args[1])}", ConsoleColor.Cyan);
                         break;
                     case "restart":
                         ReInitizePlugin();
@@ -168,13 +169,29 @@ namespace OsuLiveStatusPanel
         }
 
         #endregion
+        
+        #region ProcessEvent
+
+        public void RegisterProcess(ProcessRecevierBase process)
+        {
+            process._dispatcher = EventBus;
+            process.OnEventRegister(EventBus);
+        }
+
+        public void RaiseProcessEvent<T>(T sender) where T: ProcessEventBase
+        {
+            //IO.CurrentIO.WriteColor($"[Process]{sender.ToString()}",ConsoleColor.Cyan);
+            EventBus.RaiseEvent<T>(sender);
+        }
+
+        #endregion
 
         private void SetupPlugin(SyncHost host)
         {
             OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
 
             //init PPShow
-            PPShowPluginInstance = new BeatmapInfomationGeneratorPlugin(PPShowJsonConfigFilePath);
+            PPShowPluginInstance = new BeatmapInfomationGeneratorPlugin(this,PPShowJsonConfigFilePath);
 
             source = UsingSource.None;
 
@@ -203,7 +220,7 @@ namespace OsuLiveStatusPanel
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_SUCCESS}", ConsoleColor.Green);
             }
-            
+
             CleanOsuStatus();
         }
 
@@ -265,9 +282,9 @@ namespace OsuLiveStatusPanel
 
         #region Kernal
 
-        public void OnBeatmapChanged(SourceWrapperBase source,BeatmapChangedParameter evt)
+        public void OnBeatmapChanged(BeatmapChangedParameter evt)
         {
-            if (source!=SourceWrapper)
+            if (SourceWrapper==null)
             {
                 return;
             }
@@ -294,62 +311,17 @@ namespace OsuLiveStatusPanel
             OutputInfomationClean();
         }
 
-        private void TryApplyBeatmapInfomation(object obj)
+        private void TryApplyBeatmapInfomation(BeatmapEntry beatmap)
         {
-            BeatmapEntry beatmap = obj as BeatmapEntry;
-            if (!(source == UsingSource.OsuRTDataProvider ? ApplyBeatmapInfomationforOsuRTDataProvider(beatmap) : ApplyBeatmapInfomationforNowPlaying(beatmap)))
-            {
-                CleanOsuStatus();
-            }
-        }
-
-        private bool ApplyBeatmapInfomationforOsuRTDataProvider(BeatmapEntry current_beatmap)
-        {
-            OsuRTDataProviderWrapper OsuRTDataProviderWrapperInstance = SourceWrapper as OsuRTDataProviderWrapper;
-
-            string mod = string.Empty;
-            //添加Mods
-            if (OsuRTDataProviderWrapperInstance.current_mod.Mod != OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown)
-            {
-                //处理不能用的PP
-                mod = $"{OsuRTDataProviderWrapperInstance.current_mod.ShortName}";
-            }
-
-            if (EnableOutputModPicture=="1"&&mods_pic_output==null)
-            {
-                //init mods_pic_output
-                TryCreateModsPictureGenerator(out mods_pic_output);
-            }
-
-            OutputBeatmapInfomation(current_beatmap, mod);
-
-            if (current_beatmap.OutputType==OutputType.Play)
-            {
-                if (mods_pic_output != null)
-                {
-                    var mod_list = OsuRTDataProviderWrapperInstance.current_mod.Name.Split(',');
-
-                    using (Bitmap result = mods_pic_output.GenerateModsPicture(mod_list))
-                    {
-                        result.Save(OutputModImageFilePath, ImageFormat.Png);
-                    }
-                }
-            }
+            if (string.IsNullOrWhiteSpace(beatmap.OsuFilePath))
+                this.RaiseProcessEvent(new ClearProcessEvent());
             else
-            {
-                //clean
-                if (File.Exists(OutputModImageFilePath))
-                {
-                    File.Delete(OutputModImageFilePath);
-                }
-            }
-
-            return true;
+                this.RaiseProcessEvent(new BeatmapChangedProcessEvent() { Beatmap=beatmap });
         }
 
         private void OutputInfomationClean()
         {
-            PPShowPluginInstance?.Output(OutputType.Listen,string.Empty, string.Empty);
+            this.RaiseProcessEvent(new ClearProcessEvent());
 
             current_bg_file_path = string.Empty;
 
@@ -357,91 +329,8 @@ namespace OsuLiveStatusPanel
             {
                 File.Delete(OutputModImageFilePath);
             }
-
-            if (File.Exists(OutputBackgroundImageFilePath))
-            {
-                File.Delete(OutputBackgroundImageFilePath);
-            }
-
-            EventBus.RaiseEvent(new OutputInfomationEvent(OutputType.Listen));
         }
-
-        private bool ApplyBeatmapInfomationforNowPlaying(BeatmapEntry current_beatmap)
-        {
-            #region GetInfo
-
-            string beatmap_osu_file = string.Empty;
-
-            beatmap_osu_file = current_beatmap.OsuFilePath;
-
-            if (string.IsNullOrWhiteSpace(beatmap_osu_file))
-            {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NO_BEATMAP_PATH}", ConsoleColor.Red);
-                return false;
-            }
-
-            OutputBeatmapInfomation(current_beatmap);
-
-            return true;
-        }
-
-        public void OutputBeatmapInfomation(BeatmapEntry current_beatmap, string mod = "")
-        {
-            string beatmap_osu_file = current_beatmap.OsuFilePath;
-            string osuFileContent = File.ReadAllText(beatmap_osu_file);
-            string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
-
-            if(!OutputInfomation(current_beatmap.OutputType, current_beatmap, mod))
-            {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Cant output info {current_beatmap.BeatmapSetId}.", ConsoleColor.Yellow);
-                return;
-            }
-
-            #region OutputBackgroundImage
-
-            var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""", RegexOptions.IgnoreCase);
-            string bgPath = current_bg_file_path = beatmap_folder + @"\" + match.Groups[1].Value;
-
-            if (!File.Exists(bgPath))
-            {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
-            }
-
-            if (EnableListenOutputImageFile == "1" || current_beatmap.OutputType == OutputType.Play)
-            {
-                try
-                {
-                    if (EnableScaleClipOutputImageFile == "1")
-                    {
-
-                        using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
-                        using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
-                            bitmap.Save(fp, ImageFormat.Png);
-                    }
-                    else
-                    {
-                        //Copy image file.
-                        using (var dst = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
-                        using (var src = File.Open(bgPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                            src.CopyTo(dst);
-                    }
-                }
-                catch (Exception e)
-                {
-                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
-                }
-            }
-
-
-            #endregion
-
-            #endregion GetInfo
-
-            EventBus.RaiseEvent(new OutputInfomationEvent(current_beatmap.OutputType));
-
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
-        }
-
+        
         #region tool func
 
         private void TryCreateModsPictureGenerator(out ModsPictureGenerator modsPictureGenerator)
@@ -478,111 +367,7 @@ namespace OsuLiveStatusPanel
 
             modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1",ModUse2x=="1",ModSortReverse=="1",ModDrawReverse=="1");
         }
-
-        private bool OutputInfomation(OutputType output_type, BeatmapEntry entry,string mod_list)
-        {
-            KeyValuePair<string, string>[] extra_Data_arr = new[] 
-            {
-                new KeyValuePair<string, string>( "osu_file_path", entry.OsuFilePath ),
-                new KeyValuePair<string, string>( "beatmap_id", entry.BeatmapId.ToString() ),
-                new KeyValuePair<string, string>( "beatmap_setid", entry.BeatmapSetId.ToString() )
-            };
-
-            return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mod_list, extra_Data_arr);
-        }
-
-        private Bitmap GetFixedResolutionBitmap(string file,int dstw,int dsth)
-        {
-            float r = dstw / (float)dsth;
-            var dbitmap = new Bitmap(dstw, dsth);
-
-            using (var sbitmap = new Bitmap(file))
-            {
-                float w = 0, h = 0;
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-
-                w = sbitmap.Width * r;
-                if (w > sbitmap.Width)
-                {
-                    w = sbitmap.Width;
-                    h = sbitmap.Width / r;
-                }
-                if(h > sbitmap.Height)
-                {
-                    w = sbitmap.Height * r;
-                    h = sbitmap.Height;
-                }
-
-                Rectangle rectangle = new Rectangle();
-                rectangle.Width = (int)w;
-                rectangle.Height = (int)h;
-                rectangle.X = (sbitmap.Width - rectangle.Width) / 2;
-                rectangle.Y = (sbitmap.Height - rectangle.Height) / 2;
-
-                var sdata = sbitmap.LockBits(rectangle, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                var ddata = dbitmap.LockBits(new Rectangle(0, 0, dstw, dsth), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-
-                float scalex = sdata.Width / (float)ddata.Width;
-                float scaley = sdata.Height / (float)ddata.Height;
-
-                unsafe
-                {
-                    byte* sptr = (byte*)(sdata.Scan0);
-                    byte* dptr = (byte*)(ddata.Scan0);
-                    byte* sp_up,sp_down, sp_left,sp_right;
-                    int si = 0, sj = 0;
-
-                    float t;
-                    float u, v, omu,omv;
-                    Vector4 abcd;
-                    Vector4 g1, g2, g3;
-
-                    for (int i = 0; i < ddata.Height; i++, dptr += ddata.Stride - ddata.Width * 3)
-                    {
-                        t = i * scaley;
-                        si = (int)(t);
-                        v = t-si;
-
-                        if ((si + 1) == sdata.Height) continue;
-
-                        for (int j = 0; j < ddata.Width; j++,dptr += 3)
-                        {
-                            t = j * scalex;
-                            sj = (int)(t);
-                            u = t - sj;
-                            if ((sj + 1) == sdata.Width) continue;
-
-                            omu = 1 - u;
-                            omv = 1 - v;
-
-                            abcd.X = omu * omv;abcd.Y = u * v;abcd.Z = omu * v;abcd.W = omv * u;
-
-                            sp_up    = sptr + ((si - 0) * sdata.Stride + (sj - 0) * 3);//left up 0,0
-                            sp_down  = sptr + ((si + 1) * sdata.Stride + (sj + 1) * 3);//right down 1,1
-                            sp_left  = sptr + ((si + 1) * sdata.Stride + (sj - 0) * 3);//left down 0,1
-                            sp_right = sptr + ((si - 0) * sdata.Stride + (sj + 1) * 3);//rigth up 1,0
-
-                            g1.X = sp_up[0]; g1.Y = sp_down[0]; g1.Z = sp_left[0]; g1.W = sp_right[0];
-                            g2.X = sp_up[1]; g2.Y = sp_down[1]; g2.Z = sp_left[1]; g2.W = sp_right[1];
-                            g3.X = sp_up[2]; g3.Y = sp_down[2]; g3.Z = sp_left[2]; g3.W = sp_right[2];
-
-                            dptr[0] = (byte)(Vector4.Dot(g1, abcd));
-                            dptr[1] = (byte)(Vector4.Dot(g2, abcd));
-                            dptr[2] = (byte)(Vector4.Dot(g3, abcd));
-                        }
-                    }
-                }
-
-                sbitmap.UnlockBits(sdata);
-                dbitmap.UnlockBits(ddata);
-
-                stopwatch.Stop();
-                IO.CurrentIO.Write($"[OLSP]线性插值:{stopwatch.ElapsedMilliseconds}ms");
-            }
-            return dbitmap;
-        }
-
+        /*
         #region DDPR
 
         static readonly string[] ppshow_provideable_data_array = new[] { "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners" };
@@ -636,7 +421,7 @@ namespace OsuLiveStatusPanel
         }
 
         #endregion
-
+        */
         public void onConfigurationLoad()
         {
 

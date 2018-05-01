@@ -1,37 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
+using Sync.Plugins;
 using Sync.Tools;
 using static OsuLiveStatusPanel.Languages;
 
-namespace OsuLiveStatusPanel
+namespace OsuLiveStatusPanel.ProcessEvent
 {
-    class BeatmapInfomationGenerator
+    class PPCalculatorOutputProcessReceiver : ProcessRecevierBase
     {
-        static readonly string[] OPPAI_SUPPORT_MODS = new[] {"NF","EZ","HD","HR","DT","HT","NC","FL","SO"};
+        static readonly string[] OPPAI_SUPPORT_MODS = new[] { "NF", "EZ", "HD", "HR", "DT", "HT", "NC", "FL", "SO" };
 
         public List<float> AccuracyList;
-        public delegate void OnOutputFunc(OutputType output_type,List<OppaiJson> info,Dictionary<string,string> data_dic);
-        public event OnOutputFunc OnOutputEvent;
 
-        Process p=null;
+        Process p = null;
 
         Stopwatch sw;
 
         string oppai;
 
-        public BeatmapInfomationGenerator(string oppai,List<float> acc_list)
+        OutputType? output_type;
+
+        string current_mods,current_osu_file_path;
+
+        public PPCalculatorOutputProcessReceiver(string oppai_path,List<float> acc_list)
         {
             AccuracyList = acc_list;
 
-            this.oppai = oppai;
+            this.oppai = oppai_path;
 
             p = new Process();
             p.StartInfo.FileName = oppai;
@@ -46,19 +47,54 @@ namespace OsuLiveStatusPanel
             sw = new Stopwatch();
         }
 
-        public bool TrigOutput(OutputType output_type,string osu_file_path, string raw_mod_list,params KeyValuePair<string, string>[] extra)
+        public override void OnEventRegister(BaseEventDispatcher<IPluginEvent> EventBus)
+        {
+            EventBus.BindEvent<BeatmapChangedProcessEvent>(OnChangeBeatmap);
+            EventBus.BindEvent<MetadataProcessEvent>(OnGetModString);
+            EventBus.BindEvent<ClearProcessEvent>(OnClear);
+            EventBus.BindEvent<StatusChangeProcessEvent>(OnStatusChange);
+        }
+
+        public void OnStatusChange(StatusChangeProcessEvent e)
+        {
+            output_type = e.OutputType;
+        }
+
+        public void OnClear(ClearProcessEvent e)
+        {
+            current_mods = null;
+            current_osu_file_path = null;
+            output_type = null;
+        }
+
+        public void OnChangeBeatmap(BeatmapChangedProcessEvent beatmap)
+        {
+            TrigCondition(null, beatmap.Beatmap.OsuFilePath);
+        }
+
+        public void OnGetModString(MetadataProcessEvent metadata)
+        {
+            if (current_mods!=null||metadata.Name != "mods")
+                return;
+            TrigCondition(metadata.Value);
+        }
+
+        public void TrigCondition(string mods=null,string path=null)
+        {
+            current_osu_file_path = path ?? current_osu_file_path;
+            current_mods = mods ?? current_mods;
+
+            if (current_mods == null || current_osu_file_path == null)
+                return;
+
+            CalculatePP();
+        }
+
+        public void CalculatePP()
         {
             sw.Restart();
 
             Dictionary<string, string> extra_data = new Dictionary<string, string>();
-
-            if (extra != null)
-            {   
-                foreach (var data in extra)
-                {
-                    extra_data[data.Key] = data.Value;
-                }
-            }
 
             Dictionary<string, string> OutputDataMap = new Dictionary<string, string>();
 
@@ -66,14 +102,16 @@ namespace OsuLiveStatusPanel
 
             string oppai_cmd;
 
-            string osu_file = osu_file_path;
+            string osu_file = current_osu_file_path;
+
+            string raw_mod_list = current_mods;
 
             if (raw_mod_list == "None")
                 raw_mod_list = "";
 
-            AddExtraInfomationFromBeatmapFile(osu_file_path, extra_data, raw_mod_list);
+            AddExtraInfomationFromBeatmapFile(current_osu_file_path, extra_data, raw_mod_list);
 
-            if (output_type == OutputType.Play)
+            if(output_type == OutputType.Play)
             {
                 string mods_str = string.Empty;
 
@@ -91,7 +129,7 @@ namespace OsuLiveStatusPanel
                     p.WaitForExit();
                     p.Close();
 
-                    if (oppai_result!=null)
+                    if (oppai_result != null)
                     {
                         oppai_infos.Add(oppai_result);
                     }
@@ -112,19 +150,18 @@ namespace OsuLiveStatusPanel
 
                 var oppai_result = GetOppaiResult(oppai_cmd);
 
-                if (oppai_result==null)
+                if (oppai_result == null)
                 {
-                    oppai_result = BeatmapReader.GetJsonFromFile(osu_file_path);
+                    oppai_result = BeatmapReader.GetJsonFromFile(current_osu_file_path);
                 }
 
                 oppai_infos.Add(oppai_result);
             }
-
             #region GetBaseInfo
 
-            if (oppai_infos.Count==0)
+            if (oppai_infos.Count == 0)
             {
-                return false;
+                return;
             }
 
             var oppai_json = oppai_infos.First();
@@ -133,9 +170,9 @@ namespace OsuLiveStatusPanel
 
             foreach (var prop in members)
             {
-                var val=prop.GetValue(oppai_json);
+                var val = prop.GetValue(oppai_json);
 
-                if (val==null)
+                if (val == null)
                 {
                     continue;
                 }
@@ -158,11 +195,42 @@ namespace OsuLiveStatusPanel
 
             AddExtraInfomation(OutputDataMap);
 
-            OnOutputEvent?.Invoke(output_type,oppai_infos, OutputDataMap);
-            
-            IO.CurrentIO.WriteColor($"[PPCalculator]{PPSHOW_FINISH}{sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
+            OutputResult(oppai_infos, OutputDataMap);
 
-            return true;
+            IO.CurrentIO.WriteColor($"[PPCalculator]{PPSHOW_FINISH}{sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
+        }
+
+        private void OutputResult(List<OppaiJson> info, Dictionary<string, string> data_dic)
+        {
+            Utils.RecordTime("OutputResult", () =>
+            {
+                info.ForEach(p => data_dic[$"pp:{p.accuracy:F2}%"] = p.pp.ToString());
+
+                RaiseProcessEvent(new PackedMetadataProcessEvent()
+                {
+                    OutputData = data_dic
+                });
+            });
+        }
+
+        private void AddExtraInfomation(Dictionary<string, string> dic)
+        {
+            dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid", "-1")) > 0 ? (@"https://osu.ppy.sh/s/" + dic["beatmap_setid"]) : "";
+            dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id", "-1")) > 0 ? (@"https://osu.ppy.sh/b/" + dic["beatmap_id"]) : string.Empty;
+
+            dic["title_avaliable"] = _TryGetValue("title_unicode", _TryGetValue("title", string.Empty));
+            dic["artist_avaliable"] = _TryGetValue("artist_unicode", _TryGetValue("artist", string.Empty));
+
+            dic["mods"] = dic["mods_str"];
+            dic["circles"] = dic["num_circles"];
+            dic["spinners"] = dic["num_spinners"];
+
+            string _TryGetValue(string key, string default_val = "")
+            {
+                if (!dic.TryGetValue(key, out string val))
+                    return default_val;
+                return val;
+            }
         }
 
         private OppaiJson GetOppaiResult(string oppai_cmd)
@@ -187,30 +255,10 @@ namespace OsuLiveStatusPanel
             return oppai_result;
         }
 
-        private void AddExtraInfomation(Dictionary<string, string> dic)
-        {
-            dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid", "-1")) > 0 ? (@"https://osu.ppy.sh/s/" + dic["beatmap_setid"]) : "";
-            dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id", "-1")) > 0 ? (@"https://osu.ppy.sh/b/" + dic["beatmap_id"]) : string.Empty;
-
-            dic["title_avaliable"] = _TryGetValue("title_unicode", _TryGetValue("title",string.Empty));
-            dic["artist_avaliable"] = _TryGetValue("artist_unicode", _TryGetValue("artist", string.Empty));
-
-            dic["mods"] = dic["mods_str"];
-            dic["circles"] = dic["num_circles"];
-            dic["spinners"] = dic["num_spinners"];
-
-            string _TryGetValue(string key, string default_val = "")
-            {
-                if (!dic.TryGetValue(key, out string val))
-                    return default_val;
-                return val;
-            }
-        }
-
-        private void AddExtraInfomationFromBeatmapFile(string file_path,Dictionary<string,string> extra_data,string mods)
+        private void AddExtraInfomationFromBeatmapFile(string file_path, Dictionary<string, string> extra_data, string mods)
         {
             int status = 0;
-            double min_bpm = int.MaxValue,max_bpm = int.MinValue,current_bpm =0;
+            double min_bpm = int.MaxValue, max_bpm = int.MinValue, current_bpm = 0;
 
             using (StreamReader reader = File.OpenText(file_path))
             {
@@ -221,7 +269,7 @@ namespace OsuLiveStatusPanel
                     switch (status)
                     {
                         case 0: //seeking
-                            if (line== "[Metadata]")
+                            if (line == "[Metadata]")
                             {
                                 status = 1;
                             }
@@ -269,22 +317,22 @@ namespace OsuLiveStatusPanel
                         case 2: //TimingPoints
                             if (string.IsNullOrWhiteSpace(line))
                             {
-                                min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
-                                max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+                                min_bpm = Math.Round(min_bpm, MidpointRounding.AwayFromZero);
+                                max_bpm = Math.Round(max_bpm, MidpointRounding.AwayFromZero);
 
-                                if (mods.Contains("DT")|| mods.Contains("NC"))
+                                if (mods.Contains("DT") || mods.Contains("NC"))
                                 {
                                     min_bpm *= 1.5;
                                     max_bpm *= 1.5;
-                                    min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
-                                    max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+                                    min_bpm = Math.Round(min_bpm, MidpointRounding.AwayFromZero);
+                                    max_bpm = Math.Round(max_bpm, MidpointRounding.AwayFromZero);
                                 }
                                 if (mods.Contains("HT"))
                                 {
                                     min_bpm *= 0.75;
                                     max_bpm *= 0.75;
-                                    min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
-                                    max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+                                    min_bpm = Math.Round(min_bpm, MidpointRounding.AwayFromZero);
+                                    max_bpm = Math.Round(max_bpm, MidpointRounding.AwayFromZero);
                                 }
 #if DEBUG
                                 IO.CurrentIO.Write($"[Oppai]BPM:{min_bpm} ~ {max_bpm}");
@@ -300,7 +348,7 @@ namespace OsuLiveStatusPanel
                             bool is_red_line = true;
                             string[] data = line.Split(',');
 
-                            if(data.Length>=7)
+                            if (data.Length >= 7)
                             {
                                 if (data[6] == "1" || string.IsNullOrWhiteSpace(data[6]))
                                     is_red_line = true;
@@ -312,14 +360,14 @@ namespace OsuLiveStatusPanel
 
                             double val = double.Parse(data[1]);
 
-                            if (val>0)
+                            if (val > 0)
                             {
                                 val = 60000 / val;
                                 current_bpm = val;
                             }
                             else
                             {
-                                double mul = Math.Abs(100 + val)/100.0f;
+                                double mul = Math.Abs(100 + val) / 100.0f;
                                 val = current_bpm * (1 + mul);
                                 break;
                             }

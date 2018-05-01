@@ -54,9 +54,20 @@
   <ItemGroup>
     <Compile Include="Language.cs" />
     <Compile Include="ModsPictureGenerator.cs" />
+    <Compile Include="OutputType.cs" />
     <Compile Include="PPShow\Beatmap\BeatmapReader.cs" />
     <Compile Include="OutputInfomationEvent.cs" />
-    <Compile Include="PPShow\OutputType.cs" />
+    <Compile Include="ProcessEvent\BeatmapPictureOutputProcessRevevices.cs" />
+    <Compile Include="ProcessEvent\PPCalculatorOutputProcessReceiver.cs" />
+    <Compile Include="ProcessEvent\ProcessEvent\BeatmapChangedProcessEvent.cs" />
+    <Compile Include="ProcessEvent\ProcessEvent\BeatmapPictureProcessEvent.cs" />
+    <Compile Include="ProcessEvent\ProcessEvent\ClearProcessEvent.cs" />
+    <Compile Include="ProcessEvent\ProcessEvent\MetadataProcessEvent.cs" />
+    <Compile Include="ProcessEvent\FormatOutputProcessRevevier.cs" />
+    <Compile Include="ProcessEvent\Base\ProcessEventBase.cs" />
+    <Compile Include="ProcessEvent\Base\ProcessRecevierBase.cs" />
+    <Compile Include="ProcessEvent\ProcessEvent\PackedMetadataProcessEvent.cs" />
+    <Compile Include="ProcessEvent\ProcessEvent\StatusChangeProcessEvent.cs" />
     <Compile Include="SourcesWrapper\BeatmapChangedParameter.cs" />
     <Compile Include="SourcesWrapper\BeatmapEntry.cs" />
     <Compile Include="SourcesWrapper\MemoryReaderWrapper.cs" />
@@ -64,11 +75,11 @@
     <Compile Include="PPShow\ConfigJson.cs" />
     <Compile Include="PPShow\OppaiJson.cs" />
     <Compile Include="PPShow\OutputFormatter.cs" />
-    <Compile Include="PPShow\PPCalculator.cs" />
     <Compile Include="PPShow\PPShowPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SourcesWrapper\NowPlayingWrapper.cs" />
     <Compile Include="SourcesWrapper\SourceWrapperBase.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MemoryReader\OsuRTDataProvider.csproj">

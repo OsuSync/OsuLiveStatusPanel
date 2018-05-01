@@ -9,7 +9,7 @@ namespace OsuLiveStatusPanel
     //copy from NowPlaying
     public class BeatmapEntry
     {
-        public OutputType OutputType { get; set; } = OutputType.Listen;
+        //public OutputType OutputType { get; set; } = OutputType.Listen;
 
         public int BeatmapId { get; set; }
         public int BeatmapSetId { get; set; }

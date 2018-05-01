@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 using OsuRTDataProvider;
+using OsuLiveStatusPanel.ProcessEvent;
 
 namespace OsuLiveStatusPanel
 {
@@ -24,13 +25,18 @@ namespace OsuLiveStatusPanel
 
         public OsuRTDataProviderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
+            ref_plugin.ListenerManager.OnModsChanged += mods => plugin.RaiseProcessEvent(new ProcessEvent.MetadataProcessEvent() {
+                Name = "mods",
+                Value = mods.ShortName
+            });
+
             RefPanelPlugin.OnSettingChanged += () =>
             {
                 var beatmap = GetCurrentBeatmap();
 
-                beatmap.OutputType = CurrentOutputType = (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank) ? OutputType.Play : OutputType.Listen;
+                //beatmap.OutputType = CurrentOutputType = (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank) ? OutputType.Play : OutputType.Listen;
 
-                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap =  beatmap});
+                RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap =  beatmap});
             };
         }
 
@@ -74,9 +80,10 @@ namespace OsuLiveStatusPanel
                 {
                     var beatmap = GetCurrentBeatmap();
 
-                    beatmap.OutputType = CurrentOutputType = OutputType.Play;
+                    //beatmap.OutputType = CurrentOutputType = OutputType.Play;
 
-                    RefPanelPlugin.OnBeatmapChanged(this,new BeatmapChangedParameter() { beatmap = beatmap });
+                    RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+                    RefPanelPlugin.RaiseProcessEvent(new ProcessEvent.StatusChangeProcessEvent() { OutputType = OutputType.Play });
                 }
             }
         }
@@ -101,10 +108,11 @@ namespace OsuLiveStatusPanel
                 if (status==OsuStatus.Listening)
                 {
                     TrigListen();
+                    RefPanelPlugin.RaiseProcessEvent(new ProcessEvent.StatusChangeProcessEvent() { OutputType = OutputType.Listen });
                 }
                 else
                 {
-                    RefPanelPlugin.OnBeatmapChanged(this, null);
+                    RefPanelPlugin.OnBeatmapChanged(null);
                 }
             }
             else
@@ -114,16 +122,17 @@ namespace OsuLiveStatusPanel
                     //fix for https://puu.sh/zelua/d60b98d496.jpg
                     return;
                 }
-
+                
                 BeatmapEntry beatmap = new BeatmapEntry()
                 {
-                    OutputType= CurrentOutputType = OutputType.Listen,
+                    //OutputType= CurrentOutputType = OutputType.Listen,
                     BeatmapId = beatmapID,
                     BeatmapSetId = beatmapSetID,
                     OsuFilePath = OsuFilePath
                 };
 
-                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
+
+                RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
             }
         }
 
@@ -131,9 +140,9 @@ namespace OsuLiveStatusPanel
         {
             var beatmap = GetCurrentBeatmap();
 
-            beatmap.OutputType = CurrentOutputType  = OutputType.Listen;
+            //beatmap.OutputType = CurrentOutputType  = OutputType.Listen;
 
-            RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
+            RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
         }
 
         public override void Detach()
@@ -148,6 +157,7 @@ namespace OsuLiveStatusPanel
             RefPlugin.ListenerManager.OnBeatmapChanged += OnCurrentBeatmapChange;
             RefPlugin.ListenerManager.OnStatusChanged += OnStatusChange;
             RefPlugin.ListenerManager.OnModsChanged += OnCurrentModsChange;
+
             return true;
         }
     }
