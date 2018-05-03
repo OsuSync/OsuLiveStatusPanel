@@ -79,6 +79,8 @@ namespace OsuLiveStatusPanel
         private UsingSource source = UsingSource.None;
 
         private PluginConfigurationManager manager;
+        
+        private RestfulAPIGetterReceiver receiver;
 
         private string OsuSyncPath;
 
@@ -152,6 +154,9 @@ namespace OsuLiveStatusPanel
             if (EnableOutputModPicture=="1")
                 RegisterProcess(new ProcessEvent.ModsPictureOutputProcessReveicer(OutputModImageFilePath, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1", ModUse2x == "1", ModSortReverse == "1", ModDrawReverse == "1"));
             
+            receiver = new RestfulAPIGetterReceiver();
+            
+            RegisterProcess(receiver);
         }
 
         #region Commands
@@ -289,41 +294,11 @@ namespace OsuLiveStatusPanel
 
         #region Kernal
 
-        public void OnBeatmapChanged(BeatmapChangedParameter evt)
-        {
-            if (SourceWrapper==null)
-            {
-                return;
-            }
-
-            BeatmapEntry new_beatmap = evt?.beatmap;
-
-            var osu_process = Process.GetProcessesByName("osu!")?.First();
-
-            if (new_beatmap == null || osu_process == null)
-            {
-                if (osu_process == null)
-                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSU_PROCESS_NOTFOUND}!", ConsoleColor.Red);
-                CleanOsuStatus();
-                return;
-            }
-
-            TryApplyBeatmapInfomation(new_beatmap);
-        }
-
         private void CleanOsuStatus()
         {
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CLEAN_STATUS}", ConsoleColor.Green);
 
             OutputInfomationClean();
-        }
-
-        private void TryApplyBeatmapInfomation(BeatmapEntry beatmap)
-        {
-            if (string.IsNullOrWhiteSpace(beatmap.OsuFilePath))
-                this.RaiseProcessEvent(new ClearProcessEvent());
-            else
-                this.RaiseProcessEvent(new BeatmapChangedProcessEvent() { Beatmap=beatmap });
         }
 
         private void OutputInfomationClean()
@@ -332,7 +307,7 @@ namespace OsuLiveStatusPanel
         }
         
         #region tool func
-        /*
+        
         #region DDPR
 
         static readonly string[] ppshow_provideable_data_array = new[] { "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners" };
@@ -363,17 +338,12 @@ namespace OsuLiveStatusPanel
         public object GetData(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-            {
                 return null;
-            }
 
             if (GetCurrentPluginData(name,out string result))
-            {
                 return result;
-            }
-
-            //try get from ppshow
-            return PPShowPluginInstance?.GetData(name);
+            
+            return receiver.GetData(name);
         }
 
         public IEnumerable<string> EnumProvidableDataName()
@@ -386,7 +356,7 @@ namespace OsuLiveStatusPanel
         }
 
         #endregion
-        */
+
         public void onConfigurationLoad()
         {
 

@@ -30,15 +30,19 @@ namespace OsuLiveStatusPanel
             RefPanelPlugin.RegisterProcess(new ModChangedRecevicer());
             RefPanelPlugin.OnSettingChanged += () =>
             {
-                RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter()
-                {
-                    beatmap = current_beatmap == null ? null : new BeatmapEntry()
+                RefPanelPlugin.RaiseProcessEvent(new StatusWrapperProcessEvent() {
+                    Beatmap = current_beatmap == null ? null : new BeatmapEntry()
                     {
-                        //OutputType = CurrentOutputType = OutputType.Play,
+                        OutputType = CurrentOutputType = OutputType.Play,
                         OsuFilePath = current_beatmap.OsuFilePath,
                         BeatmapId = current_beatmap.BeatmapId,
-                        BeatmapSetId = current_beatmap.BeatmapSetId
-                    }
+                        BeatmapSetId = current_beatmap.BeatmapSetId,
+                        Artist = current_beatmap.AvailableArtist,
+                        Title = current_beatmap.AvailableTitle,
+                    },
+
+                    Mods="None",
+                    ShortMods=""
                 });
             };
         }
@@ -46,19 +50,33 @@ namespace OsuLiveStatusPanel
         public override bool Attach()
         {
             NowPlayingEvents.Instance.BindEvent<CurrentPlayingBeatmapChangedEvent>((beatmap) => {
-                RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter()
-                {
-                    beatmap = beatmap.NewBeatmap == null ? null : new BeatmapEntry()
-                    {
-                        //OutputType= CurrentOutputType = OutputType.Play,
-                        OsuFilePath = beatmap.NewBeatmap.OsuFilePath,
-                        BeatmapId = beatmap.NewBeatmap.BeatmapId,
-                        BeatmapSetId = beatmap.NewBeatmap.BeatmapSetId
-                    }
-                });
+                
                 current_beatmap = beatmap.NewBeatmap;
 
-                RefPanelPlugin.RaiseProcessEvent(new StatusChangeProcessEvent() { OutputType = current_beatmap==null?OutputType.Listen: OutputType.Play });
+                if (beatmap.NewBeatmap == null)
+                {
+                    RefPanelPlugin.RaiseProcessEvent(new ClearProcessEvent());
+                }
+                else
+                {
+                    RefPanelPlugin.RaiseProcessEvent(new StatusWrapperProcessEvent()
+                    {
+                        Beatmap = new BeatmapEntry()
+                        {
+                            OutputType = CurrentOutputType = OutputType.Play,
+                            OsuFilePath = current_beatmap.OsuFilePath,
+                            BeatmapId = current_beatmap.BeatmapId,
+                            BeatmapSetId = current_beatmap.BeatmapSetId,
+                            Artist = current_beatmap.AvailableArtist,
+                            Title = current_beatmap.AvailableTitle,
+                        },
+
+                        Mods = "None",
+                        ShortMods = ""
+                    });
+                }
+
+                //RefPanelPlugin.RaiseProcessEvent(new StatusChangeProcessEvent() { OutputType = current_beatmap==null?OutputType.Listen: OutputType.Play });
             });
 
             return true;

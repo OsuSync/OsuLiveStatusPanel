@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel.ProcessEvent
 {
+    /*
     public class StatusChangeProcessEvent:ProcessEventBase
     {
         public OutputType OutputType { get; set; } = OutputType.Listen;
     }
+    */
 }

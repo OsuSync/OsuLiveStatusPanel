@@ -27,13 +27,15 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
         string output_file_path;
 
-        //readonly string trig_output;
+        OutputType output_type;
+
+        bool is_play;
 
         string[] format_variable_request { get; set; }
 
-        public FormatOutputProcessRevevier(string output_file_path, string format_content/*, bool is_play*/)
+        public FormatOutputProcessRevevier(string output_file_path, string format_content, bool is_play)
         {
-            //trig_output = is_play ? "olsp_play" : "olsp_listen";
+            this.is_play = is_play;
             this.output_file_path = output_file_path;
             var result = pattern.Matches(format_content);
             var format_request_count = result.Count;
@@ -88,18 +90,22 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
         public override void OnEventRegister(BaseEventDispatcher<IPluginEvent> EventBus)
         {
-            //EventBus.BindEvent<MetadataProcessEvent>(OnGetData);
+            EventBus.BindEvent<StatusWrapperProcessEvent>(e=>output_type=e.Beatmap.OutputType);
             EventBus.BindEvent<PackedMetadataProcessEvent>(OnGetPackedData);
-            EventBus.BindEvent<ClearProcessEvent>(OnClear);
         }   
 
-        public void OnClear(ClearProcessEvent e)
+        public void Clear()
         {
             recived_map.Clear();
+            stringBuilder.Clear();
+            File.WriteAllText(output_file_path, String.Empty);
         }
 
         public void OnGetPackedData(PackedMetadataProcessEvent e)
         {
+            if ((is_play ? OutputType.Play : OutputType.Listen) != output_type)
+                Clear();
+
             var check_result = (from request in format_variable_request
                                from data in e.OutputData
                                where request == data.Key

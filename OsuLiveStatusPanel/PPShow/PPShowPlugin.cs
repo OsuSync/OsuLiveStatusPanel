@@ -43,9 +43,14 @@ namespace OsuLiveStatusPanel
 
             foreach (var o in Config.Instance.output_list)
             {
-                osuLiveStatusPanel.RegisterProcess(new ProcessEvent.FormatOutputProcessRevevier(o.output_file, o.output_format));
+                osuLiveStatusPanel.RegisterProcess(new ProcessEvent.FormatOutputProcessRevevier(o.output_file, o.output_format,true));
 
                 acc_list.AddRange(Utils.GetAccuracyArray(o.output_format));
+            }
+
+            foreach (var o in Config.Instance.listen_list)
+            {
+                osuLiveStatusPanel.RegisterProcess(new ProcessEvent.FormatOutputProcessRevevier(o.output_file, o.output_format, false));
             }
 
             string oppai_path = Config.Instance.oppai;

@@ -15,5 +15,9 @@ namespace OsuLiveStatusPanel
         public int BeatmapSetId { get; set; }
 
         public string OsuFilePath { get; set; }
+        public OutputType OutputType { get; internal set; }
+
+        public string Artist { get; set; }
+        public string Title { get; set; }
     }
 }

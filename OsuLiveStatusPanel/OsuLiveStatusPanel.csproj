@@ -69,6 +69,7 @@
     <Compile Include="ProcessEvent\Base\ProcessRecevierBase.cs" />
     <Compile Include="ProcessEvent\ProcessEvent\PackedMetadataProcessEvent.cs" />
     <Compile Include="ProcessEvent\ProcessEvent\StatusChangeProcessEvent.cs" />
+    <Compile Include="ProcessEvent\ProcessEvent\StatusWrapperProcessEvent.cs" />
     <Compile Include="ProcessEvent\RestfulAPIGetterReceiver.cs" />
     <Compile Include="SourcesWrapper\BeatmapChangedParameter.cs" />
     <Compile Include="SourcesWrapper\BeatmapEntry.cs" />

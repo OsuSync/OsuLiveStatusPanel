@@ -23,11 +23,7 @@ namespace OsuLiveStatusPanel.ProcessEvent
         Stopwatch sw;
 
         string oppai;
-
-        OutputType? output_type;
-
-        string current_mods,current_osu_file_path,full_mods;
-
+        
         public PPCalculatorOutputProcessReceiver(string oppai_path,List<float> acc_list)
         {
             AccuracyList = acc_list;
@@ -49,56 +45,20 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
         public override void OnEventRegister(BaseEventDispatcher<IPluginEvent> EventBus)
         {
-            EventBus.BindEvent<BeatmapChangedProcessEvent>(OnChangeBeatmap);
-            EventBus.BindEvent<MetadataProcessEvent>(OnGetModString);
-            EventBus.BindEvent<ClearProcessEvent>(OnClear);
-            EventBus.BindEvent<StatusChangeProcessEvent>(OnStatusChange);
+            EventBus.BindEvent<StatusWrapperProcessEvent>(OnChangeBeatmap);
         }
 
-        public void OnStatusChange(StatusChangeProcessEvent e)
+        public void OnChangeBeatmap(StatusWrapperProcessEvent param)
         {
-            output_type = e.OutputType;
-        }
-
-        public void OnClear(ClearProcessEvent e)
-        {
-            current_mods= full_mods = null;
-            current_osu_file_path = null;
-            output_type = null;
-        }
-
-        public void OnChangeBeatmap(BeatmapChangedProcessEvent beatmap)
-        {
-            TrigCondition(null, beatmap.Beatmap.OsuFilePath);
-        }
-
-        public void OnGetModString(MetadataProcessEvent metadata)
-        {
-            switch (metadata.Name)
+            if (string.IsNullOrWhiteSpace(param?.Beatmap?.OsuFilePath))
             {
-                case "mods":
-                    TrigCondition(metadata.Value);
-                    break;
-                case "mods_full":
-                    full_mods = metadata.Value;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public void TrigCondition(string mods=null,string path=null)
-        {
-            current_osu_file_path = path ?? current_osu_file_path;
-            current_mods = mods ?? current_mods;
-
-            if (current_mods == null || current_osu_file_path == null)
                 return;
+            }
 
-            CalculatePP();
+            CalculatePP(param);
         }
 
-        public void CalculatePP()
+        public void CalculatePP(StatusWrapperProcessEvent param)
         {
             sw.Restart();
 
@@ -110,16 +70,16 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
             string oppai_cmd;
 
-            string osu_file = current_osu_file_path;
+            string osu_file = param.Beatmap.OsuFilePath;
 
-            string raw_mod_list = current_mods;
+            string raw_mod_list = param.ShortMods;
 
             if (raw_mod_list == "None")
                 raw_mod_list = "";
 
-            AddExtraInfomationFromBeatmapFile(current_osu_file_path, extra_data, raw_mod_list);
+            AddExtraInfomationFromBeatmapFile(osu_file, extra_data, raw_mod_list);
 
-            if(output_type == OutputType.Play)
+            if(param.Beatmap.OutputType == OutputType.Play)
             {
                 string mods_str = string.Empty;
 
@@ -162,7 +122,7 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
                 if (oppai_result == null)
                 {
-                    oppai_result = BeatmapReader.GetJsonFromFile(current_osu_file_path);
+                    oppai_result = BeatmapReader.GetJsonFromFile(osu_file);
                 }
 
                 oppai_infos.Add(oppai_result);
@@ -196,7 +156,7 @@ namespace OsuLiveStatusPanel.ProcessEvent
 
             //Fix mod adding.
             OutputDataMap["mods_str"] = raw_mod_list;
-            OutputDataMap["mods_full"] = full_mods;
+            OutputDataMap["mods_full"] = param.Mods;
 
             //add extra info(shortcut arguments)
             foreach (var pair in extra_data)
@@ -260,7 +220,6 @@ namespace OsuLiveStatusPanel.ProcessEvent
             if (stderr.Length != 0)
             {
                 return null;
-                //IO.CurrentIO.WriteColor("[PPCalculator]" + PPSHOW_BEATMAP_PARSE_ERROR + stderr, ConsoleColor.Red);
             }
 
             return oppai_result;

@@ -17,32 +17,23 @@ namespace OsuLiveStatusPanel
     {
         public ModsInfo current_mod;
 
-        private int beatmapID, beatmapSetID;
-
         private OsuStatus current_status;
 
-        public string OsuFilePath;
+        public Beatmap current_beatmap;
 
         public OsuRTDataProviderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
-            ref_plugin.ListenerManager.OnModsChanged += mods => plugin.RaiseProcessEvent(new ProcessEvent.MetadataProcessEvent() {
-                Name = "mods",
-                Value = mods.ShortName
-            });
-
-            ref_plugin.ListenerManager.OnModsChanged += mods => plugin.RaiseProcessEvent(new ProcessEvent.MetadataProcessEvent()
-            {
-                Name = "mods_full",
-                Value = mods.Name
-            });
-
             RefPanelPlugin.OnSettingChanged += () =>
             {
                 var beatmap = GetCurrentBeatmap();
 
-                //beatmap.OutputType = CurrentOutputType = (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank) ? OutputType.Play : OutputType.Listen;
+                beatmap.OutputType = CurrentOutputType = (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank) ? OutputType.Play : OutputType.Listen;
 
-                RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap =  beatmap});
+                RefPanelPlugin.RaiseProcessEvent(new StatusWrapperProcessEvent() {
+                    Beatmap = beatmap,
+                    Mods = current_mod.Name,
+                    ShortMods = current_mod.ShortName
+                });
             };
         }
 
@@ -54,9 +45,7 @@ namespace OsuLiveStatusPanel
                 return;
             }
 
-            beatmapID = beatmap.BeatmapID;
-            beatmapSetID = beatmap.BeatmapSetID;
-            OsuFilePath = beatmap.FilenameFull;
+            current_beatmap = beatmap;
 
             if (current_status == OsuStatus.Listening)
             {
@@ -86,10 +75,14 @@ namespace OsuLiveStatusPanel
                 {
                     var beatmap = GetCurrentBeatmap();
 
-                    //beatmap.OutputType = CurrentOutputType = OutputType.Play;
+                    beatmap.OutputType = CurrentOutputType = OutputType.Play;
 
-                    RefPanelPlugin.RaiseProcessEvent(new ProcessEvent.StatusChangeProcessEvent() { OutputType = OutputType.Play });
-                    RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+                    RefPanelPlugin.RaiseProcessEvent(new StatusWrapperProcessEvent()
+                    {
+                        Beatmap = beatmap,
+                        Mods = current_mod.Name,
+                        ShortMods = current_mod.ShortName
+                    });
                 }
             }
         }
@@ -98,9 +91,11 @@ namespace OsuLiveStatusPanel
         {
             return new BeatmapEntry()
             {
-                BeatmapId = beatmapID,
-                BeatmapSetId = beatmapSetID,
-                OsuFilePath = OsuFilePath
+                BeatmapId = current_beatmap.BeatmapID,
+                BeatmapSetId = current_beatmap.BeatmapSetID,
+                OsuFilePath = current_beatmap.FilenameFull,
+                Artist = string.IsNullOrWhiteSpace(current_beatmap.ArtistUnicode) ? current_beatmap.Artist : current_beatmap.ArtistUnicode,
+                Title = string.IsNullOrWhiteSpace(current_beatmap.TitleUnicode) ? current_beatmap.Title : current_beatmap.TitleUnicode,
             };
         }
 
@@ -113,12 +108,12 @@ namespace OsuLiveStatusPanel
             {
                 if (status==OsuStatus.Listening)
                 {
-                    RefPanelPlugin.RaiseProcessEvent(new ProcessEvent.StatusChangeProcessEvent() { OutputType = OutputType.Listen });
+                    //RefPanelPlugin.RaiseProcessEvent(new ProcessEvent.StatusChangeProcessEvent() { OutputType = OutputType.Listen });
                     TrigListen();
                 }
                 else
                 {
-                    RefPanelPlugin.OnBeatmapChanged(null);
+                    RefPanelPlugin.RaiseProcessEvent(new ClearProcessEvent());
                 }
             }
             else
@@ -131,14 +126,22 @@ namespace OsuLiveStatusPanel
                 
                 BeatmapEntry beatmap = new BeatmapEntry()
                 {
-                    //OutputType= CurrentOutputType = OutputType.Listen,
-                    BeatmapId = beatmapID,
-                    BeatmapSetId = beatmapSetID,
-                    OsuFilePath = OsuFilePath
+                    OutputType= CurrentOutputType = OutputType.Listen,
+                    BeatmapId = current_beatmap.BeatmapID,
+                    BeatmapSetId = current_beatmap.BeatmapSetID,
+                    OsuFilePath = current_beatmap.FilenameFull,
+                    Artist = string.IsNullOrWhiteSpace(current_beatmap.ArtistUnicode)? current_beatmap.Artist: current_beatmap.ArtistUnicode,
+                    Title = string.IsNullOrWhiteSpace(current_beatmap.TitleUnicode) ? current_beatmap.Title : current_beatmap.TitleUnicode,
                 };
 
 
-                RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+                //RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+                RefPanelPlugin.RaiseProcessEvent(new StatusWrapperProcessEvent()
+                {
+                    Beatmap = beatmap,
+                    Mods = current_mod.Name,
+                    ShortMods = current_mod.ShortName
+                });
             }
         }
 
@@ -146,9 +149,15 @@ namespace OsuLiveStatusPanel
         {
             var beatmap = GetCurrentBeatmap();
 
-            //beatmap.OutputType = CurrentOutputType  = OutputType.Listen;
+            beatmap.OutputType = CurrentOutputType  = OutputType.Listen;
 
-            RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+            //RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
+            RefPanelPlugin.RaiseProcessEvent(new StatusWrapperProcessEvent()
+            {
+                Beatmap = beatmap,
+                Mods = current_mod.Name,
+                ShortMods = current_mod.ShortName
+            });
         }
 
         public override void Detach()
