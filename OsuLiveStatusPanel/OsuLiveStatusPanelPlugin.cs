@@ -21,6 +21,7 @@ using static OsuRTDataProvider.Listen.OsuListenerManager;
 using static OsuLiveStatusPanel.Languages;
 using System.Numerics;
 using System.Reflection;
+using Sync.Tools.ConfigGUI;
 
 namespace OsuLiveStatusPanel
 {
@@ -38,37 +39,61 @@ namespace OsuLiveStatusPanel
 
         #region Options
 
-        public ConfigurationElement AllowUsedOsuRTDataProvider { get; set; } = "0";
-        public ConfigurationElement AllowUsedNowPlaying { get; set; } = "1";
+        [Bool]
+        public ConfigurationElement AllowUsedOsuRTDataProvider { get; set; } = "False";
 
+        [Bool]
+        public ConfigurationElement AllowUsedNowPlaying { get; set; } = "True";
+
+        [Integer]
         public ConfigurationElement Width { get; set; } = "1920";
+
+        [Integer]
         public ConfigurationElement Height { get; set; } = "1080";
 
-        public ConfigurationElement EnableOutputModPicture { get; set; } = "0";
+        [Bool]
+        public ConfigurationElement EnableOutputModPicture { get; set; } = "False";
+
+        [Path(IsDirectory =false)]
         public ConfigurationElement OutputModImageFilePath { get; set; } = @"..\output_mod.png";
 
+        [Integer]
         public ConfigurationElement ModUnitPixel { get; set; } = "90";
+
+        [Integer]
         public ConfigurationElement ModUnitOffset { get; set; } = "10";
 
-        public ConfigurationElement ModSortReverse { get; set; } = "1";
-        public ConfigurationElement ModDrawReverse { get; set; } = "1";
+        [Bool]
+        public ConfigurationElement ModSortReverse { get; set; } = "True";
 
-        public ConfigurationElement ModUse2x { get; set; } = "0";
+        [Bool]
+        public ConfigurationElement ModDrawReverse { get; set; } = "True";
 
+        [Bool]
+        public ConfigurationElement ModUse2x { get; set; } = "False";
+
+        [Path(IsDirectory = true)]
         public ConfigurationElement ModSkinPath { get; set; } = "";
 
-        public ConfigurationElement ModIsHorizon { get; set; } = "1";
+        [Bool]
+        public ConfigurationElement ModIsHorizon { get; set; } = "True";
 
-        public ConfigurationElement EnableScaleClipOutputImageFile { get; set; } = "1";
+        [Bool]
+        public ConfigurationElement EnableScaleClipOutputImageFile { get; set; } = "True";
 
-        public ConfigurationElement EnableListenOutputImageFile { get; set; } = "1";
-        
+        [Bool]
+        public ConfigurationElement EnableListenOutputImageFile { get; set; } = "True";
+
+        [Path(IsDirectory = false)]
         public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = @"..\PPShowConfig.json";
-        public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "0";
-        
+
+        [Bool]
+        public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "False";
+
         /// <summary>
         /// 当前谱面背景文件保存路径
         /// </summary>
+        [Path(IsDirectory = false)]
         public ConfigurationElement OutputBackgroundImageFilePath { get; set; } = @"..\output_result.png";
 
         #endregion Options
@@ -180,11 +205,11 @@ namespace OsuLiveStatusPanel
 
             try
             {
-                if (((string)AllowUsedNowPlaying).Trim() == "1")
+                if (((string)AllowUsedNowPlaying).Trim() == "True")
                 {
                     TryRegisterSourceFromNowPlaying(host);
                 }
-                else if (((string)AllowUsedOsuRTDataProvider).Trim() == "1")
+                else if (((string)AllowUsedOsuRTDataProvider).Trim() == "True")
                 {
                     TryRegisterSourceFromOsuRTDataProvider(host);
                 }
@@ -315,7 +340,7 @@ namespace OsuLiveStatusPanel
                 mod = $"{OsuRTDataProviderWrapperInstance.current_mod.ShortName}";
             }
 
-            if (EnableOutputModPicture=="1"&&mods_pic_output==null)
+            if (EnableOutputModPicture== "True" && mods_pic_output==null)
             {
                 //init mods_pic_output
                 TryCreateModsPictureGenerator(out mods_pic_output);
@@ -407,7 +432,7 @@ namespace OsuLiveStatusPanel
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
             }
 
-            if (EnableListenOutputImageFile == "1" || current_beatmap.OutputType == OutputType.Play)
+            if (EnableListenOutputImageFile == "True" || current_beatmap.OutputType == OutputType.Play)
             {
                 try
                 {
@@ -476,7 +501,7 @@ namespace OsuLiveStatusPanel
 
             IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}",ConsoleColor.Cyan);
 
-            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "1",ModUse2x=="1",ModSortReverse=="1",ModDrawReverse=="1");
+            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "True",ModUse2x== "True", ModSortReverse== "True", ModDrawReverse== "True");
         }
 
         private bool OutputInfomation(OutputType output_type, BeatmapEntry entry,string mod_list)
