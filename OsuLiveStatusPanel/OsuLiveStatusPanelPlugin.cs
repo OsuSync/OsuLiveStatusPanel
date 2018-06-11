@@ -39,12 +39,9 @@ namespace OsuLiveStatusPanel
 
         #region Options
 
-        [Bool]
-        public ConfigurationElement AllowUsedOsuRTDataProvider { get; set; } = "False";
-
-        [Bool]
-        public ConfigurationElement AllowUsedNowPlaying { get; set; } = "True";
-
+        [List(AllowMultiSelect =false,IgnoreCase =true,ValueList =new[] {"ortdp","np"})]
+        public ConfigurationElement BeatmapSourcePlugin { get; set; } = "ortdp";
+        
         [Integer]
         public ConfigurationElement Width { get; set; } = "1920";
 
@@ -205,13 +202,16 @@ namespace OsuLiveStatusPanel
 
             try
             {
-                if (((string)AllowUsedNowPlaying).Trim() == "True")
+                switch (BeatmapSourcePlugin.ToString().ToLower().Trim())
                 {
-                    TryRegisterSourceFromNowPlaying(host);
-                }
-                else if (((string)AllowUsedOsuRTDataProvider).Trim() == "True")
-                {
-                    TryRegisterSourceFromOsuRTDataProvider(host);
+                    case "np":
+                        TryRegisterSourceFromNowPlaying(host);
+                        break;
+                    case "ortdp":
+                        TryRegisterSourceFromOsuRTDataProvider(host);
+                        break;
+                    default:
+                        break;
                 }
             }
             catch (Exception e)
@@ -436,7 +436,7 @@ namespace OsuLiveStatusPanel
             {
                 try
                 {
-                    if (EnableScaleClipOutputImageFile == "1")
+                    if (EnableScaleClipOutputImageFile == "True")
                     {
 
                         using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
