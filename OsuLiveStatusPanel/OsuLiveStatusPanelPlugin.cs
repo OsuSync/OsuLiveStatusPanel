@@ -25,7 +25,7 @@ using Sync.Tools.ConfigGUI;
 
 namespace OsuLiveStatusPanel
 {
-    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33","1.1.5")]
+    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33","1.2.0")]
     public class OsuLiveStatusPanelPlugin : Plugin, IConfigurable
     {
         private enum UsingSource
@@ -85,7 +85,7 @@ namespace OsuLiveStatusPanel
         public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = @"..\PPShowConfig.json";
 
         [Bool]
-        public ConfigurationElement PPShowAllowDumpInfo { get; set; } = "False";
+        public ConfigurationElement EnableOutputBackgroundImage { get; set; } = "True";
 
         /// <summary>
         /// 当前谱面背景文件保存路径
@@ -425,14 +425,33 @@ namespace OsuLiveStatusPanel
             #region OutputBackgroundImage
 
             var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""", RegexOptions.IgnoreCase);
-            string bgPath = current_bg_file_path = beatmap_folder + @"\" + match.Groups[1].Value;
+            string bgPath  = beatmap_folder + @"\" + match.Groups[1].Value;
+
+            if (bgPath!= current_bg_file_path)
+                OutputBackgroundImage(bgPath, current_beatmap.OutputType);
+
+            current_bg_file_path = bgPath;
+
+            #endregion
+
+            #endregion GetInfo
+
+            EventBus.RaiseEvent(new OutputInfomationEvent(current_beatmap.OutputType));
+
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
+        }
+
+        private void OutputBackgroundImage(string bgPath,OutputType type)
+        {
+            if (!EnableOutputBackgroundImage.ToBool())
+                return;
 
             if (!File.Exists(bgPath))
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
             }
 
-            if (EnableListenOutputImageFile == "True" || current_beatmap.OutputType == OutputType.Play)
+            if (EnableListenOutputImageFile == "True" || type == OutputType.Play)
             {
                 try
                 {
@@ -456,15 +475,6 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
                 }
             }
-
-
-            #endregion
-
-            #endregion GetInfo
-
-            EventBus.RaiseEvent(new OutputInfomationEvent(current_beatmap.OutputType));
-
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
         }
 
         #region tool func

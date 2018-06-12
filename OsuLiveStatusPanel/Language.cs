@@ -50,5 +50,6 @@ namespace OsuLiveStatusPanel
         public static GuiLanguageElement PPShowJsonConfigFilePath = "PPShowPlugin配置文件路径";
         public static GuiLanguageElement PPShowAllowDumpInfo = "是否允许内置的PPShowPlugin输出解析结果在Sync程序内";
         public static GuiLanguageElement OutputBackgroundImageFilePath = "输出背景图片文件路径";
+        public static GuiLanguageElement EnableOutputBackgroundImage = "是否输出背景图片";
     }
 }
