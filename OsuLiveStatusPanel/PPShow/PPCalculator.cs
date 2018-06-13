@@ -22,7 +22,7 @@ namespace OsuLiveStatusPanel
         {
             ModsInfo result=default(ModsInfo);
 
-            foreach (var vaild_mod in (from mod in OPPAI_SUPPORT_MODS where result.HasMod(mod) select mod))
+            foreach (var vaild_mod in (from mod in OPPAI_SUPPORT_MODS where mods.HasMod(mod) select mod))
                 result.Mod |= vaild_mod;
 
             return result;
@@ -80,10 +80,6 @@ namespace OsuLiveStatusPanel
                     if (oppai_result != null)
                     {
                         oppai_infos.Add(oppai_result);
-                    }
-                    else
-                    {
-                        break;
                     }
 
                     //add pp
