@@ -16,11 +16,11 @@ namespace OsuLiveStatusPanel
 {
     class BeatmapInfomationGenerator
     {
-        static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut};
+        static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut };
 
         private static ModsInfo FilteVailedMod(ModsInfo mods)
         {
-            ModsInfo result=default(ModsInfo);
+            ModsInfo result = default(ModsInfo);
 
             foreach (var vaild_mod in (from mod in OPPAI_SUPPORT_MODS where mods.HasMod(mod) select mod))
                 result.Mod |= vaild_mod;
@@ -58,46 +58,30 @@ namespace OsuLiveStatusPanel
             Dictionary<string, string> OutputDataMap = new Dictionary<string, string>();
 
             string osu_file = osu_file_path;
-            
-            ParseBeatmap(osu_file_path, extra_data, mods,out byte[] beatmap_data,out uint data_length);
+
+            ParseBeatmap(osu_file_path, extra_data, mods, out byte[] beatmap_data, out uint data_length);
 
             OutputDataMap["mods_str"] = mods.ShortName;
 
             int nobject = int.Parse(extra_data["num_objects"]);
             uint mode = uint.Parse(extra_data["mode"]);
-            
-            if (output_type == OutputType.Play)
+
+            if (!string.IsNullOrWhiteSpace(mods.ShortName))
             {
-                if (!string.IsNullOrWhiteSpace(mods.ShortName))
-                {
-                    mods = FilteVailedMod(mods);
-                }
-
-                foreach (float acc in AccuracyList)
-                {
-                    var oppai_result = GetOppaiResult(beatmap_data, data_length,mode, mods, acc);
-
-                    if (oppai_result != null)
-                    {
-                        oppai_infos.Add(oppai_result);
-                    }
-
-                    //add pp
-                    OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString();
-                }
+                mods = FilteVailedMod(mods);
             }
-            else
+
+            foreach (float acc in AccuracyList)
             {
-                //Listen,so call oppai once only.
+                var oppai_result = GetOppaiResult(beatmap_data, data_length, mode, mods, acc);
 
-                var oppai_result = GetOppaiResult(beatmap_data, data_length, mode,mods,100);
-
-                if (oppai_result == null)
+                if (oppai_result != null)
                 {
-                    oppai_result = BeatmapReader.GetJsonFromFile(osu_file_path);
+                    oppai_infos.Add(oppai_result);
                 }
 
-                oppai_infos.Add(oppai_result);
+                //add pp
+                OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString();
             }
 
             #region GetBaseInfo
@@ -140,18 +124,18 @@ namespace OsuLiveStatusPanel
             return true;
         }
 
-        byte[] buffer = new byte[4096]; 
-        
-        private OppaiJson GetOppaiResult(byte[] data,uint length,uint mode,ModsInfo mods,double acc)
-        {
-            Array.Clear(buffer,0,buffer.Length);
+        byte[] buffer = new byte[4096];
 
-            Oppai.sppv2_by_acc(data, length, acc, mode, (uint)mods.Mod,buffer,length);
+        private OppaiJson GetOppaiResult(byte[] data, uint length, uint mode, ModsInfo mods, double acc)
+        {
+            Array.Clear(buffer, 0, buffer.Length);
+
+            Oppai.sppv2_by_acc(data, length, acc, mode, (uint)mods.Mod, buffer, length);
 
             string content = Encoding.UTF8.GetString(buffer).TrimEnd('\0')/*.Replace("\0",string.Empty)*/;
 
             var oppai_result = JsonConvert.DeserializeObject<OppaiJson>(content);
-            
+
             return oppai_result;
         }
 
@@ -203,22 +187,22 @@ namespace OsuLiveStatusPanel
             {"Mode","mode"}
         };
 
-        const int TYPE_CIRCLE= 1;
+        const int TYPE_CIRCLE = 1;
         const int TYPE_SLIDER = 2;
         const int TYPE_SPINER = 8;
 
-        private bool IS_TYPE(int value, int type) => (type&value) != 0;
+        private bool IS_TYPE(int value, int type) => (type & value) != 0;
 
-        private void ParseBeatmap(string file_path,Dictionary<string,string> extra_data,ModsInfo mods, out byte[] beatmap_data, out uint data_length)
+        private void ParseBeatmap(string file_path, Dictionary<string, string> extra_data, ModsInfo mods, out byte[] beatmap_data, out uint data_length)
         {
             int status = 0;
-            int nobjects=0,ncircle=0,nslider=0,nspiner=0;
-            double min_bpm = int.MaxValue,max_bpm = int.MinValue,current_bpm =0;
+            int nobjects = 0, ncircle = 0, nslider = 0, nspiner = 0;
+            double min_bpm = int.MaxValue, max_bpm = int.MinValue, current_bpm = 0;
 
             beatmap_data = File.ReadAllBytes(file_path);
             data_length = (uint)beatmap_data.Length;
 
-            using (StreamReader reader = new StreamReader(new MemoryStream(beatmap_data,false)))
+            using (StreamReader reader = new StreamReader(new MemoryStream(beatmap_data, false)))
             {
                 //简单的状态机
                 while (!reader.EndOfStream)
@@ -227,7 +211,7 @@ namespace OsuLiveStatusPanel
                     switch (status)
                     {
                         case 0: //seeking
-                            if (line== "[General]")
+                            if (line == "[General]")
                             {
                                 status = 5;
                             }
@@ -251,7 +235,7 @@ namespace OsuLiveStatusPanel
                             {
                                 status = 3;
                             }
-                            
+
                             break;
 
                         case 1: //Metadata
@@ -305,22 +289,22 @@ namespace OsuLiveStatusPanel
                         case 2: //TimingPoints
                             if (string.IsNullOrWhiteSpace(line))
                             {
-                                min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
-                                max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+                                min_bpm = Math.Round(min_bpm, MidpointRounding.AwayFromZero);
+                                max_bpm = Math.Round(max_bpm, MidpointRounding.AwayFromZero);
 
-                                if (mods.HasMod(ModsInfo.Mods.DoubleTime)|| mods.HasMod(ModsInfo.Mods.Nightcore))
+                                if (mods.HasMod(ModsInfo.Mods.DoubleTime) || mods.HasMod(ModsInfo.Mods.Nightcore))
                                 {
                                     min_bpm *= 1.5;
                                     max_bpm *= 1.5;
-                                    min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
-                                    max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+                                    min_bpm = Math.Round(min_bpm, MidpointRounding.AwayFromZero);
+                                    max_bpm = Math.Round(max_bpm, MidpointRounding.AwayFromZero);
                                 }
                                 if (mods.HasMod(ModsInfo.Mods.HalfTime))
                                 {
                                     min_bpm *= 0.75;
                                     max_bpm *= 0.75;
-                                    min_bpm = Math.Round(min_bpm,MidpointRounding.AwayFromZero);
-                                    max_bpm = Math.Round(max_bpm,MidpointRounding.AwayFromZero);
+                                    min_bpm = Math.Round(min_bpm, MidpointRounding.AwayFromZero);
+                                    max_bpm = Math.Round(max_bpm, MidpointRounding.AwayFromZero);
                                 }
 #if DEBUG
                                 IO.CurrentIO.Write($"[Oppai]BPM:{min_bpm} ~ {max_bpm}");
@@ -336,7 +320,7 @@ namespace OsuLiveStatusPanel
                             bool is_red_line = true;
                             string[] data = line.Split(',');
 
-                            if(data.Length>=7)
+                            if (data.Length >= 7)
                             {
                                 if (data[6] == "1" || string.IsNullOrWhiteSpace(data[6]))
                                     is_red_line = true;
@@ -348,14 +332,14 @@ namespace OsuLiveStatusPanel
 
                             double val = double.Parse(data[1]);
 
-                            if (val>0)
+                            if (val > 0)
                             {
                                 val = 60000 / val;
                                 current_bpm = val;
                             }
                             else
                             {
-                                double mul = Math.Abs(100 + val)/100.0f;
+                                double mul = Math.Abs(100 + val) / 100.0f;
                                 val = current_bpm * (1 + mul);
                                 break;
                             }
@@ -369,7 +353,7 @@ namespace OsuLiveStatusPanel
                             {
                                 var obj_data = line.Split(',');
 
-                                if (obj_data.Length>=4)
+                                if (obj_data.Length >= 4)
                                 {
                                     nobjects++;
                                     int type = int.Parse(obj_data[3]);

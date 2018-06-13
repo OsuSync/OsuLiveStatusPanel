@@ -329,6 +329,11 @@ namespace OsuLiveStatusPanel
         {
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CLEAN_STATUS}", ConsoleColor.Green);
 
+            if (File.Exists(OutputModImageFilePath))
+            {
+                File.Delete(OutputModImageFilePath);
+            }
+
             OutputInfomationClean();
         }
 
@@ -352,35 +357,8 @@ namespace OsuLiveStatusPanel
                 //处理不能用的PP
                 mod.Mod = (ModsInfo.Mods)((uint)OsuRTDataProviderWrapperInstance.current_mod.Mod);
             }
-
-            if (EnableOutputModPicture== "True" && mods_pic_output==null)
-            {
-                //init mods_pic_output
-                TryCreateModsPictureGenerator(out mods_pic_output);
-            }
-
+            
             OutputBeatmapInfomation(current_beatmap, mod);
-
-            if (current_beatmap.OutputType==OutputType.Play)
-            {
-                if (mods_pic_output != null)
-                {
-                    var mod_list = OsuRTDataProviderWrapperInstance.current_mod.Name.Split(',');
-
-                    using (Bitmap result = mods_pic_output.GenerateModsPicture(mod_list))
-                    {
-                        result.Save(OutputModImageFilePath, ImageFormat.Png);
-                    }
-                }
-            }
-            else
-            {
-                //clean
-                if (File.Exists(OutputModImageFilePath))
-                {
-                    File.Delete(OutputModImageFilePath);
-                }
-            }
 
             return true;
         }
@@ -452,6 +430,26 @@ namespace OsuLiveStatusPanel
             #endregion
 
             #endregion GetInfo
+
+            #region Mods Ouptut
+
+            if (EnableOutputModPicture.ToBool() && mods_pic_output == null)
+            {
+                //init mods_pic_output
+                TryCreateModsPictureGenerator(out mods_pic_output);
+            }
+
+            if (mods_pic_output != null)
+            {
+                var mod_list = mod.Name.Split(',');
+
+                using (Bitmap result = mods_pic_output.GenerateModsPicture(mod_list))
+                {
+                    result.Save(OutputModImageFilePath, ImageFormat.Png);
+                }
+            }
+
+            #endregion
 
             EventBus.RaiseEvent(new OutputInfomationEvent(current_beatmap.OutputType));
 
