@@ -239,7 +239,7 @@ namespace OsuLiveStatusPanel
 
                             if (line == "[Difficulty]")
                             {
-                                status = 4;
+                                //status = 4; //不需要
                             }
 
                             if (line == "[TimingPoints]")
