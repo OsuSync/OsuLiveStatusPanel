@@ -10,7 +10,7 @@ namespace OsuLiveStatusPanel.PPShow.Output
 {
     class MemoryMappedFileOutput : OutputBase
     {
-        public const string MMF_FORMAT= @"mmf:/";
+        public const string MMF_FORMAT= @"mmf://";
         public const int MMF_CAPACITY = 4096;
         public readonly static byte[] clear_buffer = new byte[MMF_CAPACITY];
 
