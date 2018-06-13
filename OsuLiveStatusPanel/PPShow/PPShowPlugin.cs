@@ -9,12 +9,19 @@ using System.Threading.Tasks;
 using System.IO;
 using static OsuLiveStatusPanel.Languages;
 using OsuLiveStatusPanel.PPShow;
+using OsuLiveStatusPanel.PPShow.Output;
 
 namespace OsuLiveStatusPanel
 {
     public class BeatmapInfomationGeneratorPlugin
     {
-        Dictionary<OutputConfig, OutputFormatter> ofs;
+        struct OutputWrapper
+        {
+            public OutputFormatter formatter;
+            public OutputBase outputter;
+        }
+
+        Dictionary<OutputConfig, OutputWrapper> ofs;
 
         BeatmapInfomationGenerator PP;
 
@@ -42,7 +49,7 @@ namespace OsuLiveStatusPanel
 
         private void Init()
         {
-            ofs = new Dictionary<OutputConfig, OutputFormatter>();
+            ofs = new Dictionary<OutputConfig, OutputWrapper>();
 
             var register_list = new List<OutputConfig>();
             register_list.AddRange(Config.Instance.output_list);
@@ -50,11 +57,16 @@ namespace OsuLiveStatusPanel
 
             foreach (var o in register_list)
             {
-                if(!Directory.Exists(Path.GetDirectoryName(o.output_file)))
+                ofs[o] = new OutputWrapper
+                {
+                    formatter = new OutputFormatter(o.output_format),
+                    outputter = OutputBase.Create(o.output_file)
+                };
+
+                if (ofs[o].outputter is DiskFileOutput &&(!Directory.Exists(Path.GetDirectoryName(o.output_file))))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(o.output_file));
                 }
-                ofs[o] = new OutputFormatter(o.output_format);
             }
 
             List<float> acc_list = new List<float>();
@@ -62,7 +74,7 @@ namespace OsuLiveStatusPanel
             foreach (var o in ofs)
             {
                 acc_list = acc_list.Concat(
-                    from n in o.Value.GetAccuracyArray()
+                    from n in o.Value.formatter.GetAccuracyArray()
                     where !acc_list.Contains(n)
                     select n
                     ).ToList();
@@ -99,7 +111,7 @@ namespace OsuLiveStatusPanel
                 foreach (var output in list)
                 {
                     var of = ofs[output];
-                    string str = of.Format(data_dic);
+                    string str = of.formatter.Format(data_dic);
 
                     if (PPShowAllowDumpInfo == true)
                     {
@@ -113,7 +125,7 @@ namespace OsuLiveStatusPanel
 
                     try
                     {
-                        File.WriteAllText(output.output_file, str);
+                        of.outputter.Output(str);
                     }
                     catch (Exception e)
                     {
@@ -129,12 +141,14 @@ namespace OsuLiveStatusPanel
             {
                 try
                 {
+                    var of = ofs[o];
+
                     if (!File.Exists(o.output_file))
                     {
                         continue;
                     }
 
-                    File.WriteAllText($"{o.output_file}",string.Empty);
+                    of.outputter.Output(of.formatter.Format(null));
                 }
                 catch (Exception e)
                 {
@@ -153,7 +167,8 @@ namespace OsuLiveStatusPanel
             {
                 try
                 {
-                    File.WriteAllText($"{o.output_file}", o.output_format);
+                    var of = ofs[o];
+                    of.outputter.Output(of.formatter.Format(null));
                 }
                 catch (Exception e)
                 {

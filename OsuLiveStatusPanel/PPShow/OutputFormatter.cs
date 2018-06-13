@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OsuLiveStatusPanel.PPShow.Output;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +28,9 @@ namespace OsuLiveStatusPanel
         public string Format(Dictionary<string, string> data_dic)
         {
             string result_str=m_format;
+
+            if (data_dic == null)
+                return result_str;
 
             var result = pattern.Match(result_str);
 

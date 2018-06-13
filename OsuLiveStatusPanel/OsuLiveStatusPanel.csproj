@@ -56,6 +56,9 @@
     <Compile Include="ModsPictureGenerator.cs" />
     <Compile Include="PPShow\Beatmap\BeatmapReader.cs" />
     <Compile Include="OutputInfomationEvent.cs" />
+    <Compile Include="PPShow\Output\DiskFileOutput.cs" />
+    <Compile Include="PPShow\Output\MemoryMappedFileOutput.cs" />
+    <Compile Include="PPShow\Output\OutputBase.cs" />
     <Compile Include="PPShow\ModsInfo.cs" />
     <Compile Include="PPShow\Oppai.cs" />
     <Compile Include="PPShow\OutputType.cs" />
@@ -87,6 +90,9 @@
       <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
       <Name>Sync</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
