@@ -23,6 +23,7 @@ using System.Numerics;
 using System.Reflection;
 using Sync.Tools.ConfigGUI;
 using OsuLiveStatusPanel.PPShow;
+using OsuLiveStatusPanel.SourcesWrapper;
 
 namespace OsuLiveStatusPanel
 {
@@ -103,6 +104,8 @@ namespace OsuLiveStatusPanel
         private PluginConfigurationManager manager;
 
         private string OsuSyncPath;
+
+        Logger logger = new Logger("OsuLiveStatusPanelPlugin");
 
         #region DDPR_field
 
@@ -214,6 +217,8 @@ namespace OsuLiveStatusPanel
                     default:
                         break;
                 }
+
+                logger.LogInfomation($"Source:{BeatmapSourcePlugin} Loaded:{SourceWrapper.ToString()}");
             }
             catch (Exception e)
             {
@@ -248,7 +253,14 @@ namespace OsuLiveStatusPanel
                     IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSURTDP_FOUND}", ConsoleColor.Green);
                     OsuRTDataProvider.OsuRTDataProviderPlugin reader = plugin as OsuRTDataProvider.OsuRTDataProviderPlugin;
 
-                    SourceWrapper = new OsuRTDataProviderWrapper(reader, this);
+                    if (reader.ModsChangedAtListening)
+                    {
+                        SourceWrapper = new RealtimeDataProviderModsWrapper(reader, this);
+                    }
+                    else
+                    {
+                        SourceWrapper = new OsuRTDataProviderWrapper(reader, this);
+                    }
 
                     if (SourceWrapper.Attach())
                     {
@@ -331,7 +343,7 @@ namespace OsuLiveStatusPanel
 
         private bool ApplyBeatmapInfomationforOsuRTDataProvider(BeatmapEntry current_beatmap)
         {
-            OsuRTDataProviderWrapper OsuRTDataProviderWrapperInstance = SourceWrapper as OsuRTDataProviderWrapper;
+            RealtimeDataProvideWrapperBase OsuRTDataProviderWrapperInstance = SourceWrapper as RealtimeDataProvideWrapperBase;
 
             ModsInfo mod = default(ModsInfo);
             //添加Mods

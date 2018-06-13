@@ -9,54 +9,25 @@ using System.Text;
 using System.Threading.Tasks;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 using OsuRTDataProvider;
+using OsuLiveStatusPanel.SourcesWrapper;
 
 namespace OsuLiveStatusPanel
 {
-    internal class OsuRTDataProviderWrapper:SourceWrapperBase<OsuRTDataProviderPlugin>
+    /// <summary>
+    /// 不支持选图界面获取Mod的版本
+    /// </summary>
+    internal class OsuRTDataProviderWrapper: RealtimeDataProvideWrapperBase
     {
-        public ModsInfo current_mod;
-
-        private int beatmapID, beatmapSetID;
-
-        private OsuStatus current_status;
-
-        public string OsuFilePath;
-
         public OsuRTDataProviderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
-            RefPanelPlugin.OnSettingChanged += () =>
-            {
-                var beatmap = GetCurrentBeatmap();
-
-                beatmap.OutputType = CurrentOutputType = (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank) ? OutputType.Play : OutputType.Listen;
-
-                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap =  beatmap});
-            };
-        }
-
-        public void OnCurrentBeatmapChange(Beatmap beatmap)
-        {
-            if (beatmap==Beatmap.Empty||string.IsNullOrWhiteSpace(beatmap?.FilenameFull))
-            {
-                //fix empty beatmap
-                return;
-            }
-
-            beatmapID = beatmap.BeatmapID;
-            beatmapSetID = beatmap.BeatmapSetID;
-            OsuFilePath = beatmap.FilenameFull;
-
-            if (current_status == OsuStatus.Listening)
-            {
-                TrigListen();
-            }
+            
         }
 
         /*
          因为MemoryReader扫Status比Mod快,如果使用Status来做是否开始打图的依据会无法及时获取当前MOD的信息.因此按Mod来判断是否开始打图,null为非打图状态
         */
         
-        public void OnCurrentModsChange(ModsInfo mod)
+        public override void OnCurrentModsChange(ModsInfo mod)
         {
             if (current_mod.Mod == mod.Mod) return;
 
@@ -81,17 +52,7 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        private BeatmapEntry GetCurrentBeatmap()
-        {
-            return new BeatmapEntry()
-            {
-                BeatmapId = beatmapID,
-                BeatmapSetId = beatmapSetID,
-                OsuFilePath = OsuFilePath
-            };
-        }
-
-        public void OnStatusChange(OsuStatus last_status, OsuStatus status)
+        public override void OnStatusChange(OsuStatus last_status, OsuStatus status)
         {
             current_status = status;
             
@@ -125,30 +86,6 @@ namespace OsuLiveStatusPanel
 
                 RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
             }
-        }
-
-        private void TrigListen()
-        {
-            var beatmap = GetCurrentBeatmap();
-
-            beatmap.OutputType = CurrentOutputType  = OutputType.Listen;
-
-            RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
-        }
-
-        public override void Detach()
-        {
-            RefPlugin.ListenerManager.OnBeatmapChanged -= OnCurrentBeatmapChange;
-            RefPlugin.ListenerManager.OnStatusChanged -= OnStatusChange;
-            RefPlugin.ListenerManager.OnModsChanged -= OnCurrentModsChange;
-        }
-
-        public override bool Attach()
-        {
-            RefPlugin.ListenerManager.OnBeatmapChanged += OnCurrentBeatmapChange;
-            RefPlugin.ListenerManager.OnStatusChanged += OnStatusChange;
-            RefPlugin.ListenerManager.OnModsChanged += OnCurrentModsChange;
-            return true;
         }
     }
 }
