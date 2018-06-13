@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using static OsuLiveStatusPanel.Languages;
+using OsuLiveStatusPanel.PPShow;
 
 namespace OsuLiveStatusPanel
 {
@@ -74,7 +75,7 @@ namespace OsuLiveStatusPanel
             PP.OnOutputEvent += OnOutput;
         }
 
-        private void OnOutput(OutputType output_type,List<OppaiJson> oppai_infos,Dictionary<string,string> data_dic)
+        private void OnOutput(OutputType output_type,Dictionary<string,string> data_dic)
         {
             current_data_dic = data_dic;
             
@@ -98,7 +99,7 @@ namespace OsuLiveStatusPanel
                 foreach (var output in list)
                 {
                     var of = ofs[output];
-                    string str = of.Format(oppai_infos, data_dic);
+                    string str = of.Format(data_dic);
 
                     if (PPShowAllowDumpInfo == true)
                     {
@@ -161,7 +162,7 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        public bool Output(OutputType output_type,string osu_file_path, string mods_list, params KeyValuePair<string, string>[] extra)
+        public bool Output(OutputType output_type,string osu_file_path, ModsInfo mods, params KeyValuePair<string, string>[] extra)
         {
             if (output_type==OutputType.Listen&&String.IsNullOrWhiteSpace(osu_file_path))
             {
@@ -169,7 +170,7 @@ namespace OsuLiveStatusPanel
                 return true;
             }
 
-            return PP.TrigOutput(output_type,osu_file_path, mods_list, extra);
+            return PP.TrigOutput(output_type,osu_file_path, mods, extra);
         }
 
         #region DDRP

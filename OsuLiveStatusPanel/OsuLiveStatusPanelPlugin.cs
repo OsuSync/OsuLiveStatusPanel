@@ -22,6 +22,7 @@ using static OsuLiveStatusPanel.Languages;
 using System.Numerics;
 using System.Reflection;
 using Sync.Tools.ConfigGUI;
+using OsuLiveStatusPanel.PPShow;
 
 namespace OsuLiveStatusPanel
 {
@@ -332,12 +333,12 @@ namespace OsuLiveStatusPanel
         {
             OsuRTDataProviderWrapper OsuRTDataProviderWrapperInstance = SourceWrapper as OsuRTDataProviderWrapper;
 
-            string mod = string.Empty;
+            ModsInfo mod = default(ModsInfo);
             //添加Mods
             if (OsuRTDataProviderWrapperInstance.current_mod.Mod != OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown)
             {
                 //处理不能用的PP
-                mod = $"{OsuRTDataProviderWrapperInstance.current_mod.ShortName}";
+                mod.Mod = (ModsInfo.Mods)((uint)OsuRTDataProviderWrapperInstance.current_mod.Mod);
             }
 
             if (EnableOutputModPicture== "True" && mods_pic_output==null)
@@ -374,7 +375,7 @@ namespace OsuLiveStatusPanel
 
         private void OutputInfomationClean()
         {
-            PPShowPluginInstance?.Output(OutputType.Listen,string.Empty, string.Empty);
+            PPShowPluginInstance?.Output(OutputType.Listen,string.Empty, ModsInfo.Empty);
 
             current_bg_file_path = string.Empty;
 
@@ -405,13 +406,17 @@ namespace OsuLiveStatusPanel
                 return false;
             }
 
-            OutputBeatmapInfomation(current_beatmap);
+            OutputBeatmapInfomation(current_beatmap, ModsInfo.Empty);
 
             return true;
         }
 
-        public void OutputBeatmapInfomation(BeatmapEntry current_beatmap, string mod = "")
+        Stopwatch sw = new Stopwatch();
+
+        public void OutputBeatmapInfomation(BeatmapEntry current_beatmap, ModsInfo mod)
         {
+            sw.Restart();
+
             string beatmap_osu_file = current_beatmap.OsuFilePath;
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
@@ -438,7 +443,7 @@ namespace OsuLiveStatusPanel
 
             EventBus.RaiseEvent(new OutputInfomationEvent(current_beatmap.OutputType));
 
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!time:{sw.ElapsedMilliseconds}ms output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
         }
 
         private void OutputBackgroundImage(string bgPath,OutputType type)
@@ -514,7 +519,7 @@ namespace OsuLiveStatusPanel
             modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "True",ModUse2x== "True", ModSortReverse== "True", ModDrawReverse== "True");
         }
 
-        private bool OutputInfomation(OutputType output_type, BeatmapEntry entry,string mod_list)
+        private bool OutputInfomation(OutputType output_type, BeatmapEntry entry, ModsInfo mods)
         {
             KeyValuePair<string, string>[] extra_Data_arr = new[] 
             {
@@ -523,7 +528,7 @@ namespace OsuLiveStatusPanel
                 new KeyValuePair<string, string>( "beatmap_setid", entry.BeatmapSetId.ToString() )
             };
 
-            return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mod_list, extra_Data_arr);
+            return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mods, extra_Data_arr);
         }
 
         private Bitmap GetFixedResolutionBitmap(string file,int dstw,int dsth)

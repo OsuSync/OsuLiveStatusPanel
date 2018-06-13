@@ -24,7 +24,7 @@ namespace OsuLiveStatusPanel
             m_format = format;
         }
 
-        public string Format(List<OppaiJson> oppais, Dictionary<string, string> data_dic)
+        public string Format(Dictionary<string, string> data_dic)
         {
             string result_str=m_format;
 
