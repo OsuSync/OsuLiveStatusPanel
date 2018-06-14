@@ -14,7 +14,7 @@ using OsuLiveStatusPanel.PPShow;
 
 namespace OsuLiveStatusPanel
 {
-    class BeatmapInfomationGenerator
+    class InfoOutputter
     {
         static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut };
 
@@ -34,7 +34,7 @@ namespace OsuLiveStatusPanel
 
         string oppai;
 
-        public BeatmapInfomationGenerator(string oppai, List<float> acc_list)
+        public InfoOutputter(string oppai, List<float> acc_list)
         {
             AccuracyList = acc_list;
 

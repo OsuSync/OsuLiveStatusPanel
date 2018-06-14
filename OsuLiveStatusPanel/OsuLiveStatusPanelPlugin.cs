@@ -115,7 +115,7 @@ namespace OsuLiveStatusPanel
 
         public ModsPictureGenerator mods_pic_output;
 
-        public BeatmapInfomationGeneratorPlugin PPShowPluginInstance { get; private set; }
+        public InfoOutputterWrapper PPShowPluginInstance { get; private set; }
 
         public OsuLiveStatusPanelPlugin() : base("OsuLiveStatusPanelPlugin", "MikiraSora & KedamavOvO >///<")
         {
@@ -200,7 +200,7 @@ namespace OsuLiveStatusPanel
             OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
 
             //init PPShow
-            PPShowPluginInstance = new BeatmapInfomationGeneratorPlugin(PPShowJsonConfigFilePath);
+            PPShowPluginInstance = new InfoOutputterWrapper(PPShowJsonConfigFilePath);
 
             source = UsingSource.None;
 

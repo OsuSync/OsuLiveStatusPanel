@@ -13,7 +13,7 @@ using OsuLiveStatusPanel.PPShow.Output;
 
 namespace OsuLiveStatusPanel
 {
-    public class BeatmapInfomationGeneratorPlugin
+    public class InfoOutputterWrapper
     {
         struct OutputWrapper
         {
@@ -23,7 +23,7 @@ namespace OsuLiveStatusPanel
 
         Dictionary<OutputConfig, OutputWrapper> ofs;
 
-        BeatmapInfomationGenerator PP;
+        InfoOutputter PP;
 
         Dictionary<string, string> current_data_dic;
 
@@ -31,7 +31,7 @@ namespace OsuLiveStatusPanel
 
         public Dictionary<string,string> CurrentOutputInfo { get => current_data_dic; }
 
-        public BeatmapInfomationGeneratorPlugin(string config_path)
+        public InfoOutputterWrapper(string config_path)
         {
             if (!File.Exists(config_path))
             {
@@ -82,7 +82,7 @@ namespace OsuLiveStatusPanel
 
             string oppai_path = Config.Instance.oppai;
 
-            PP = new BeatmapInfomationGenerator(oppai_path, acc_list);
+            PP = new InfoOutputter(oppai_path, acc_list);
 
             PP.OnOutputEvent += OnOutput;
         }
