@@ -2,7 +2,7 @@
 using OsuRTDataProvider.Mods;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
-namespace OsuLiveStatusPanel.SourcesWrapper
+namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
 {
     /// <summary>
     /// 支持选图界面获取Mod的版本

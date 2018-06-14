@@ -53,21 +53,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Language.cs" />
-    <Compile Include="ModsPictureGenerator.cs" />
+    <Compile Include="Mods\ModsPictureGenerator.cs" />
+    <Compile Include="PPShow\Beatmap\BeatmapParser.cs" />
     <Compile Include="PPShow\Beatmap\BeatmapReader.cs" />
     <Compile Include="OutputInfomationEvent.cs" />
     <Compile Include="PPShow\Output\DiskFileOutput.cs" />
     <Compile Include="PPShow\Output\MemoryMappedFileOutput.cs" />
     <Compile Include="PPShow\Output\OutputBase.cs" />
-    <Compile Include="PPShow\ModsInfo.cs" />
-    <Compile Include="PPShow\Oppai.cs" />
-    <Compile Include="PPShow\OutputType.cs" />
+    <Compile Include="Mods\ModsInfo.cs" />
+    <Compile Include="PPShow\Oppai\Oppai.cs" />
+    <Compile Include="OutputType.cs" />
     <Compile Include="SourcesWrapper\BeatmapChangedParameter.cs" />
-    <Compile Include="SourcesWrapper\BeatmapEntry.cs" />
+    <Compile Include="BeatmapEntry.cs" />
     <Compile Include="SourcesWrapper\ORTDP\RealtimeDataProviderWrapper.cs" />
     <Compile Include="OsuLiveStatusPanelPlugin.cs" />
     <Compile Include="PPShow\ConfigJson.cs" />
-    <Compile Include="PPShow\OppaiJson.cs" />
+    <Compile Include="PPShow\Oppai\OppaiJson.cs" />
     <Compile Include="PPShow\OutputFormatter.cs" />
     <Compile Include="PPShow\InfoOutputter.cs" />
     <Compile Include="PPShow\InfoOutputterWrapper.cs" />
@@ -94,6 +95,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

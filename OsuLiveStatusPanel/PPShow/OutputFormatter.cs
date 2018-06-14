@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace OsuLiveStatusPanel
+namespace OsuLiveStatusPanel.PPShow
 {
     /// <summary>
     /// 格式${xxx[:acc]}

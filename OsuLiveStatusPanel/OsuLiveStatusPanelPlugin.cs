@@ -1,5 +1,8 @@
-﻿using OsuLiveStatusPanel.PPShow;
+﻿using OsuLiveStatusPanel.Mods;
+using OsuLiveStatusPanel.PPShow;
 using OsuLiveStatusPanel.SourcesWrapper;
+using OsuLiveStatusPanel.SourcesWrapper.NP;
+using OsuLiveStatusPanel.SourcesWrapper.ORTDP;
 using Sync;
 using Sync.Plugins;
 using Sync.Tools;

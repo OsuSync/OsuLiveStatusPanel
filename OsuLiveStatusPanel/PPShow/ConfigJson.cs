@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace OsuLiveStatusPanel
+namespace OsuLiveStatusPanel.PPShow
 {
     public class OutputConfig
     {

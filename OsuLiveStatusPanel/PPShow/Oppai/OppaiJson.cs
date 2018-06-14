@@ -1,4 +1,4 @@
-﻿namespace OsuLiveStatusPanel
+﻿namespace OsuLiveStatusPanel.PPShow.Oppai
 {
     public class OppaiJson
     {

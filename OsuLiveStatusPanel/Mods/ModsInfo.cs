@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OsuLiveStatusPanel.PPShow
+namespace OsuLiveStatusPanel.Mods
 {
     public struct ModsInfo
     {

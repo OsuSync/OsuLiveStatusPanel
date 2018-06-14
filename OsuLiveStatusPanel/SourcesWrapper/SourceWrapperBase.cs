@@ -1,6 +1,6 @@
 ﻿using Sync.Plugins;
 
-namespace OsuLiveStatusPanel
+namespace OsuLiveStatusPanel.SourcesWrapper
 {
     public abstract class SourceWrapperBase<T> : SourceWrapperBase where T : Plugin
     {

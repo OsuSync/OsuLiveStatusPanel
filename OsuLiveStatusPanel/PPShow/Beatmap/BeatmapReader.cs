@@ -1,7 +1,8 @@
-﻿using System.IO;
+﻿using OsuLiveStatusPanel.PPShow.Oppai;
+using System.IO;
 using System.Text.RegularExpressions;
 
-namespace OsuLiveStatusPanel
+namespace OsuLiveStatusPanel.PPShow.Beatmap
 {
     public static class BeatmapReader
     {

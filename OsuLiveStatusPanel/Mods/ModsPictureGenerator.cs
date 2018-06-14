@@ -5,7 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-namespace OsuLiveStatusPanel
+namespace OsuLiveStatusPanel.Mods
 {
     public class ModsPictureGenerator
     {

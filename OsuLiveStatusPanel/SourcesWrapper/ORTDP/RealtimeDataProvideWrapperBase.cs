@@ -3,7 +3,7 @@ using OsuRTDataProvider.BeatmapInfo;
 using OsuRTDataProvider.Mods;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
-namespace OsuLiveStatusPanel.SourcesWrapper
+namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
 {
     internal abstract class RealtimeDataProvideWrapperBase : SourceWrapperBase<OsuRTDataProviderPlugin>
     {

@@ -1,4 +1,4 @@
-﻿namespace OsuLiveStatusPanel
+﻿namespace OsuLiveStatusPanel.SourcesWrapper
 {
     public class BeatmapChangedParameter
     {

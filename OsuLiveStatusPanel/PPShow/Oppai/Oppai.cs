@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace OsuLiveStatusPanel.PPShow
+namespace OsuLiveStatusPanel.PPShow.Oppai
 {
     internal class Oppai
     {

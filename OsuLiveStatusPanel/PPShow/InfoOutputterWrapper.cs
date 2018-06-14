@@ -1,4 +1,4 @@
-﻿using OsuLiveStatusPanel.PPShow;
+﻿using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow.Output;
 using Sync.Tools;
 using System;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using static OsuLiveStatusPanel.Languages;
 
-namespace OsuLiveStatusPanel
+namespace OsuLiveStatusPanel.PPShow
 {
     public class InfoOutputterWrapper
     {

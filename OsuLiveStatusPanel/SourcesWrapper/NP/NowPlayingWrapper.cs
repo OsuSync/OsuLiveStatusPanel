@@ -2,7 +2,7 @@
 using Sync.Tools;
 using System;
 
-namespace OsuLiveStatusPanel
+namespace OsuLiveStatusPanel.SourcesWrapper.NP
 {
     internal class NowPlayingWrapper : SourceWrapperBase<NowPlaying.NowPlaying>
     {
