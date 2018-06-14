@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel.PPShow.Output
 {
-    class MemoryMappedFileOutput : OutputBase
+    internal class MemoryMappedFileOutput : OutputBase
     {
-        public const string MMF_FORMAT= @"mmf://";
+        public const string MMF_FORMAT = @"mmf://";
         public const int MMF_CAPACITY = 4096;
         public readonly static byte[] clear_buffer = new byte[MMF_CAPACITY];
 
-        MemoryMappedFile mmf_handler;
+        private MemoryMappedFile mmf_handler;
 
         public MemoryMappedFileOutput(string path) : base(path)
         {

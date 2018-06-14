@@ -1,7 +1,9 @@
-﻿using NowPlaying;
+﻿using OsuLiveStatusPanel.PPShow;
+using OsuLiveStatusPanel.SourcesWrapper;
 using Sync;
 using Sync.Plugins;
 using Sync.Tools;
+using Sync.Tools.ConfigGUI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,25 +11,13 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media.Effects;
-using static OsuRTDataProvider.Listen.OsuListenerManager;
-using static OsuLiveStatusPanel.Languages;
 using System.Numerics;
-using System.Reflection;
-using Sync.Tools.ConfigGUI;
-using OsuLiveStatusPanel.PPShow;
-using OsuLiveStatusPanel.SourcesWrapper;
+using System.Text.RegularExpressions;
+using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
-    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33","1.2.0")]
+    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33", "1.2.0")]
     public class OsuLiveStatusPanelPlugin : Plugin, IConfigurable
     {
         private enum UsingSource
@@ -37,13 +27,13 @@ namespace OsuLiveStatusPanel
             None
         }
 
-        SourceWrapperBase SourceWrapper;
+        private SourceWrapperBase SourceWrapper;
 
         #region Options
 
-        [List(AllowMultiSelect =false,IgnoreCase =true,ValueList =new[] {"ortdp","np"})]
+        [List(AllowMultiSelect = false, IgnoreCase = true, ValueList = new[] { "ortdp", "np" })]
         public ConfigurationElement BeatmapSourcePlugin { get; set; } = "ortdp";
-        
+
         [Integer]
         public ConfigurationElement Width { get; set; } = "1920";
 
@@ -53,7 +43,7 @@ namespace OsuLiveStatusPanel
         [Bool]
         public ConfigurationElement EnableOutputModPicture { get; set; } = "False";
 
-        [Path(IsDirectory =false)]
+        [Path(IsDirectory = false)]
         public ConfigurationElement OutputModImageFilePath { get; set; } = @"..\output_mod.png";
 
         [Integer]
@@ -105,13 +95,13 @@ namespace OsuLiveStatusPanel
 
         private string OsuSyncPath;
 
-        Logger logger = new Logger("OsuLiveStatusPanel");
+        private Logger logger = new Logger("OsuLiveStatusPanel");
 
         #region DDPR_field
 
         private string current_bg_file_path;
 
-        #endregion
+        #endregion DDPR_field
 
         public ModsPictureGenerator mods_pic_output;
 
@@ -137,7 +127,7 @@ namespace OsuLiveStatusPanel
         {
             @event.Commands.Dispatch.bind("olsp", (args) =>
             {
-                if (args.Count()==0)
+                if (args.Count() == 0)
                 {
                     Help();
                     return true;
@@ -148,15 +138,19 @@ namespace OsuLiveStatusPanel
                     case "help":
                         Help();
                         break;
+
                     case "get":
                         IO.CurrentIO.WriteColor($"{args[1]}\t=\t{GetData(args[1])}", ConsoleColor.Cyan);
                         break;
+
                     case "restart":
                         ReInitizePlugin();
                         break;
+
                     case "status":
                         Status();
                         break;
+
                     default:
                         break;
                 }
@@ -190,10 +184,10 @@ namespace OsuLiveStatusPanel
 
         public void Status()
         {
-            IO.CurrentIO.WriteColor(string.Format(CONNAND_STATUS, source.ToString(),PPShowJsonConfigFilePath), ConsoleColor.Green);
+            IO.CurrentIO.WriteColor(string.Format(CONNAND_STATUS, source.ToString(), PPShowJsonConfigFilePath), ConsoleColor.Green);
         }
 
-        #endregion
+        #endregion Commands
 
         private void SetupPlugin(SyncHost host)
         {
@@ -211,9 +205,11 @@ namespace OsuLiveStatusPanel
                     case "np":
                         TryRegisterSourceFromNowPlaying(host);
                         break;
+
                     case "ortdp":
                         TryRegisterSourceFromOsuRTDataProvider(host);
                         break;
+
                     default:
                         break;
                 }
@@ -234,7 +230,7 @@ namespace OsuLiveStatusPanel
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_SUCCESS}", ConsoleColor.Green);
             }
-            
+
             CleanOsuStatus();
         }
 
@@ -303,9 +299,9 @@ namespace OsuLiveStatusPanel
 
         #region Kernal
 
-        public void OnBeatmapChanged(SourceWrapperBase source,BeatmapChangedParameter evt)
+        public void OnBeatmapChanged(SourceWrapperBase source, BeatmapChangedParameter evt)
         {
-            if (source!=SourceWrapper)
+            if (source != SourceWrapper)
             {
                 return;
             }
@@ -357,7 +353,7 @@ namespace OsuLiveStatusPanel
                 //处理不能用的PP
                 mod.Mod = (ModsInfo.Mods)((uint)OsuRTDataProviderWrapperInstance.current_mod.Mod);
             }
-            
+
             OutputBeatmapInfomation(current_beatmap, mod);
 
             return true;
@@ -365,7 +361,7 @@ namespace OsuLiveStatusPanel
 
         private void OutputInfomationClean()
         {
-            PPShowPluginInstance?.Output(OutputType.Listen,string.Empty, ModsInfo.Empty);
+            PPShowPluginInstance?.Output(OutputType.Listen, string.Empty, ModsInfo.Empty);
 
             current_bg_file_path = string.Empty;
 
@@ -401,7 +397,7 @@ namespace OsuLiveStatusPanel
             return true;
         }
 
-        Stopwatch sw = new Stopwatch();
+        private Stopwatch sw = new Stopwatch();
 
         public void OutputBeatmapInfomation(BeatmapEntry current_beatmap, ModsInfo mod)
         {
@@ -411,7 +407,7 @@ namespace OsuLiveStatusPanel
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
 
-            if(!OutputInfomation(current_beatmap.OutputType, current_beatmap, mod))
+            if (!OutputInfomation(current_beatmap.OutputType, current_beatmap, mod))
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Cant output info {current_beatmap.BeatmapSetId}.", ConsoleColor.Yellow);
                 return;
@@ -420,14 +416,14 @@ namespace OsuLiveStatusPanel
             #region OutputBackgroundImage
 
             var match = Regex.Match(osuFileContent, @"\""((.+?)\.((jpg)|(png)|(jpeg)))\""", RegexOptions.IgnoreCase);
-            string bgPath  = beatmap_folder + @"\" + match.Groups[1].Value;
+            string bgPath = beatmap_folder + @"\" + match.Groups[1].Value;
 
-            if (bgPath!= current_bg_file_path)
+            if (bgPath != current_bg_file_path)
                 OutputBackgroundImage(bgPath, current_beatmap.OutputType);
 
             current_bg_file_path = bgPath;
 
-            #endregion
+            #endregion OutputBackgroundImage
 
             #endregion GetInfo
 
@@ -449,14 +445,14 @@ namespace OsuLiveStatusPanel
                 }
             }
 
-            #endregion
+            #endregion Mods Ouptut
 
             EventBus.RaiseEvent(new OutputInfomationEvent(current_beatmap.OutputType));
 
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!time:{sw.ElapsedMilliseconds}ms output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
         }
 
-        private void OutputBackgroundImage(string bgPath,OutputType type)
+        private void OutputBackgroundImage(string bgPath, OutputType type)
         {
             if (!EnableOutputBackgroundImage.ToBool())
                 return;
@@ -472,7 +468,6 @@ namespace OsuLiveStatusPanel
                 {
                     if (EnableScaleClipOutputImageFile == "True")
                     {
-
                         using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
                         using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                             bitmap.Save(fp, ImageFormat.Png);
@@ -497,7 +492,7 @@ namespace OsuLiveStatusPanel
         private void TryCreateModsPictureGenerator(out ModsPictureGenerator modsPictureGenerator)
         {
             Process process = Process.GetProcessesByName("osu!")?.First();
-            if (process==null)
+            if (process == null)
             {
                 modsPictureGenerator = null;
                 return;
@@ -505,12 +500,12 @@ namespace OsuLiveStatusPanel
 
             string osu_path = Path.GetDirectoryName(process.MainModule.FileName);
             string osu_config_file = Path.Combine(osu_path, $"osu!.{Environment.UserName}.cfg");
-            string using_skin_name=string.Empty;
+            string using_skin_name = string.Empty;
 
             var lines = File.ReadLines(osu_config_file);
             foreach (var line in lines)
             {
-                if (line.Trim().StartsWith("Skin =")|| line.Trim().StartsWith("Skin="))
+                if (line.Trim().StartsWith("Skin =") || line.Trim().StartsWith("Skin="))
                 {
                     using_skin_name = line.Split('=')[1].Trim();
                 }
@@ -522,16 +517,16 @@ namespace OsuLiveStatusPanel
                 return;
             }
 
-            string using_skin_path = Path.Combine(osu_path,"Skins", using_skin_name);
+            string using_skin_path = Path.Combine(osu_path, "Skins", using_skin_name);
 
-            IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}",ConsoleColor.Cyan);
+            IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}", ConsoleColor.Cyan);
 
-            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "True",ModUse2x== "True", ModSortReverse== "True", ModDrawReverse== "True");
+            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "True", ModUse2x == "True", ModSortReverse == "True", ModDrawReverse == "True");
         }
 
         private bool OutputInfomation(OutputType output_type, BeatmapEntry entry, ModsInfo mods)
         {
-            KeyValuePair<string, string>[] extra_Data_arr = new[] 
+            KeyValuePair<string, string>[] extra_Data_arr = new[]
             {
                 new KeyValuePair<string, string>( "osu_file_path", entry.OsuFilePath ),
                 new KeyValuePair<string, string>( "beatmap_id", entry.BeatmapId.ToString() ),
@@ -541,7 +536,7 @@ namespace OsuLiveStatusPanel
             return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mods, extra_Data_arr);
         }
 
-        private Bitmap GetFixedResolutionBitmap(string file,int dstw,int dsth)
+        private Bitmap GetFixedResolutionBitmap(string file, int dstw, int dsth)
         {
             float r = dstw / (float)dsth;
             var dbitmap = new Bitmap(dstw, dsth);
@@ -558,7 +553,7 @@ namespace OsuLiveStatusPanel
                     w = sbitmap.Width;
                     h = sbitmap.Width / r;
                 }
-                if(h > sbitmap.Height)
+                if (h > sbitmap.Height)
                 {
                     w = sbitmap.Height * r;
                     h = sbitmap.Height;
@@ -580,11 +575,11 @@ namespace OsuLiveStatusPanel
                 {
                     byte* sptr = (byte*)(sdata.Scan0);
                     byte* dptr = (byte*)(ddata.Scan0);
-                    byte* sp_up,sp_down, sp_left,sp_right;
+                    byte* sp_up, sp_down, sp_left, sp_right;
                     int si = 0, sj = 0;
 
                     float t;
-                    float u, v, omu,omv;
+                    float u, v, omu, omv;
                     Vector4 abcd;
                     Vector4 g1, g2, g3;
 
@@ -592,11 +587,11 @@ namespace OsuLiveStatusPanel
                     {
                         t = i * scaley;
                         si = (int)(t);
-                        v = t-si;
+                        v = t - si;
 
                         if ((si + 1) == sdata.Height) continue;
 
-                        for (int j = 0; j < ddata.Width; j++,dptr += 3)
+                        for (int j = 0; j < ddata.Width; j++, dptr += 3)
                         {
                             t = j * scalex;
                             sj = (int)(t);
@@ -606,11 +601,11 @@ namespace OsuLiveStatusPanel
                             omu = 1 - u;
                             omv = 1 - v;
 
-                            abcd.X = omu * omv;abcd.Y = u * v;abcd.Z = omu * v;abcd.W = omv * u;
+                            abcd.X = omu * omv; abcd.Y = u * v; abcd.Z = omu * v; abcd.W = omv * u;
 
-                            sp_up    = sptr + ((si - 0) * sdata.Stride + (sj - 0) * 3);//left up 0,0
-                            sp_down  = sptr + ((si + 1) * sdata.Stride + (sj + 1) * 3);//right down 1,1
-                            sp_left  = sptr + ((si + 1) * sdata.Stride + (sj - 0) * 3);//left down 0,1
+                            sp_up = sptr + ((si - 0) * sdata.Stride + (sj - 0) * 3);//left up 0,0
+                            sp_down = sptr + ((si + 1) * sdata.Stride + (sj + 1) * 3);//right down 1,1
+                            sp_left = sptr + ((si + 1) * sdata.Stride + (sj - 0) * 3);//left down 0,1
                             sp_right = sptr + ((si - 0) * sdata.Stride + (sj + 1) * 3);//rigth up 1,0
 
                             g1.X = sp_up[0]; g1.Y = sp_down[0]; g1.Z = sp_left[0]; g1.W = sp_right[0];
@@ -635,7 +630,7 @@ namespace OsuLiveStatusPanel
 
         #region DDPR
 
-        static readonly string[] ppshow_provideable_data_array = new[] { "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners" };
+        private static readonly string[] ppshow_provideable_data_array = new[] { "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners" };
 
         private Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>> DataGetterMap = new Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>>()
         {
@@ -667,7 +662,7 @@ namespace OsuLiveStatusPanel
                 return null;
             }
 
-            if (GetCurrentPluginData(name,out string result))
+            if (GetCurrentPluginData(name, out string result))
             {
                 return result;
             }
@@ -685,22 +680,20 @@ namespace OsuLiveStatusPanel
                 yield return name;
         }
 
-        #endregion
+        #endregion DDPR
 
         public void onConfigurationLoad()
         {
-
         }
 
         public void onConfigurationSave()
         {
-
         }
 
         public void onConfigurationReload()
         {
             mods_pic_output = null;
-            if (source==UsingSource.OsuRTDataProvider)
+            if (source == UsingSource.OsuRTDataProvider)
             {
                 TryCreateModsPictureGenerator(out mods_pic_output);
             }

@@ -1,10 +1,5 @@
 ﻿using Sync.Tools;
 using Sync.Tools.ConfigGUI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel
 {
@@ -22,7 +17,7 @@ namespace OsuLiveStatusPanel
         public static LanguageElement NOWPLAYING_FOUND = "找到插件NowPlaying";
         public static LanguageElement NOWPLAYING_NOTFOUND = "NowPlaying未找到,请检查Sync中的插件目录是否存在这货.";
         public static LanguageElement OSU_PROCESS_NOTFOUND = "未找到当前运行的屙屎程序";
-        public static LanguageElement CLEAN_STATUS="清理信息";
+        public static LanguageElement CLEAN_STATUS = "清理信息";
         public static LanguageElement NO_BEATMAP_PATH = "无法获取当前铺面的osu文件路径";
         public static LanguageElement IMAGE_NOT_FOUND = "图片路径不存在:";
         public static LanguageElement CANT_PROCESS_IMAGE = "无法处理或者保存图片";

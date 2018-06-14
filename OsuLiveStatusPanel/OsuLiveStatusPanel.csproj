@@ -69,8 +69,8 @@
     <Compile Include="PPShow\ConfigJson.cs" />
     <Compile Include="PPShow\OppaiJson.cs" />
     <Compile Include="PPShow\OutputFormatter.cs" />
-    <Compile Include="PPShow\PPCalculator.cs" />
-    <Compile Include="PPShow\PPShowPlugin.cs" />
+    <Compile Include="PPShow\InfoOutputter.cs" />
+    <Compile Include="PPShow\InfoOutputterWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SourcesWrapper\NP\NowPlayingWrapper.cs" />
     <Compile Include="SourcesWrapper\ORTDP\RealtimeDataProviderModsWrapper.cs" />

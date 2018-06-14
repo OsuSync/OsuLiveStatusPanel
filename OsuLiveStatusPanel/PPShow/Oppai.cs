@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel.PPShow
 {
     internal class Oppai
     {
         private pp_params m_cache = new pp_params();
-        
+
         #region oppai struct
+
         [StructLayout(LayoutKind.Sequential)]
         public class pp_params
         {
@@ -49,7 +46,8 @@ namespace OsuLiveStatusPanel.PPShow
             public int combo;
             public UInt32 mode;
         }
-        #endregion
+
+        #endregion oppai struct
 
         #region oppai P/Ivoke
 
@@ -58,8 +56,9 @@ namespace OsuLiveStatusPanel.PPShow
 
         [DllImport("oppai.dll")]
         public extern static bool get_ppv2(byte[] data, UInt32 data_size, ref rtpp_params args, Boolean use_cache, pp_params cache, ref pp_calc result);
-        #endregion
-        
+
+        #endregion oppai P/Ivoke
+
         private static double round_oppai(double x)
         {
             return Math.Floor((x) + 0.5);

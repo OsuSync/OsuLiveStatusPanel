@@ -1,22 +1,17 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using OsuLiveStatusPanel.PPShow;
+using Sync.Tools;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using Sync.Tools;
-using static OsuLiveStatusPanel.Languages;
-using OsuLiveStatusPanel.PPShow;
 
 namespace OsuLiveStatusPanel
 {
-    class InfoOutputter
+    internal class InfoOutputter
     {
-        static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut };
+        private static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut };
 
         private static ModsInfo FilteVailedMod(ModsInfo mods)
         {
@@ -29,10 +24,12 @@ namespace OsuLiveStatusPanel
         }
 
         public List<float> AccuracyList;
+
         public delegate void OnOutputFunc(OutputType output_type, Dictionary<string, string> data_dic);
+
         public event OnOutputFunc OnOutputEvent;
 
-        string oppai;
+        private string oppai;
 
         public InfoOutputter(string oppai, List<float> acc_list)
         {
@@ -109,7 +106,8 @@ namespace OsuLiveStatusPanel
                 else
                     OutputDataMap[prop.Name] = $"{val:F2}";
             }
-            #endregion
+
+            #endregion GetBaseInfo
 
             //add extra info(shortcut arguments)
             foreach (var pair in extra_data)
@@ -124,7 +122,7 @@ namespace OsuLiveStatusPanel
             return true;
         }
 
-        byte[] buffer = new byte[4096];
+        private byte[] buffer = new byte[4096];
 
         private OppaiJson GetOppaiResult(byte[] data, uint length, uint mode, ModsInfo mods, double acc)
         {
@@ -161,7 +159,7 @@ namespace OsuLiveStatusPanel
 
         #region ParseBeatmap
 
-        static readonly Dictionary<string, string> METADATA_MAP = new Dictionary<string, string> {
+        private static readonly Dictionary<string, string> METADATA_MAP = new Dictionary<string, string> {
             {"BeatmapID","beatmap_id"},
             {"Source","source"},
             {"BeatmapSetID","beatmap_setid"},
@@ -174,7 +172,7 @@ namespace OsuLiveStatusPanel
             {"Creator","creator"}
         };
 
-        static readonly Dictionary<string, string> DIFFICALUT_MAP = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> DIFFICALUT_MAP = new Dictionary<string, string>
         {
             {"HPDrainRate","hp"},
             {"CircleSize","cs"},
@@ -182,14 +180,14 @@ namespace OsuLiveStatusPanel
             {"ApproachRate","ar"}
         };
 
-        static readonly Dictionary<string, string> GENERAL_MAP = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> GENERAL_MAP = new Dictionary<string, string>
         {
             {"Mode","mode"}
         };
 
-        const int TYPE_CIRCLE = 1;
-        const int TYPE_SLIDER = 2;
-        const int TYPE_SPINER = 8;
+        private const int TYPE_CIRCLE = 1;
+        private const int TYPE_SLIDER = 2;
+        private const int TYPE_SPINER = 8;
 
         private bool IS_TYPE(int value, int type) => (type & value) != 0;
 
@@ -367,6 +365,7 @@ namespace OsuLiveStatusPanel
                                 }
                             }
                             break;
+
                         default:
                             break;
                     }
@@ -379,6 +378,6 @@ namespace OsuLiveStatusPanel
             extra_data["num_spinners"] = nspiner.ToString();
         }
 
-        #endregion
+        #endregion ParseBeatmap
     }
 }

@@ -1,11 +1,6 @@
-﻿using OsuLiveStatusPanel.PPShow.Output;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel
 {
@@ -18,7 +13,7 @@ namespace OsuLiveStatusPanel
     {
         private string m_format;
 
-        static Regex pattern = new Regex(@"\$\{(.+?)\}");
+        private static Regex pattern = new Regex(@"\$\{(.+?)\}");
 
         public OutputFormatter(string format)
         {
@@ -27,7 +22,7 @@ namespace OsuLiveStatusPanel
 
         public string Format(Dictionary<string, string> data_dic)
         {
-            string result_str=m_format;
+            string result_str = m_format;
 
             if (data_dic == null)
                 return string.Empty;
@@ -36,7 +31,7 @@ namespace OsuLiveStatusPanel
 
             while (result.Success)
             {
-                var key=result.Groups[1].Value.Trim();
+                var key = result.Groups[1].Value.Trim();
 
                 string val;
 
@@ -45,7 +40,7 @@ namespace OsuLiveStatusPanel
                     val = String.Empty;
                 }
 
-                //简化一下 
+                //简化一下
                 if (int.TryParse(val, out int idata))
                 {
                     val = $"{idata}";
@@ -67,9 +62,9 @@ namespace OsuLiveStatusPanel
         {
             List<float> result = new List<float>();
 
-            var m=Regex.Match(m_format, @"\$\{pp:\d{1,3}\.\d{2}%\}");
+            var m = Regex.Match(m_format, @"\$\{pp:\d{1,3}\.\d{2}%\}");
 
-            while(m.Success)
+            while (m.Success)
             {
                 var acc_m = Regex.Match(m.Groups[0].Value, @"\d{1,3}\.\d{2}");
                 float acc = float.Parse(acc_m.Groups[0].Value);

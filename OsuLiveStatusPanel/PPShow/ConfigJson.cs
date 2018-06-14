@@ -1,10 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace OsuLiveStatusPanel
 {
@@ -22,8 +19,10 @@ namespace OsuLiveStatusPanel
         public List<OutputConfig> output_list = new List<OutputConfig>();
         public List<OutputConfig> listen_list = new List<OutputConfig>();
 
-        private Config() { }
-        
+        private Config()
+        {
+        }
+
         public static void LoadPPShowConfig(string config_path)
         {
             string config_json = File.ReadAllText(config_path);
@@ -34,7 +33,7 @@ namespace OsuLiveStatusPanel
             }
             catch (Exception e)
             {
-                Sync.Tools.IO.CurrentIO.WriteColor($"JsonConvert::DeserializeObject Error,{e.Message}",ConsoleColor.Red);
+                Sync.Tools.IO.CurrentIO.WriteColor($"JsonConvert::DeserializeObject Error,{e.Message}", ConsoleColor.Red);
             }
         }
 
@@ -42,6 +41,7 @@ namespace OsuLiveStatusPanel
         {
             //init
             Config default_config = new Config();
+
             #region Default Output List
 
             default_config.output_list.Add(new OutputConfig()
@@ -55,7 +55,7 @@ namespace OsuLiveStatusPanel
                 output_file = "..\\output\\map_info.txt",
                 output_format = "CS:${cs} \nAR:${ar} \nOD:${od} \nHP:${hp} \n \nStars:${stars}* \nAim:${aim_stars}* \nSpeed:${speed_stars}* \n \nMaxCombo:${max_combo}"
             });
-            
+
             default_config.output_list.Add(new OutputConfig()
             {
                 output_file = "..\\output\\mods.txt",
@@ -74,7 +74,7 @@ namespace OsuLiveStatusPanel
                 output_format = "Creator:${creator} \t Link:${beatmap_link}"
             });
 
-            #endregion
+            #endregion Default Output List
 
             #region Default (NowPlaying) Listen List
 
@@ -96,7 +96,7 @@ namespace OsuLiveStatusPanel
                 output_format = "\"?suggest -b 铺面ID号码\" ,或者\"?suggest -s 铺面SetID号码\""
             });
 
-            #endregion
+            #endregion Default (NowPlaying) Listen List
 
             //
             File.WriteAllText(config_path, JsonConvert.SerializeObject(default_config, Formatting.Indented));

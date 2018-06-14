@@ -1,35 +1,31 @@
-﻿using Sync.Plugins;
-using Sync;
+﻿using OsuLiveStatusPanel.PPShow;
+using OsuLiveStatusPanel.PPShow.Output;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 using static OsuLiveStatusPanel.Languages;
-using OsuLiveStatusPanel.PPShow;
-using OsuLiveStatusPanel.PPShow.Output;
 
 namespace OsuLiveStatusPanel
 {
     public class InfoOutputterWrapper
     {
-        struct OutputWrapper
+        private struct OutputWrapper
         {
             public OutputFormatter formatter;
             public OutputBase outputter;
         }
 
-        Dictionary<OutputConfig, OutputWrapper> ofs;
+        private Dictionary<OutputConfig, OutputWrapper> ofs;
 
-        InfoOutputter PP;
+        private InfoOutputter PP;
 
-        Dictionary<string, string> current_data_dic;
+        private Dictionary<string, string> current_data_dic;
 
         public bool PPShowAllowDumpInfo = false;
 
-        public Dictionary<string,string> CurrentOutputInfo { get => current_data_dic; }
+        public Dictionary<string, string> CurrentOutputInfo { get => current_data_dic; }
 
         public InfoOutputterWrapper(string config_path)
         {
@@ -63,7 +59,7 @@ namespace OsuLiveStatusPanel
                     outputter = OutputBase.Create(o.output_file)
                 };
 
-                if (ofs[o].outputter is DiskFileOutput &&(!Directory.Exists(Path.GetDirectoryName(o.output_file))))
+                if (ofs[o].outputter is DiskFileOutput && (!Directory.Exists(Path.GetDirectoryName(o.output_file))))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(o.output_file));
                 }
@@ -87,10 +83,10 @@ namespace OsuLiveStatusPanel
             PP.OnOutputEvent += OnOutput;
         }
 
-        private void OnOutput(OutputType output_type,Dictionary<string,string> data_dic)
+        private void OnOutput(OutputType output_type, Dictionary<string, string> data_dic)
         {
             current_data_dic = data_dic;
-            
+
             CleanFileList(Config.Instance.output_list);
             CleanFileList(Config.Instance.listen_list);
 
@@ -99,13 +95,15 @@ namespace OsuLiveStatusPanel
                 case OutputType.Listen:
                     _OutputFiles(Config.Instance.listen_list);
                     break;
+
                 case OutputType.Play:
                     _OutputFiles(Config.Instance.output_list);
                     break;
+
                 default:
                     break;
             }
-            
+
             void _OutputFiles(List<OutputConfig> list)
             {
                 foreach (var output in list)
@@ -115,7 +113,6 @@ namespace OsuLiveStatusPanel
 
                     if (PPShowAllowDumpInfo == true)
                     {
-
                         IO.CurrentIO.WriteColor("[PPShow][", ConsoleColor.White, false);
                         IO.CurrentIO.WriteColor($"{output.output_file}", ConsoleColor.Red, false);
 
@@ -177,15 +174,15 @@ namespace OsuLiveStatusPanel
             }
         }
 
-        public bool Output(OutputType output_type,string osu_file_path, ModsInfo mods, params KeyValuePair<string, string>[] extra)
+        public bool Output(OutputType output_type, string osu_file_path, ModsInfo mods, params KeyValuePair<string, string>[] extra)
         {
-            if (output_type==OutputType.Listen&&String.IsNullOrWhiteSpace(osu_file_path))
+            if (output_type == OutputType.Listen && String.IsNullOrWhiteSpace(osu_file_path))
             {
                 ListenClean();
                 return true;
             }
 
-            return PP.TrigOutput(output_type,osu_file_path, mods, extra);
+            return PP.TrigOutput(output_type, osu_file_path, mods, extra);
         }
 
         #region DDRP
@@ -213,8 +210,8 @@ namespace OsuLiveStatusPanel
                 foreach (var acc in PP.AccuracyList)
                     if (CurrentOutputInfo.TryGetValue($"pp:{acc:F2}%", out string pp))
                     {
-                        if(double.TryParse(pp, out var dval))
-                            list.Add(new { acc, pp=dval });
+                        if (double.TryParse(pp, out var dval))
+                            list.Add(new { acc, pp = dval });
                     }
 
                 return list;
@@ -223,6 +220,6 @@ namespace OsuLiveStatusPanel
             return null;
         }
 
-        #endregion
+        #endregion DDRP
     }
 }

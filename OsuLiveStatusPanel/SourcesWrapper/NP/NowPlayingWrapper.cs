@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NowPlaying;
+﻿using NowPlaying;
 using Sync.Tools;
+using System;
 
 namespace OsuLiveStatusPanel
 {
@@ -31,12 +27,13 @@ namespace OsuLiveStatusPanel
 
         public override bool Attach()
         {
-            NowPlayingEvents.Instance.BindEvent<CurrentPlayingBeatmapChangedEvent>((beatmap) => {
-                RefPanelPlugin.OnBeatmapChanged(this,new BeatmapChangedParameter()
+            NowPlayingEvents.Instance.BindEvent<CurrentPlayingBeatmapChangedEvent>((beatmap) =>
+            {
+                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter()
                 {
                     beatmap = beatmap.NewBeatmap == null ? null : new BeatmapEntry()
                     {
-                        OutputType= CurrentOutputType = OutputType.Play,
+                        OutputType = CurrentOutputType = OutputType.Play,
                         OsuFilePath = beatmap.NewBeatmap.OsuFilePath,
                         BeatmapId = beatmap.NewBeatmap.BeatmapId,
                         BeatmapSetId = beatmap.NewBeatmap.BeatmapSetId
@@ -50,7 +47,7 @@ namespace OsuLiveStatusPanel
 
         public override void Detach()
         {
-            IO.CurrentIO.WriteColor("NowPlaying not implement remove event!",ConsoleColor.Red);
+            IO.CurrentIO.WriteColor("NowPlaying not implement remove event!", ConsoleColor.Red);
         }
     }
 }

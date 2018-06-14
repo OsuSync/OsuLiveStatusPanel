@@ -1,12 +1,9 @@
-﻿using OsuRTDataProvider.Mods;
-using Sync.Tools;
+﻿using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel
 {
@@ -41,7 +38,6 @@ namespace OsuLiveStatusPanel
             return null;
         }
 
-        
         private readonly string osu_current_skin_path;
         private readonly string mods_Skin_Folder_Path;
         private readonly bool is_extra_mod;
@@ -51,7 +47,7 @@ namespace OsuLiveStatusPanel
         private readonly bool is_Sort_Reverse;
         private readonly bool is_Draw_Reverse;
         private readonly bool is_Horizon;
-        Dictionary<string, Bitmap> cache_mod_bitmap = new Dictionary<string, Bitmap>();
+        private Dictionary<string, Bitmap> cache_mod_bitmap = new Dictionary<string, Bitmap>();
 
         #region Construction
 
@@ -63,7 +59,7 @@ namespace OsuLiveStatusPanel
         /// <param name="output_pixel_length">输出每个mod图片大小</param>
         /// <param name="pixel_offset">输出每个mod之间的像素空隙</param>
         /// <param name="is_horizon">输出的mods是否水平排列</param>
-        public ModsPictureGenerator(string current_using_skin_path,string mods_skin_folder_path,int output_pixel_length, int pixel_offset,bool is_horizon,bool is_2x,bool is_sort_reverse,bool is_draw_reverse)
+        public ModsPictureGenerator(string current_using_skin_path, string mods_skin_folder_path, int output_pixel_length, int pixel_offset, bool is_horizon, bool is_2x, bool is_sort_reverse, bool is_draw_reverse)
         {
             osu_current_skin_path = current_using_skin_path;
             mods_Skin_Folder_Path = mods_skin_folder_path;
@@ -76,7 +72,7 @@ namespace OsuLiveStatusPanel
             is_extra_mod = !string.IsNullOrWhiteSpace(mods_skin_folder_path);
         }
 
-        #endregion
+        #endregion Construction
 
         private Bitmap LoadBitmap(string file_path)
         {
@@ -88,14 +84,14 @@ namespace OsuLiveStatusPanel
 
         private Bitmap LoadModBitmapFromFile(string mod_name)
         {
-            string mod_file_path,mod_file_name=GetModFileName(mod_name);
+            string mod_file_path, mod_file_name = GetModFileName(mod_name);
 
-            if (mod_file_name==null)
+            if (mod_file_name == null)
             {
                 return null;
             }
 
-            mod_file_name += (is_2x?"@2x":string.Empty)+".png";
+            mod_file_name += (is_2x ? "@2x" : string.Empty) + ".png";
 
             if (is_extra_mod)
             {
@@ -118,14 +114,14 @@ namespace OsuLiveStatusPanel
         private Bitmap GetModBitmap(string mod_name)
         {
             //检查一下缓存有没有
-            if (cache_mod_bitmap.TryGetValue(mod_name,out Bitmap result))
+            if (cache_mod_bitmap.TryGetValue(mod_name, out Bitmap result))
             {
                 return result;
             }
 
             var bitmap = LoadModBitmapFromFile(mod_name);
 
-            if (bitmap!=null)
+            if (bitmap != null)
             {
                 //加入肯德基豪华缓存午餐
                 cache_mod_bitmap[mod_name] = bitmap;
@@ -159,27 +155,25 @@ namespace OsuLiveStatusPanel
 
             canvas.Clear(Color.FromArgb(0, 0, 0, 0));
 
-            for (int i = is_Draw_Reverse? mods.Length-1 : 0; is_Draw_Reverse?(i>=0):(i < mods.Length); i += (is_Draw_Reverse ? -1 : 1))
+            for (int i = is_Draw_Reverse ? mods.Length - 1 : 0; is_Draw_Reverse ? (i >= 0) : (i < mods.Length); i += (is_Draw_Reverse ? -1 : 1))
             {
                 string mod_name = mods[i];
 
                 var mod_bitmap = GetModBitmap(mod_name);
-                if (mod_bitmap==null)
+                if (mod_bitmap == null)
                 {
                     continue;
                 }
 
-                int offset = (output_Pixel_Length +pixel_Offset)* i;
+                int offset = (output_Pixel_Length + pixel_Offset) * i;
                 int draw_x = is_Horizon ? offset : 0;
                 int draw_y = is_Horizon ? 0 : offset;
 
-                canvas.DrawImage(mod_bitmap,draw_x,draw_y);
+                canvas.DrawImage(mod_bitmap, draw_x, draw_y);
 
 #if DEBUG
                 IO.CurrentIO.WriteColor($"[MPG]Draw {i}th {mod_name} at ({draw_x},{draw_y})", ConsoleColor.Cyan);
 #endif
-                
-                
             }
 
             canvas.Dispose();

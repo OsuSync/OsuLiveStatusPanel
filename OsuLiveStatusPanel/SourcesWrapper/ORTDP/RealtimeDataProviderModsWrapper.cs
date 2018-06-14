@@ -1,11 +1,5 @@
 ﻿using OsuRTDataProvider;
-using OsuRTDataProvider.BeatmapInfo;
 using OsuRTDataProvider.Mods;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
 namespace OsuLiveStatusPanel.SourcesWrapper
@@ -13,13 +7,12 @@ namespace OsuLiveStatusPanel.SourcesWrapper
     /// <summary>
     /// 支持选图界面获取Mod的版本
     /// </summary>
-    internal class RealtimeDataProviderModsWrapper: OsuRTDataProviderWrapper
+    internal class RealtimeDataProviderModsWrapper : OsuRTDataProviderWrapper
     {
         public RealtimeDataProviderModsWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
-
         }
-        
+
         public override void OnCurrentModsChange(ModsInfo mod)
         {
             if (current_mod == mod)
@@ -36,7 +29,6 @@ namespace OsuLiveStatusPanel.SourcesWrapper
             beatmap.OutputType = CurrentOutputType;
 
             RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
-
         }
 
         public override void OnStatusChange(OsuStatus last_status, OsuStatus status)
