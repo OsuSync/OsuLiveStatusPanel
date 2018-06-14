@@ -105,7 +105,7 @@ namespace OsuLiveStatusPanel
 
         private string OsuSyncPath;
 
-        Logger logger = new Logger("OsuLiveStatusPanelPlugin");
+        Logger logger = new Logger("OsuLiveStatusPanel");
 
         #region DDPR_field
 

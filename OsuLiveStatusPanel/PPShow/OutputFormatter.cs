@@ -30,7 +30,7 @@ namespace OsuLiveStatusPanel
             string result_str=m_format;
 
             if (data_dic == null)
-                return result_str;
+                return string.Empty;
 
             var result = pattern.Match(result_str);
 
