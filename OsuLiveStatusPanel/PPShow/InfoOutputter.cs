@@ -61,7 +61,7 @@ namespace OsuLiveStatusPanel.PPShow
             OutputDataMap["mods_str"] = mods.ShortName;
 
             int nobject = int.Parse(extra_data["num_objects"]);
-            uint mode = uint.Parse(extra_data["mode"]);
+            uint mode = uint.Parse(extra_data.TryGetValue("mode",out string _m)?_m:"0");//没有那就默认0
 
             if (!string.IsNullOrWhiteSpace(mods.ShortName))
             {
