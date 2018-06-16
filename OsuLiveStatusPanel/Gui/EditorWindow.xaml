@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:OsuLiveStatusPanel.Gui"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             Title="Output editor">
+             Title="Output editor" Width="1440" Height="720"
+             ResizeMode="NoResize">
     <Window.Resources>
         <DataTemplate x:Key="FormatOutputTemplate">
             <Border Margin="2" BorderThickness="1" BorderBrush="#FFB4A1A1" >
@@ -22,7 +23,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
                         <Label  Width="55" HorizontalAlignment="Right" Content="Format:"/>
-                        <TextBox Width="400" Height="Auto" Text="{Binding Proxy.FormatTemplate}" Margin="0,2" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                        <TextBox Width="400" Height="Auto" Text="{Binding Proxy.FormatTemplate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                         <Button Content="Parameters" Margin="2" Height="21" Command="{Binding AddOutputParameter}" CommandParameter="{Binding Proxy}"/>
                     </StackPanel>
                 </Grid>

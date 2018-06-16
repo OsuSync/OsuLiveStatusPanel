@@ -15,6 +15,7 @@
         public int combo { get; set; }
         public int max_combo { get; set; }
         public int num_circles { get; set; }
+        public int num_sliders { get; set; }
         public int num_spinners { get; set; }
         public int misses { get; set; }
         public int score_version { get; set; }

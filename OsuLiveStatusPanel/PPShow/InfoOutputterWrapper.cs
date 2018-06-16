@@ -21,7 +21,7 @@ namespace OsuLiveStatusPanel.PPShow
         }
 
         public List<OutputWrapper> ListenOfs { get; private set; }
-        public List<OutputWrapper> PlayingOfs { get; private set; }
+        public List<OutputWrapper> PlayOfs { get; private set; }
 
         private InfoOutputter PP;
 
@@ -45,11 +45,11 @@ namespace OsuLiveStatusPanel.PPShow
         {
             var config_instance = Config.LoadPPShowConfig(config_path);
             ListenOfs = new List<OutputWrapper>();
-            PlayingOfs = new List<OutputWrapper>();
+            PlayOfs = new List<OutputWrapper>();
 
             foreach (var o in config_instance.output_list)
             {
-                PlayingOfs.Add(new OutputWrapper
+                PlayOfs.Add(new OutputWrapper
                 {
                     formatter = new OutputFormatter(o.output_format),
                     outputter = OutputBase.Create(o.output_file)
@@ -76,7 +76,7 @@ namespace OsuLiveStatusPanel.PPShow
                     ).ToList();
             }
 
-            foreach (var o in PlayingOfs)
+            foreach (var o in PlayOfs)
             {
                 acc_list = acc_list.Concat(
                     from n in o.formatter.GetAccuracyArray()
@@ -102,7 +102,7 @@ namespace OsuLiveStatusPanel.PPShow
                 });
             }
 
-            foreach (var o in PlayingOfs)
+            foreach (var o in PlayOfs)
             {
                 config_instance.output_list.Add(new OutputConfig()
                 {
@@ -120,7 +120,7 @@ namespace OsuLiveStatusPanel.PPShow
             CurrentOutputInfo = data_dic;
 
             CleanFileList(ListenOfs);
-            CleanFileList(PlayingOfs);
+            CleanFileList(PlayOfs);
 
             switch (output_type)
             {
@@ -129,7 +129,7 @@ namespace OsuLiveStatusPanel.PPShow
                     break;
 
                 case OutputType.Play:
-                    _OutputFiles(PlayingOfs);
+                    _OutputFiles(PlayOfs);
                     break;
 
                 default:
@@ -187,7 +187,7 @@ namespace OsuLiveStatusPanel.PPShow
         {
             CurrentOutputInfo = null;
 
-            CleanFileList(PlayingOfs);
+            CleanFileList(PlayOfs);
 
             foreach (var o in ListenOfs)
             {

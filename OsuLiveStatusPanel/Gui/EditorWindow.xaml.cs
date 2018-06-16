@@ -1,6 +1,7 @@
 ﻿using OsuLiveStatusPanel.PPShow;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -24,13 +25,15 @@ namespace OsuLiveStatusPanel.Gui
     /// </summary>
     public partial class EditorWindow : Window
     {
-        class ConfigProxy : INotifyPropertyChanged
+        public class ConfigItemProxy : INotifyPropertyChanged
         {
+            public OutputType OutputType { get; private set; }
             private OutputWrapper m_wrap;
 
-            public ConfigProxy(OutputWrapper wrap)
+            public ConfigItemProxy(OutputWrapper wrap, OutputType type)
             {
                 m_wrap = wrap;
+                OutputType = type;
             }
 
             public string FormatTemplate
@@ -53,6 +56,8 @@ namespace OsuLiveStatusPanel.Gui
                 }
             }
 
+            public string Format(Dictionary<string, string> dict) => m_wrap.formatter.Format(dict);
+
             #region Notify Property Changed
             public event PropertyChangedEventHandler PropertyChanged;
 
@@ -68,11 +73,11 @@ namespace OsuLiveStatusPanel.Gui
 
         class ConfigItem
         {
-            public ConfigProxy Proxy { get;private set; }
+            public ConfigItemProxy Proxy { get;private set; }
 
-            public ConfigItem(OutputWrapper wrap)
+            public ConfigItem(OutputWrapper wrap, OutputType type)
             {
-                Proxy = new ConfigProxy(wrap);
+                Proxy = new ConfigItemProxy(wrap,type);
             }
 
             public BrowseCommand Browse { get; } = new BrowseCommand();
@@ -84,10 +89,22 @@ namespace OsuLiveStatusPanel.Gui
 
                 public bool CanExecute(object parameter) => true;
 
+                private static AddParameterWindow m_listenWindow;
+                private static AddParameterWindow m_playWindow;
+
                 public void Execute(object parameter)
                 {
-                    var proxy = parameter as ConfigProxy;
-                    MessageBox.Show(proxy.FormatTemplate);
+                    if (m_listenWindow == null)
+                        m_listenWindow = new AddParameterWindow();
+
+                    if (m_playWindow == null)
+                        m_playWindow = new AddParameterWindow();
+
+                    var proxy = parameter as ConfigItemProxy;
+                    AddParameterWindow window = proxy.OutputType == OutputType.Listen ? m_listenWindow : m_playWindow;
+
+                    window.CurrnetProxy = proxy;
+                    window.ShowDialog();
                 }
             }
 
@@ -99,7 +116,7 @@ namespace OsuLiveStatusPanel.Gui
 
                 public void Execute(object parameter)
                 {
-                    var proxy = parameter as ConfigProxy;
+                    var proxy = parameter as ConfigItemProxy;
                     var fileDialog = new System.Windows.Forms.OpenFileDialog();
                     fileDialog.InitialDirectory = System.IO.Path.GetDirectoryName(proxy.FilePath);
                     fileDialog.RestoreDirectory = true;
@@ -110,8 +127,8 @@ namespace OsuLiveStatusPanel.Gui
         }
 
         private InfoOutputterWrapper m_wrapper;
-        private List<ConfigItem> listen_list;
-        private List<ConfigItem> playing_list;
+        private ObservableCollection<ConfigItem> listen_list;
+        private ObservableCollection<ConfigItem> play_list;
 
         public EditorWindow(InfoOutputterWrapper wrapper)
         {
@@ -119,11 +136,11 @@ namespace OsuLiveStatusPanel.Gui
 
             m_wrapper = wrapper;
 
-            listen_list = wrapper.ListenOfs.Select(w => new ConfigItem(w)).ToList();
-            playing_list = wrapper.PlayingOfs.Select(w => new ConfigItem(w)).ToList();
+            listen_list = new ObservableCollection<ConfigItem>(wrapper.ListenOfs.Select(w => new ConfigItem(w,OutputType.Listen)));
+            play_list = new ObservableCollection<ConfigItem>(wrapper.PlayOfs.Select(w => new ConfigItem(w, OutputType.Play)));
 
             ListenList.ItemsSource = listen_list;
-            PlayList.ItemsSource = playing_list;
+            PlayList.ItemsSource = play_list;
         }
     }
 }
