@@ -1,4 +1,5 @@
-﻿using OsuLiveStatusPanel.Mods;
+﻿using Newtonsoft.Json;
+using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow.Output;
 using Sync.Tools;
 using System;
@@ -11,110 +12,140 @@ namespace OsuLiveStatusPanel.PPShow
 {
     public class InfoOutputterWrapper
     {
-        private struct OutputWrapper
+        private string m_config_path;
+
+        public class OutputWrapper
         {
-            public OutputFormatter formatter;
-            public OutputBase outputter;
+            public OutputFormatter formatter { get; set; }
+            public OutputBase outputter { get; set; }
         }
 
-        private Dictionary<OutputConfig, OutputWrapper> ofs;
+        public List<OutputWrapper> ListenOfs { get; private set; }
+        public List<OutputWrapper> PlayingOfs { get; private set; }
 
         private InfoOutputter PP;
 
-        private Dictionary<string, string> current_data_dic;
-
         public bool PPShowAllowDumpInfo = false;
 
-        public Dictionary<string, string> CurrentOutputInfo { get => current_data_dic; }
+        public Dictionary<string, string> CurrentOutputInfo { get; private set; }
 
         public InfoOutputterWrapper(string config_path)
         {
+            m_config_path = config_path;
+
             if (!File.Exists(config_path))
             {
                 Config.CreateDefaultPPShowConfig(config_path);
             }
 
-            LoadConfig(config_path);
-            Init();
+            Init(config_path);
         }
 
-        private void LoadConfig(string config_path)
+        private void Init(string config_path)
         {
-            Config.LoadPPShowConfig(config_path);
-        }
+            var config_instance = Config.LoadPPShowConfig(config_path);
+            ListenOfs = new List<OutputWrapper>();
+            PlayingOfs = new List<OutputWrapper>();
 
-        private void Init()
-        {
-            ofs = new Dictionary<OutputConfig, OutputWrapper>();
-
-            var register_list = new List<OutputConfig>();
-            register_list.AddRange(Config.Instance.output_list);
-            register_list.AddRange(Config.Instance.listen_list);
-
-            foreach (var o in register_list)
+            foreach (var o in config_instance.output_list)
             {
-                ofs[o] = new OutputWrapper
+                PlayingOfs.Add(new OutputWrapper
                 {
                     formatter = new OutputFormatter(o.output_format),
                     outputter = OutputBase.Create(o.output_file)
-                };
+                });
+            }
 
-                if (ofs[o].outputter is DiskFileOutput && (!Directory.Exists(Path.GetDirectoryName(o.output_file))))
+            foreach (var o in config_instance.listen_list)
+            {
+                ListenOfs.Add(new OutputWrapper
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(o.output_file));
-                }
+                    formatter = new OutputFormatter(o.output_format),
+                    outputter = OutputBase.Create(o.output_file)
+                });
             }
 
             List<float> acc_list = new List<float>();
 
-            foreach (var o in ofs)
+            foreach (var o in ListenOfs)
             {
                 acc_list = acc_list.Concat(
-                    from n in o.Value.formatter.GetAccuracyArray()
+                    from n in o.formatter.GetAccuracyArray()
                     where !acc_list.Contains(n)
                     select n
                     ).ToList();
             }
 
-            string oppai_path = Config.Instance.oppai;
+            foreach (var o in PlayingOfs)
+            {
+                acc_list = acc_list.Concat(
+                    from n in o.formatter.GetAccuracyArray()
+                    where !acc_list.Contains(n)
+                    select n
+                    ).ToList();
+            }
 
-            PP = new InfoOutputter(oppai_path, acc_list);
+            PP = new InfoOutputter(acc_list);
 
             PP.OnOutputEvent += OnOutput;
         }
 
+        public void Exit()
+        {
+            var config_instance = new Config();
+            foreach(var o in ListenOfs)
+            {
+                config_instance.listen_list.Add(new OutputConfig()
+                {
+                    output_file = o.outputter.FilePath,
+                    output_format = o.formatter.FormatTemplate
+                });
+            }
+
+            foreach (var o in PlayingOfs)
+            {
+                config_instance.output_list.Add(new OutputConfig()
+                {
+                    output_file = o.outputter.FilePath,
+                    output_format = o.formatter.FormatTemplate
+                });
+            }
+
+            string json = JsonConvert.SerializeObject(config_instance,Formatting.Indented);
+            File.WriteAllText(m_config_path,json);
+        }
+
         private void OnOutput(OutputType output_type, Dictionary<string, string> data_dic)
         {
-            current_data_dic = data_dic;
+            CurrentOutputInfo = data_dic;
 
-            CleanFileList(Config.Instance.output_list);
-            CleanFileList(Config.Instance.listen_list);
+            CleanFileList(ListenOfs);
+            CleanFileList(PlayingOfs);
 
             switch (output_type)
             {
                 case OutputType.Listen:
-                    _OutputFiles(Config.Instance.listen_list);
+                    _OutputFiles(ListenOfs);
                     break;
 
                 case OutputType.Play:
-                    _OutputFiles(Config.Instance.output_list);
+                    _OutputFiles(PlayingOfs);
                     break;
 
                 default:
                     break;
             }
 
-            void _OutputFiles(List<OutputConfig> list)
+            void _OutputFiles(List<OutputWrapper> list)
             {
                 foreach (var output in list)
                 {
-                    var of = ofs[output];
-                    string str = of.formatter.Format(data_dic);
+                    string str = output.formatter.Format(data_dic);
 
                     if (PPShowAllowDumpInfo == true)
                     {
                         IO.CurrentIO.WriteColor("[PPShow][", ConsoleColor.White, false);
-                        IO.CurrentIO.WriteColor($"{output.output_file}", ConsoleColor.Red, false);
+                        IO.CurrentIO.WriteColor($"{output.outputter.FilePath}", ConsoleColor.Red, false);
 
                         IO.CurrentIO.WriteColor("]", ConsoleColor.White, false);
                         IO.CurrentIO.WriteColor($"{str}", ConsoleColor.White);
@@ -122,54 +153,51 @@ namespace OsuLiveStatusPanel.PPShow
 
                     try
                     {
-                        of.outputter.Output(str);
+                        output.outputter.Output(str);
                     }
                     catch (Exception e)
                     {
-                        IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, output.output_file, e.Message), ConsoleColor.Red);
+                        IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, output.outputter.FilePath, e.Message), ConsoleColor.Red);
                     }
                 }
             }
         }
 
-        private void CleanFileList(List<OutputConfig> list)
+        private void CleanFileList(List<OutputWrapper> list)
         {
             foreach (var o in list)
             {
                 try
                 {
-                    var of = ofs[o];
-
-                    if (!File.Exists(o.output_file))
+                    if (o.outputter is DiskFileOutput && !File.Exists(o.outputter.FilePath))
                     {
                         continue;
                     }
 
-                    of.outputter.Output(of.formatter.Format(null));
+                    o.outputter.Output(o.formatter.Format(null));
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.output_file, e.Message), ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.outputter.FilePath, e.Message), ConsoleColor.Red);
                 }
             }
         }
 
         private void ListenClean()
         {
-            current_data_dic = null;
+            CurrentOutputInfo = null;
 
-            CleanFileList(Config.Instance.output_list);
+            CleanFileList(PlayingOfs);
 
-            foreach (var o in Config.Instance.listen_list)
+            foreach (var o in ListenOfs)
             {
                 try
                 {
-                    var of = ofs[o];
-                    of.outputter.Output(of.formatter.Format(null));
+                    o.outputter.Output(o.formatter.Format(null));
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.output_file, e.Message), ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.outputter.FilePath, e.Message), ConsoleColor.Red);
                 }
             }
         }

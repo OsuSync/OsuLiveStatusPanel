@@ -11,18 +11,18 @@ namespace OsuLiveStatusPanel.PPShow
     /// </summary>
     public class OutputFormatter
     {
-        private string m_format;
+        public string FormatTemplate { get; set; }
 
         private static Regex pattern = new Regex(@"\$\{(.+?)\}");
 
         public OutputFormatter(string format)
         {
-            m_format = format;
+            FormatTemplate = format;
         }
 
         public string Format(Dictionary<string, string> data_dic)
         {
-            string result_str = m_format;
+            string result_str = FormatTemplate;
 
             if (data_dic == null)
                 return string.Empty;
@@ -62,7 +62,7 @@ namespace OsuLiveStatusPanel.PPShow
         {
             List<float> result = new List<float>();
 
-            var m = Regex.Match(m_format, @"\$\{pp:\d{1,3}\.\d{2}%\}");
+            var m = Regex.Match(FormatTemplate, @"\$\{pp:\d{1,3}\.\d{2}%\}");
 
             while (m.Success)
             {

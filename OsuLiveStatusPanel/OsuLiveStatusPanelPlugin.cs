@@ -1,4 +1,5 @@
-﻿using OsuLiveStatusPanel.Mods;
+﻿using OsuLiveStatusPanel.Gui;
+using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow;
 using OsuLiveStatusPanel.SourcesWrapper;
 using OsuLiveStatusPanel.SourcesWrapper.NP;
@@ -76,7 +77,7 @@ namespace OsuLiveStatusPanel
         [Bool]
         public ConfigurationElement EnableListenOutputImageFile { get; set; } = "True";
 
-        [Path(IsDirectory = false)]
+        [ConfigEditor(IsDirectory = false)]
         public ConfigurationElement PPShowJsonConfigFilePath { set; get; } = @"..\PPShowConfig.json";
 
         [Bool]
@@ -95,8 +96,6 @@ namespace OsuLiveStatusPanel
         private UsingSource source = UsingSource.None;
 
         private PluginConfigurationManager manager;
-
-        private string OsuSyncPath;
 
         private Logger logger = new Logger("OsuLiveStatusPanel");
 
@@ -194,8 +193,6 @@ namespace OsuLiveStatusPanel
 
         private void SetupPlugin(SyncHost host)
         {
-            OsuSyncPath = Directory.GetParent(Environment.CurrentDirectory).FullName + @"\";
-
             //init PPShow
             PPShowPluginInstance = new InfoOutputterWrapper(PPShowJsonConfigFilePath);
 
@@ -233,6 +230,10 @@ namespace OsuLiveStatusPanel
             {
                 IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_SUCCESS}", ConsoleColor.Green);
             }
+
+            Plugin config_gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
+            if(config_gui!=null)
+                GuiRegisterHelper.RegisterConfigGui(config_gui,PPShowPluginInstance);
 
             CleanOsuStatus();
         }
@@ -311,7 +312,10 @@ namespace OsuLiveStatusPanel
 
             BeatmapEntry new_beatmap = evt?.beatmap;
 
-            var osu_process = Process.GetProcessesByName("osu!")?.First();
+            var processes = Process.GetProcessesByName("osu!");
+            if (processes.Length == 0) return;
+
+            var osu_process = processes?.First();
 
             if (new_beatmap == null || osu_process == null)
             {
@@ -407,6 +411,7 @@ namespace OsuLiveStatusPanel
             sw.Restart();
 
             string beatmap_osu_file = current_beatmap.OsuFilePath;
+            if (string.IsNullOrEmpty(beatmap_osu_file)) return;
             string osuFileContent = File.ReadAllText(beatmap_osu_file);
             string beatmap_folder = Directory.GetParent(beatmap_osu_file).FullName;
 
@@ -706,6 +711,7 @@ namespace OsuLiveStatusPanel
         public override void OnExit()
         {
             base.OnExit();
+            PPShowPluginInstance?.Exit();
             OutputInfomationClean();
         }
 

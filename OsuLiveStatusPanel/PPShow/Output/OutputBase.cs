@@ -2,11 +2,11 @@
 {
     public abstract class OutputBase
     {
-        protected string path;
+        public string FilePath { get; set; }
 
         public OutputBase(string path)
         {
-            this.path = path;
+            this.FilePath = path;
         }
 
         public abstract void Output(string content);

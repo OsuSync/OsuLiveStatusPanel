@@ -7,16 +7,19 @@ namespace OsuLiveStatusPanel.PPShow.Output
     {
         public DiskFileOutput(string path) : base(path)
         {
-            if (!Path.IsPathRooted(this.path))
-                this.path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, this.path);
+            if (!System.IO.Path.IsPathRooted(FilePath))
+            {
+                FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, FilePath);
+                FilePath = Path.GetFullPath(FilePath);
+            }
 
-            if (!Directory.Exists(Path.GetDirectoryName(this.path)))
-                Directory.CreateDirectory(Path.GetDirectoryName(this.path));
+            if (!Directory.Exists(System.IO.Path.GetDirectoryName(FilePath)))
+                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(FilePath));
         }
 
         public override void Output(string content)
         {
-            File.WriteAllText(path, content);
+            File.WriteAllText(FilePath, content);
         }
     }
 }

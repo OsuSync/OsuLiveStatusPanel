@@ -29,13 +29,9 @@ namespace OsuLiveStatusPanel.PPShow
 
         public event OnOutputFunc OnOutputEvent;
 
-        private string oppai;
-
-        public InfoOutputter(string oppai, List<float> acc_list)
+        public InfoOutputter(List<float> acc_list)
         {
             AccuracyList = acc_list;
-
-            this.oppai = oppai;
         }
 
         public bool TrigOutput(OutputType output_type, string osu_file_path, ModsInfo mods, params KeyValuePair<string, string>[] extra)

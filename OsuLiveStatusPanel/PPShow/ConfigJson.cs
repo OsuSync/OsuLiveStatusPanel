@@ -13,28 +13,26 @@ namespace OsuLiveStatusPanel.PPShow
 
     public class Config
     {
-        public static Config Instance;
-
-        public string oppai = "oppai.exe";
         public List<OutputConfig> output_list = new List<OutputConfig>();
         public List<OutputConfig> listen_list = new List<OutputConfig>();
 
-        private Config()
+        public Config()
         {
         }
 
-        public static void LoadPPShowConfig(string config_path)
+        public static Config LoadPPShowConfig(string config_path)
         {
             string config_json = File.ReadAllText(config_path);
 
             try
             {
-                Instance = JsonConvert.DeserializeObject<Config>(config_json);
+                return JsonConvert.DeserializeObject<Config>(config_json);
             }
             catch (Exception e)
             {
                 Sync.Tools.IO.CurrentIO.WriteColor($"JsonConvert::DeserializeObject Error,{e.Message}", ConsoleColor.Red);
             }
+            return null;
         }
 
         public static void CreateDefaultPPShowConfig(string config_path)

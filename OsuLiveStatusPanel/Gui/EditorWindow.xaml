@@ -1,0 +1,43 @@
+﻿<Window x:Class="OsuLiveStatusPanel.Gui.EditorWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:OsuLiveStatusPanel.Gui"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Title="Output editor">
+    <Window.Resources>
+        <DataTemplate x:Key="FormatOutputTemplate">
+            <Border Margin="2" BorderThickness="1" BorderBrush="#FFB4A1A1" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="25*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <Label Width="55" HorizontalAlignment="Right" Content="File:"/>
+                        <TextBox Width="400" Text="{Binding Proxy.FilePath}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
+                        <Button Content="Browse"  Margin="2" Height="21" Command="{Binding Browse}" CommandParameter="{Binding Proxy}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="1">
+                        <Label  Width="55" HorizontalAlignment="Right" Content="Format:"/>
+                        <TextBox Width="400" Height="Auto" Text="{Binding Proxy.FormatTemplate}" Margin="0,2" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                        <Button Content="Parameters" Margin="2" Height="21" Command="{Binding AddOutputParameter}" CommandParameter="{Binding Proxy}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <ItemsControl Grid.Column="0" Name="ListenList" Margin="2" ItemTemplate="{StaticResource FormatOutputTemplate}"/>
+
+        <ItemsControl Grid.Column="1" Name="PlayList" Margin="2" ItemTemplate="{StaticResource FormatOutputTemplate}"/>
+
+    </Grid>
+</Window>
