@@ -45,10 +45,12 @@
             <RowDefinition Height="20*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Column="0" Grid.Row="0"  Margin="2" Orientation="Horizontal" HorizontalAlignment="Right" >
+            <Label Width="200" Content="Listen" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
             <Button Content="Add File Output" Margin="2" Click="AddFileOutputButton_Listen_Click"/>
             <Button Content="Add MMF Output" Margin="2" Click="AddMMFOutputButton_Listen_Click"/>
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="0"  Margin="2" Orientation="Horizontal" HorizontalAlignment="Right" >
+            <Label Width="200" Content="Play" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
             <Button Content="Add File Output" Margin="2" Click="AddFileOutputButton_Play_Click"/>
             <Button Content="Add MMF Output" Margin="2" Click="AddMMFOutputButton_Play_Click"/>
         </StackPanel>
