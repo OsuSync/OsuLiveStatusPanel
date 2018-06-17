@@ -35,7 +35,7 @@ namespace OsuLiveStatusPanel.Gui
 
         private static readonly List<string> s_olspParameter = new List<string>()
         {
-            "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable",
+            "ar", "cs", "od", "hp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable",
             "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars",
             "stars", "mods", "title", "creator", "max_combo", "artist", "circles","sliders", "spinners"
         };
@@ -75,7 +75,9 @@ namespace OsuLiveStatusPanel.Gui
 
             FormatEditBox.TextChanged += (s, e) =>
               {
-                  FormatPreviewBox.Text = m_currentProxy?.Format(s_previewData);
+                  var acc_list = m_currentProxy.RawObject.formatter.GetAccuracyArray();
+                  var data = s_previewData.Union(acc_list.Select(acc => new KeyValuePair<string, string>($"pp:{acc:F2}%", "727.00"))).ToDictionary(p=>p.Key,p=>p.Value);
+                  FormatPreviewBox.Text = m_currentProxy?.Format(data);
               };
 
             foreach (var para in s_olspParameter)
@@ -100,6 +102,21 @@ namespace OsuLiveStatusPanel.Gui
         {
             e.Cancel = true;
             Hide();
+        }
+
+        private void AddPP_Click(object sender, RoutedEventArgs e)
+        {
+            if (float.TryParse(AccTextBox.Text, out float acc))
+            {
+                if (0 <= acc && acc <= 100.0)
+                    m_currentProxy.FormatTemplate += "${pp:" + $"{acc:F2}" + "%}";
+                else
+                    MessageBox.Show($"Accuracy should be in the range of 0 to 100", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                MessageBox.Show($"{AccTextBox.Text} not a decimal", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

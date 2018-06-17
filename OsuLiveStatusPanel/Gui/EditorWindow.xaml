@@ -13,18 +13,22 @@
             <Border Margin="2" BorderThickness="1" BorderBrush="#FFB4A1A1" >
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
                         <RowDefinition Height="25"/>
                         <RowDefinition Height="25*"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Grid.Row="0">
-                        <Label Width="55" HorizontalAlignment="Right" Content="File:"/>
-                        <TextBox Width="400" Text="{Binding Proxy.FilePath}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
-                        <Button Content="Browse"  Margin="2" Height="21" Command="{Binding Browse}" CommandParameter="{Binding Proxy}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                        <Button Margin="2" Width="22" Height="22" Content="X" Command="{Binding Delete}" CommandParameter="{Binding Proxy}"></Button>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
+                        <Label Width="55" HorizontalAlignment="Right" Content="File:"/>
+                        <TextBox Width="400" Text="{Binding Proxy.FilePath}" IsReadOnly="{Binding IsFileBoxReadOnly}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
+                        <Button Width="80" Content="Browse"  Margin="2" Height="21" Command="{Binding Browse}" Visibility="{Binding DisplayBrowseButton}" CommandParameter="{Binding Proxy}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="2">
                         <Label  Width="55" HorizontalAlignment="Right" Content="Format:"/>
-                        <TextBox Width="400" Height="Auto" Text="{Binding Proxy.FormatTemplate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
-                        <Button Content="Parameters" Margin="2" Height="21" Command="{Binding AddOutputParameter}" CommandParameter="{Binding Proxy}"/>
+                        <TextBox MaxHeight="45" Width="400" Height="Auto" Text="{Binding Proxy.FormatTemplate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="0,2" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                        <Button Width="80" Content="Parameters" Margin="2" Height="21" Command="{Binding AddOutputParameter}" CommandParameter="{Binding Proxy}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -36,9 +40,27 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <ItemsControl Grid.Column="0" Name="ListenList" Margin="2" ItemTemplate="{StaticResource FormatOutputTemplate}"/>
-
-        <ItemsControl Grid.Column="1" Name="PlayList" Margin="2" ItemTemplate="{StaticResource FormatOutputTemplate}"/>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="20*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0"  Margin="2" Orientation="Horizontal" HorizontalAlignment="Right" >
+            <Button Content="Add File Output" Margin="2" Click="AddFileOutputButton_Listen_Click"/>
+            <Button Content="Add MMF Output" Margin="2" Click="AddMMFOutputButton_Listen_Click"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="0"  Margin="2" Orientation="Horizontal" HorizontalAlignment="Right" >
+            <Button Content="Add File Output" Margin="2" Click="AddFileOutputButton_Play_Click"/>
+            <Button Content="Add MMF Output" Margin="2" Click="AddMMFOutputButton_Play_Click"/>
+        </StackPanel>
+        <Border Margin="2" Grid.Column="0" Grid.Row="1" BorderThickness="1" BorderBrush="#FFB4A1A1" >
+            <ScrollViewer Margin="4" VerticalScrollBarVisibility="Visible">
+                <ItemsControl Name="ListenList" Margin="2" ItemTemplate="{StaticResource FormatOutputTemplate}"/>
+            </ScrollViewer>
+        </Border>
+        <Border Margin="2" Grid.Column="1" Grid.Row="1" BorderThickness="1" BorderBrush="#FFB4A1A1" >
+            <ScrollViewer Margin="4" VerticalScrollBarVisibility="Visible">
+                <ItemsControl Name="PlayList" Margin="2" ItemTemplate="{StaticResource FormatOutputTemplate}"/>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </Window>

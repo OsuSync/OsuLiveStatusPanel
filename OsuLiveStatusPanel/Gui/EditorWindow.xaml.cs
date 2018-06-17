@@ -1,4 +1,5 @@
 ﻿using OsuLiveStatusPanel.PPShow;
+using OsuLiveStatusPanel.PPShow.Output;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -29,6 +30,8 @@ namespace OsuLiveStatusPanel.Gui
         {
             public OutputType OutputType { get; private set; }
             private OutputWrapper m_wrap;
+            public OutputWrapper RawObject => m_wrap;
+            public bool IsMMF => m_wrap.outputter is MemoryMappedFileOutput;
 
             public ConfigItemProxy(OutputWrapper wrap, OutputType type)
             {
@@ -73,15 +76,47 @@ namespace OsuLiveStatusPanel.Gui
 
         class ConfigItem
         {
-            public ConfigItemProxy Proxy { get;private set; }
+            public ConfigItemProxy Proxy { get; private set; }
 
-            public ConfigItem(OutputWrapper wrap, OutputType type)
+            public ConfigItem(OutputWrapper wrap, OutputType type, EditorWindow window)
             {
-                Proxy = new ConfigItemProxy(wrap,type);
+                Proxy = new ConfigItemProxy(wrap, type);
+                Delete = new DeleteCommand(window,this);
             }
+
+            public bool IsFileBoxReadOnly => !Proxy.IsMMF;
+            public Visibility DisplayBrowseButton => Proxy.IsMMF ? Visibility.Hidden : Visibility.Visible;
 
             public BrowseCommand Browse { get; } = new BrowseCommand();
             public AddOutputParameterCommand AddOutputParameter { get; } = new AddOutputParameterCommand();
+            public DeleteCommand Delete { get; private set; }
+
+            public class DeleteCommand : ICommand
+            {
+                private EditorWindow m_window;
+                private ConfigItem m_item;
+
+                public event EventHandler CanExecuteChanged;
+
+                public DeleteCommand(EditorWindow window,ConfigItem item)
+                {
+                    m_window = window;
+                    m_item = item;
+                }
+
+                public bool CanExecute(object parameter) => true;
+
+                public void Execute(object parameter)
+                {
+                    var proxy = parameter as ConfigItemProxy;
+
+                    var list = proxy.OutputType == OutputType.Listen ? m_window.listen_list : m_window.play_list;
+                    var wrapper = proxy.OutputType == OutputType.Listen ? m_window.m_wrapper.ListenOfs : m_window.m_wrapper.PlayOfs;
+
+                    list.Remove(m_item);
+                    wrapper.Remove(m_item.Proxy.RawObject);
+                }
+            }
 
             public class AddOutputParameterCommand : ICommand
             {
@@ -136,11 +171,55 @@ namespace OsuLiveStatusPanel.Gui
 
             m_wrapper = wrapper;
 
-            listen_list = new ObservableCollection<ConfigItem>(wrapper.ListenOfs.Select(w => new ConfigItem(w,OutputType.Listen)));
-            play_list = new ObservableCollection<ConfigItem>(wrapper.PlayOfs.Select(w => new ConfigItem(w, OutputType.Play)));
+            listen_list = new ObservableCollection<ConfigItem>(wrapper.ListenOfs.Select(w => new ConfigItem(w,OutputType.Listen,this)));
+            play_list = new ObservableCollection<ConfigItem>(wrapper.PlayOfs.Select(w => new ConfigItem(w, OutputType.Play,this)));
 
             ListenList.ItemsSource = listen_list;
             PlayList.ItemsSource = play_list;
+        }
+
+        private void AddFileOutputButton_Listen_Click(object sender, RoutedEventArgs e)
+        {
+            var item = new OutputWrapper()
+            {
+                formatter = new OutputFormatter(""),
+                outputter = OutputBase.Create(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"output.txt"))
+            };
+            m_wrapper.ListenOfs.Add(item);
+            listen_list.Add(new ConfigItem(item,OutputType.Listen,this));
+        }
+
+        private void AddMMFOutputButton_Listen_Click(object sender, RoutedEventArgs e)
+        {
+            var item = new OutputWrapper()
+            {
+                formatter = new OutputFormatter(""),
+                outputter = OutputBase.Create("mmf://olsp-new")
+            };
+            m_wrapper.ListenOfs.Add(item);
+            listen_list.Add(new ConfigItem(item, OutputType.Listen,this));
+        }
+
+        private void AddFileOutputButton_Play_Click(object sender, RoutedEventArgs e)
+        {
+            var item = new OutputWrapper()
+            {
+                formatter = new OutputFormatter(""),
+                outputter = OutputBase.Create(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "output.txt"))
+            };
+            m_wrapper.PlayOfs.Add(item);
+            play_list.Add(new ConfigItem(item, OutputType.Listen,this));
+        }
+
+        private void AddMMFOutputButton_Play_Click(object sender, RoutedEventArgs e)
+        {
+            var item = new OutputWrapper()
+            {
+                formatter = new OutputFormatter(""),
+                outputter = OutputBase.Create("mmf://olsp-new")
+            };
+            m_wrapper.PlayOfs.Add(item);
+            play_list.Add(new ConfigItem(item, OutputType.Listen,this));
         }
     }
 }

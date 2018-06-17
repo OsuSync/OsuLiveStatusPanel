@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:OsuLiveStatusPanel.Gui"
              mc:Ignorable="d" 
              Width="800" Height="500"
+             ResizeMode="NoResize"
              Title="Parameters" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
@@ -16,12 +17,24 @@
             <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
         <Label Content="Format:" Margin="2" Grid.Row="0"/>
-        <TextBox Name="FormatEditBox" Text="{Binding FormatTemplate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="2" Grid.Row="1"/>
+        <TextBox Name="FormatEditBox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding FormatTemplate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="2" Grid.Row="1"/>
         <Label Content="Preview:" Margin="2" Grid.Row="2"/>
         <Border Margin="2" BorderThickness="1" BorderBrush="#FFB4A1A1"  Grid.Row="3" >
             <TextBlock Name="FormatPreviewBox" Margin="2"/>
         </Border>
-        <WrapPanel Name="ButtonsList" Grid.Row="4">
-        </WrapPanel>
+        <Grid  Grid.Row="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <WrapPanel Name="ButtonsList" Grid.Row="0">
+            </WrapPanel>
+
+            <StackPanel Grid.Row="1" Margin="2" Orientation="Horizontal">
+                <Label Height="30" Content="Accuracy:"/>
+                <TextBox Name="AccTextBox" Width="200" Margin="2,0"/>
+                <Button Width="50"  Content="pp" Click="AddPP_Click"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
