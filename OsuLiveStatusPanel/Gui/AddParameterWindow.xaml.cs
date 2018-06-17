@@ -65,8 +65,7 @@ namespace OsuLiveStatusPanel.Gui
             ["artist"] = "NOMA",
             ["circles"] = "281",
             ["sliders"] = "319",
-            ["spinners"] = "0",
-            //["pp"]
+            ["spinners"] = "0"
         };
 
         public AddParameterWindow()
