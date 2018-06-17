@@ -37,7 +37,8 @@ namespace OsuLiveStatusPanel.Gui
             }
         }
 
-        public Visibility PPInputVisibility => (!m_modsChangeAtListen&&m_currentProxy?.OutputType == OutputType.Listen) ? Visibility.Collapsed : Visibility.Visible;
+        public bool IsModsDisplay => !(!m_modsChangeAtListen && m_currentProxy?.OutputType == OutputType.Listen);
+        public Visibility PPInputVisibility => IsModsDisplay? Visibility.Visible: Visibility.Collapsed;
 
         private static readonly List<string> s_olspParameter = new List<string>()
         {
@@ -72,7 +73,6 @@ namespace OsuLiveStatusPanel.Gui
             ["aim_stars"]="4.02",
             ["stars"]="7.44",
 
-            ["mods"]="HD,HR",
             ["max_combo"]="1662",
             ["circles"] = "603",
             ["sliders"] = "522",
@@ -91,8 +91,13 @@ namespace OsuLiveStatusPanel.Gui
 
             FormatEditBox.TextChanged += (s, e) =>
               {
-                  var acc_list = m_currentProxy.RawObject.formatter.GetAccuracyArray();
-                  var data = s_previewData.Union(acc_list.Select(acc => new KeyValuePair<string, string>($"pp:{acc:F2}%", "727.00"))).ToDictionary(p=>p.Key,p=>p.Value);
+                  var data = s_previewData;
+                  if (IsModsDisplay)
+                  {
+                      var acc_list = m_currentProxy.RawObject.formatter.GetAccuracyArray();
+                      data = data.Union(acc_list.Select(acc => new KeyValuePair<string, string>($"pp:{acc:F2}%", "727.00"))).ToDictionary(p => p.Key, p => p.Value);
+                      data.Add("mods", "HD,HR");
+                  }
                   FormatPreviewBox.Text = m_currentProxy?.Format(data);
               };
 
