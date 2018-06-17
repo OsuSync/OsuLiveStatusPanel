@@ -20,7 +20,9 @@
         <TextBox Name="FormatEditBox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding FormatTemplate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="2" Grid.Row="1"/>
         <Label Content="Preview:" Margin="2" Grid.Row="2"/>
         <Border Margin="2" BorderThickness="1" BorderBrush="#FFB4A1A1"  Grid.Row="3" >
-            <TextBlock Name="FormatPreviewBox" Margin="2"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <TextBlock Name="FormatPreviewBox" Margin="2"/>
+            </ScrollViewer>
         </Border>
         <Grid  Grid.Row="4">
             <Grid.RowDefinitions>
