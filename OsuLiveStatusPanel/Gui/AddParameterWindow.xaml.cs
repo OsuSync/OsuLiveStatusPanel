@@ -84,7 +84,7 @@ namespace OsuLiveStatusPanel.Gui
             {
                 var btn = new Button()
                 {
-                    Content = para,
+                    Content = para.Replace("_","__"),
                     Margin = new Thickness(2)
                 };
 
