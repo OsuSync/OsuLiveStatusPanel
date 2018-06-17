@@ -49,28 +49,33 @@ namespace OsuLiveStatusPanel.Gui
         private static readonly Dictionary<string, string> s_previewData = new Dictionary<string, string>()
         {
             ["ar"]="10.00",
-            ["cs"]="5.46",
+            ["cs"]="5.20",
             ["od"]="10.00",
-            ["hp"]="5.60",
-            ["beatmap_setid"]= "546384",
-            ["version"]= "NiNo's Extra",
-            ["title_avaliable"]= "Brain Power",
-            ["artist_avaliable"]= "NOMA",
-            ["beatmap_setlink"]= "http://osu.ppy.sh/s/546384",
-            ["beatmap_link"] = "http://osu.ppy.sh/b/1183809",
-            ["beatmap_id"] = "1183809",
-            ["min_bpm"]="170",
-            ["max_bpm"] = "173",
-            ["speed_stars"]="2.89",
-            ["aim_stars"]="3.04",
-            ["stars"]="6.01",
+            ["hp"]="7.00",
+
+            ["version"]= "Kaitei",
+            ["creator"] = "Loreley",
+            ["title"] = "Umiyuri Kaiteitan",
+            ["artist"] = "GEM",
+            ["title_avaliable"]= "ウミユリ海底譚",
+            ["artist_avaliable"]= "ジェム",
+
+            ["beatmap_setlink"]= "http://osu.ppy.sh/s/647452",
+            ["beatmap_link"] = "http://osu.ppy.sh/b/1371599",
+            ["beatmap_setid"] = "647452",
+            ["beatmap_id"] = "1371599",
+
+            ["min_bpm"]="240",
+            ["max_bpm"] = "240",
+
+            ["speed_stars"]="2.84",
+            ["aim_stars"]="4.02",
+            ["stars"]="7.44",
+
             ["mods"]="HD,HR",
-            ["title"]= "Brain Power",
-            ["creator"]= "Monstrata",
-            ["max_combo"]="936",
-            ["artist"] = "NOMA",
-            ["circles"] = "281",
-            ["sliders"] = "319",
+            ["max_combo"]="1662",
+            ["circles"] = "603",
+            ["sliders"] = "522",
             ["spinners"] = "0"
         };
 

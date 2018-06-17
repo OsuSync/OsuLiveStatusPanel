@@ -2,7 +2,7 @@
 {
     public abstract class OutputBase
     {
-        public string FilePath { get; set; }
+        public virtual string FilePath { get; set; }
 
         public OutputBase(string path)
         {
