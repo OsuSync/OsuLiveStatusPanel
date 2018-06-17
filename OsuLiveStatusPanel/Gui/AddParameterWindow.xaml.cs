@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sync;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -20,8 +21,10 @@ namespace OsuLiveStatusPanel.Gui
     /// <summary>
     /// Interaction logic for AddParameterWindow.xaml
     /// </summary>
-    public partial class AddParameterWindow : Window
+    public partial class AddParameterWindow : Window,INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private ConfigItemProxy m_currentProxy;
         public ConfigItemProxy CurrnetProxy
         {
@@ -30,8 +33,11 @@ namespace OsuLiveStatusPanel.Gui
             {
                 m_currentProxy = value;
                 FormatEditBox.DataContext = m_currentProxy;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PPInputVisibility)));
             }
         }
+
+        public Visibility PPInputVisibility => (!m_modsChangeAtListen&&m_currentProxy?.OutputType == OutputType.Listen) ? Visibility.Collapsed : Visibility.Visible;
 
         private static readonly List<string> s_olspParameter = new List<string>()
         {
@@ -68,9 +74,15 @@ namespace OsuLiveStatusPanel.Gui
             ["spinners"] = "0"
         };
 
+        private bool m_modsChangeAtListen = false;
+
         public AddParameterWindow()
         {
             InitializeComponent();
+            dynamic ortdp = SyncHost.Instance.EnumPluings().First(p => p.Name == "OsuRTDataProvider");
+            m_modsChangeAtListen = ortdp.ModsChangedAtListening;
+
+            DataContext = this;
 
             FormatEditBox.TextChanged += (s, e) =>
               {
@@ -86,6 +98,11 @@ namespace OsuLiveStatusPanel.Gui
                     Content = para.Replace("_","__"),
                     Margin = new Thickness(2)
                 };
+
+                if(para=="mods")
+                {
+                    btn.SetBinding(Button.VisibilityProperty, new Binding("PPInputVisibility") { Source = this });
+                }
 
                 btn.Click += (s, e) =>
                   {

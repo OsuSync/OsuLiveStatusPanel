@@ -124,22 +124,17 @@ namespace OsuLiveStatusPanel.Gui
 
                 public bool CanExecute(object parameter) => true;
 
-                private static AddParameterWindow m_listenWindow;
-                private static AddParameterWindow m_playWindow;
+                private static AddParameterWindow m_parameterWindow;
 
                 public void Execute(object parameter)
                 {
-                    if (m_listenWindow == null)
-                        m_listenWindow = new AddParameterWindow();
-
-                    if (m_playWindow == null)
-                        m_playWindow = new AddParameterWindow();
+                    if (m_parameterWindow == null)
+                        m_parameterWindow = new AddParameterWindow();
 
                     var proxy = parameter as ConfigItemProxy;
-                    AddParameterWindow window = proxy.OutputType == OutputType.Listen ? m_listenWindow : m_playWindow;
 
-                    window.CurrnetProxy = proxy;
-                    window.ShowDialog();
+                    m_parameterWindow.CurrnetProxy = proxy;
+                    m_parameterWindow.ShowDialog();
                 }
             }
 
