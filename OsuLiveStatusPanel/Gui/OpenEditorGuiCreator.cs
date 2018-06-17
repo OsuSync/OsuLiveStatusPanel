@@ -30,7 +30,7 @@ namespace OsuLiveStatusPanel.Gui
 
             btn.Click += (s, e) =>
               {
-                  new EditorWindow(m_wrapper).Show();
+                  new EditorWindow(m_wrapper).ShowDialog();
               };
 
             panel.Children.Add(btn);

@@ -34,8 +34,8 @@
 
             <StackPanel Grid.Row="1" Margin="2" Orientation="Horizontal" Visibility="{Binding PPInputVisibility}">
                 <Label Height="30" Content="Accuracy:"/>
-                <TextBox Name="AccTextBox" Width="200" Margin="2,0"/>
-                <Button Width="50"  Content="pp" Click="AddPP_Click"/>
+                <TextBox MaxLines="1" Name="AccTextBox" Height="22" Width="200" Margin="2,0"/>
+                <Button Width="50"  Height="22" Content="pp" Click="AddPP_Click"/>
             </StackPanel>
         </Grid>
     </Grid>
