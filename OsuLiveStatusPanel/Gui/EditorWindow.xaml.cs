@@ -96,7 +96,11 @@ namespace OsuLiveStatusPanel.Gui
                 private EditorWindow m_window;
                 private ConfigItem m_item;
 
-                public event EventHandler CanExecuteChanged;
+                public event EventHandler CanExecuteChanged
+                {
+                    add { }
+                    remove { }
+                }
 
                 public DeleteCommand(EditorWindow window,ConfigItem item)
                 {
@@ -120,7 +124,11 @@ namespace OsuLiveStatusPanel.Gui
 
             public class AddOutputParameterCommand : ICommand
             {
-                public event EventHandler CanExecuteChanged;
+                public event EventHandler CanExecuteChanged
+                {
+                    add { }
+                    remove { }
+                }
 
                 public bool CanExecute(object parameter) => true;
 
@@ -140,7 +148,11 @@ namespace OsuLiveStatusPanel.Gui
 
             public class BrowseCommand : ICommand
             {
-                public event EventHandler CanExecuteChanged;
+                public event EventHandler CanExecuteChanged
+                {
+                    add { }
+                    remove { }
+                }
 
                 public bool CanExecute(object parameter) => true;
 
