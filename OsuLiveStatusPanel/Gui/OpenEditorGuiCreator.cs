@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using OsuLiveStatusPanel.PPShow;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace OsuLiveStatusPanel.Gui
 {
