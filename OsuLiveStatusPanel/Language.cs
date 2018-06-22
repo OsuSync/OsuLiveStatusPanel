@@ -28,23 +28,33 @@ namespace OsuLiveStatusPanel
         public static LanguageElement PPSHOW_CONFIG_PARSE_ERROR = "无法解析指定的PPShow配置文件";
         public static LanguageElement PPSHOW_IO_ERROR = "[PPShow]无法写入{0},原因{1}";
 
-        public static GuiLanguageElement BeatmapSourcePlugin = "使用哪种插件作为铺面来源(ortdp/np二选一)";
-        public static GuiLanguageElement Width = "固定图片宽度(EnableScaleClipOutputImageFile=1有效)";
-        public static GuiLanguageElement Height = "固定图片后高度(EnableScaleClipOutputImageFile=1有效)";
+        public static GuiLanguageElement BeatmapSourcePlugin = "谱面信息来源";
+        public static GuiLanguageElement Width = "固定图片宽度";
+        public static GuiLanguageElement Height = "固定图片后高度";
         public static GuiLanguageElement EnableOutputModPicture = "是否生成Mod图片并输出";
         public static GuiLanguageElement OutputModImageFilePath = "生成的Mod图片保存路径";
-        public static GuiLanguageElement ModUnitPixel = "每个Mod图片的大小(屙屎皮肤一般都是90*90)";
+        public static GuiLanguageElement ModUnitPixel = "每个Mod图片的大小";
         public static GuiLanguageElement ModUnitOffset = "反转Mod传入顺序";
         public static GuiLanguageElement ModSortReverse = "是否逆序传入Mod";
-        public static GuiLanguageElement ModDrawReverse = "是否要从右到左(从下到上)依次绘制mod图片(否则相反)";
-        public static GuiLanguageElement ModUse2x = "是否钦定使用@2x结尾的源Mod图片";
-        public static GuiLanguageElement ModSkinPath = "优先选择的Mod皮肤文件夹路径(如果这个文件夹没mod图片,再去当前打图皮肤文件夹找,默认皮肤玩家请使用这个强制选择要输出的图片)";
+        public static GuiLanguageElement ModDrawReverse = "是否反向渲染Mod图片";
+        public static GuiLanguageElement ModUse2x = "是否钦定使用@2x结尾的Mod图片";
+        public static GuiLanguageElement ModSkinPath = "优先选择的Mod皮肤文件夹路径";
         public static GuiLanguageElement ModIsHorizon = "是否水平排列输出(否则垂直)";
-        public static GuiLanguageElement EnableScaleClipOutputImageFile = "是否按固定分辨率输出背景图片(否则会直接复制图片到钦定输出路径)";
-        public static GuiLanguageElement EnableListenOutputImageFile = "选图界面是否也会输出背景图片(钦定ORTDP源)";
+        public static GuiLanguageElement EnableScaleClipOutputImageFile = "是否按固定分辨率输出背景图片";
+        public static GuiLanguageElement EnableListenOutputImageFile = "选图界面是否也会输出背景图片";
         public static GuiLanguageElement PPShowJsonConfigFilePath = "PPShowPlugin配置文件路径";
         public static GuiLanguageElement PPShowAllowDumpInfo = "是否允许内置的PPShowPlugin输出解析结果在Sync程序内";
         public static GuiLanguageElement OutputBackgroundImageFilePath = "输出背景图片文件路径";
         public static GuiLanguageElement EnableOutputBackgroundImage = "是否输出背景图片";
+
+        public static GuiLanguageElement BeatmapSourcePluginDescription = "要依赖使用哪种插件作为铺面来源(ortdp/np二选一)";
+        public static GuiLanguageElement WidthDescription = "仅当EnableScaleClipOutputImageFile=1有效";
+        public static GuiLanguageElement HeightDescription = "仅当EnableScaleClipOutputImageFile=1有效";
+        public static GuiLanguageElement ModUnitPixelDescription = "屙屎皮肤一般都是90*90,单位像素";
+        public static GuiLanguageElement ModUnitOffsetDescription = "反转Mod传入顺序";
+        public static GuiLanguageElement ModSortReverseDescription = "是否逆序传入Mod";
+        public static GuiLanguageElement ModDrawReverseDescription = "从右到左(从下到上)依次绘制mod图片(否则相反)";
+        public static GuiLanguageElement ModSkinPathDescription = "如果这个文件夹没mod图片,再去当前打图皮肤文件夹找,默认皮肤玩家请使用这个强制选择要输出的图片";
+        public static GuiLanguageElement EnableScaleClipOutputImageFileDescription = "否则会直接复制图片到钦定输出路径";
     }
 }
