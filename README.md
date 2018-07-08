@@ -1,8 +1,10 @@
 # OsuLiveStatusPanel
 ---
-
 ## 注意
 此为另一个软件OsuSync的插件,主要提供于osu当前游戏中的谱面信息(比如beatmapID/SetID，PP等),并将内容写入各文件再供obs之类的软件使用。
+
+**此插件还没准备好正式公开，还在测试当中**
+**The plug-in is not ready to be officially released, it is still being tested.**
 
 ## 使用到的其他项目
 * [OsuSync (MIT License)](https://github.com/Deliay/Sync)
