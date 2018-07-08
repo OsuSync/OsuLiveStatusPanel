@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace OsuLiveStatusPanel.PPShow
@@ -41,11 +42,11 @@ namespace OsuLiveStatusPanel.PPShow
                 }
 
                 //简化一下
-                if (int.TryParse(val, out int idata))
+                if (int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture,out int idata))
                 {
                     val = $"{idata}";
                 }
-                else if (float.TryParse(val, out float fdata))
+                else if (float.TryParse(val, NumberStyles.AllowThousands | NumberStyles.Float,CultureInfo.InvariantCulture, out float fdata))
                 {
                     val = $"{fdata:F2}";
                 }
@@ -62,12 +63,12 @@ namespace OsuLiveStatusPanel.PPShow
         {
             List<float> result = new List<float>();
 
-            var m = Regex.Match(FormatTemplate, @"\$\{pp:\d{1,3}\.\d{2}%\}");
+            var m = Regex.Match(FormatTemplate, @"\$\{pp:(.+?)%\}");
 
             while (m.Success)
             {
-                var acc_m = Regex.Match(m.Groups[0].Value, @"\d{1,3}\.\d{2}");
-                float acc = float.Parse(acc_m.Groups[0].Value);
+                var acc_m = m.Groups[1].Value.ToString();
+                float acc = float.Parse(acc_m, CultureInfo.InvariantCulture);
                 result.Add(acc);
 
                 m = m.NextMatch();

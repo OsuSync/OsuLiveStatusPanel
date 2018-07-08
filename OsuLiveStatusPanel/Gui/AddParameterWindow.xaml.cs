@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -132,7 +133,7 @@ namespace OsuLiveStatusPanel.Gui
 
         private void AddPP_Click(object sender, RoutedEventArgs e)
         {
-            if (float.TryParse(AccTextBox.Text, out float acc))
+            if (float.TryParse(AccTextBox.Text, NumberStyles.AllowThousands|NumberStyles.Float, CultureInfo.InvariantCulture, out float acc))
             {
                 if (0 <= acc && acc <= 100.0)
                     m_currentProxy.FormatTemplate += "${pp:" + $"{acc:F2}" + "%}";

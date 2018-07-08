@@ -4,6 +4,7 @@ using OsuLiveStatusPanel.PPShow.Output;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using static OsuLiveStatusPanel.Languages;
@@ -224,9 +225,9 @@ namespace OsuLiveStatusPanel.PPShow
             {
                 if (CurrentOutputInfo.TryGetValue(name, out string result))
                 {
-                    if (int.TryParse(result, out var ival))
+                    if (int.TryParse(result,NumberStyles.Integer,CultureInfo.InvariantCulture, out var ival))
                         return ival;
-                    else if (double.TryParse(result, out var dval))
+                    else if (double.TryParse(result, NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture, out var dval))
                         return dval;
                     return result;
                 }

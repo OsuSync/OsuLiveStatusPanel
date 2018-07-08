@@ -2,6 +2,7 @@
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace OsuLiveStatusPanel.PPShow.Beatmap
@@ -177,7 +178,7 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
 
                             if (!is_red_line) break;//1是红线
 
-                            double val = double.Parse(data[1]);
+                            double val = double.Parse(data[1],CultureInfo.InvariantCulture);
 
                             if (val > 0)
                             {
@@ -203,7 +204,7 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                                 if (obj_data.Length >= 4)
                                 {
                                     nobjects++;
-                                    int type = int.Parse(obj_data[3]);
+                                    int type = int.Parse(obj_data[3], CultureInfo.InvariantCulture);
 
                                     if (IS_TYPE(type, TYPE_CIRCLE))
                                         ncircle++;

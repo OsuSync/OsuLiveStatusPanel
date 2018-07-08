@@ -2,6 +2,7 @@
 using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow;
 using OsuLiveStatusPanel.SourcesWrapper;
+using OsuLiveStatusPanel.SourcesWrapper.DPMP;
 using OsuLiveStatusPanel.SourcesWrapper.NP;
 using OsuLiveStatusPanel.SourcesWrapper.ORTDP;
 using Sync;
@@ -13,6 +14,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -28,6 +30,7 @@ namespace OsuLiveStatusPanel
         {
             OsuRTDataProvider,
             NowPlaying,
+            DifficultParamModifyPlugin,
             None
         }
 
@@ -35,7 +38,7 @@ namespace OsuLiveStatusPanel
 
         #region Options
 
-        [List(AllowMultiSelect = false, IgnoreCase = true, ValueList = new[] { "ortdp", "np" })]
+        [List(AllowMultiSelect = false, IgnoreCase = true, ValueList = new[] { "ortdp", "np" ,"dpmp"})]
         public ConfigurationElement BeatmapSourcePlugin { get; set; } = "ortdp";
 
         [Integer]
@@ -210,6 +213,10 @@ namespace OsuLiveStatusPanel
                         TryRegisterSourceFromOsuRTDataProvider(host);
                         break;
 
+                    case "dpmp":
+                        TryRegisterSourceFromDifficultParamModifyPlugin(host);
+                        break;
+
                     default:
                         break;
                 }
@@ -272,6 +279,31 @@ namespace OsuLiveStatusPanel
             }
 
             IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSURTDP_NOTFOUND}", ConsoleColor.Red);
+
+            source = UsingSource.None;
+        }
+
+        public void TryRegisterSourceFromDifficultParamModifyPlugin(SyncHost host)
+        {
+            foreach (var plugin in host.EnumPluings())
+            {
+                if (plugin.Name == "DifficultParamModifyPlugin")
+                {
+                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]发现dpmp插件", ConsoleColor.Green);
+                    DifficultParamModifyPlugin.DifficultParamModifyPlugin reader = plugin as DifficultParamModifyPlugin.DifficultParamModifyPlugin;
+
+                    SourceWrapper = new DifficultParamModifyPluginSourceWrapper(reader, this);
+
+                    if (SourceWrapper.Attach())
+                    {
+                        source = UsingSource.DifficultParamModifyPlugin;
+                    }
+
+                    return;
+                }
+            }
+
+            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]没发现dpmp插件", ConsoleColor.Red);
 
             source = UsingSource.None;
         }
@@ -343,10 +375,45 @@ namespace OsuLiveStatusPanel
         private void TryApplyBeatmapInfomation(object obj)
         {
             BeatmapEntry beatmap = obj as BeatmapEntry;
-            if (!(source == UsingSource.OsuRTDataProvider ? ApplyBeatmapInfomationforOsuRTDataProvider(beatmap) : ApplyBeatmapInfomationforNowPlaying(beatmap)))
+            bool apply_result=false;
+
+            switch (source)
             {
-                CleanOsuStatus();
+                case UsingSource.OsuRTDataProvider:
+                    apply_result = ApplyBeatmapInfomationforOsuRTDataProvider(beatmap);
+                    break;
+                case UsingSource.NowPlaying:
+                    apply_result = ApplyBeatmapInfomationforNowPlaying(beatmap);
+                    break;
+                case UsingSource.DifficultParamModifyPlugin:
+                    apply_result=ApplyBeatmapInfomationforDifficultParamModifyPlugin(beatmap);
+                    break;
+                case UsingSource.None:
+                    break;
+                default:
+                    break;
             }
+
+            if (!apply_result)
+                CleanOsuStatus();
+        }
+
+        private bool ApplyBeatmapInfomationforDifficultParamModifyPlugin(BeatmapEntry current_beatmap)
+        {
+            var wrapper = SourceWrapper as DifficultParamModifyPluginSourceWrapper;
+
+            ModsInfo mod = default(ModsInfo);
+
+            //添加Mods
+            if (wrapper.CurrentMod.Mod != Mods.ModsInfo.Mods.Unknown)
+            {
+                //处理不能用的PP
+                mod.Mod = wrapper.CurrentMod.Mod;
+            }
+
+            OutputBeatmapInfomation(current_beatmap, mod);
+
+            return true;
         }
 
         private bool ApplyBeatmapInfomationforOsuRTDataProvider(BeatmapEntry current_beatmap)
@@ -354,6 +421,7 @@ namespace OsuLiveStatusPanel
             RealtimeDataProvideWrapperBase OsuRTDataProviderWrapperInstance = SourceWrapper as RealtimeDataProvideWrapperBase;
 
             ModsInfo mod = default(ModsInfo);
+
             //添加Mods
             if (OsuRTDataProviderWrapperInstance.current_mod.Mod != OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown)
             {
@@ -476,7 +544,7 @@ namespace OsuLiveStatusPanel
                 {
                     if (EnableScaleClipOutputImageFile == "True")
                     {
-                        using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
+                        using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width, CultureInfo.InvariantCulture), int.Parse(Height, CultureInfo.InvariantCulture)))
                         using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                             bitmap.Save(fp, ImageFormat.Png);
                     }
@@ -529,7 +597,7 @@ namespace OsuLiveStatusPanel
 
             IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}", ConsoleColor.Cyan);
 
-            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "True", ModUse2x == "True", ModSortReverse == "True", ModDrawReverse == "True");
+            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel, CultureInfo.InvariantCulture), int.Parse(ModUnitOffset, CultureInfo.InvariantCulture), ModIsHorizon == "True", ModUse2x == "True", ModSortReverse == "True", ModDrawReverse == "True");
         }
 
         private bool OutputInfomation(OutputType output_type, BeatmapEntry entry, ModsInfo mods)

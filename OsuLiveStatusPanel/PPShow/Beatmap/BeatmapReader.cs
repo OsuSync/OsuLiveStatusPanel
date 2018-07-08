@@ -1,4 +1,5 @@
 ﻿using OsuLiveStatusPanel.PPShow.Oppai;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -50,19 +51,19 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                             break;
 
                         case "OverallDifficulty":
-                            json.od = float.Parse(value);
+                            json.od = float.Parse(value, CultureInfo.InvariantCulture);
                             break;
 
                         case "ApproachRate":
-                            json.ar = float.Parse(value);
+                            json.ar = float.Parse(value, CultureInfo.InvariantCulture);
                             break;
 
                         case "HPDrainRate":
-                            json.hp = float.Parse(value);
+                            json.hp = float.Parse(value,CultureInfo.InvariantCulture);
                             break;
 
                         case "CircleSize":
-                            json.cs = float.Parse(value);
+                            json.cs = float.Parse(value, CultureInfo.InvariantCulture);
                             break;
 
                         default:
