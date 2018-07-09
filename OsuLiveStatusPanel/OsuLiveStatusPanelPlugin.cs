@@ -94,6 +94,8 @@ namespace OsuLiveStatusPanel
 
         public event Action OnSettingChanged;
 
+        public ModsInfo prev_mods = default(ModsInfo);
+
         private UsingSource source = UsingSource.None;
 
         private PluginConfigurationManager manager;
@@ -454,8 +456,10 @@ namespace OsuLiveStatusPanel
                 TryCreateModsPictureGenerator(out mods_pic_output);
             }
 
-            if (mods_pic_output != null)
+            if (mods_pic_output != null && mod!=prev_mods)
             {
+                prev_mods = mod;
+
                 var mod_list = mod.Name.Split(',');
 
                 using (Bitmap result = mods_pic_output.GenerateModsPicture(mod_list))
