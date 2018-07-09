@@ -86,6 +86,12 @@ namespace OsuLiveStatusPanel.PPShow
                     ).ToList();
             }
 
+            if (acc_list.Count==0)
+            {
+                Log.Warn("No pp query in PPShowConfig.json,defualt add 100%acc to get info.");
+                acc_list.Add(100);
+            }
+
             PP = new InfoOutputter(acc_list);
 
             PP.OnOutputEvent += OnOutput;
@@ -158,7 +164,7 @@ namespace OsuLiveStatusPanel.PPShow
                     }
                     catch (Exception e)
                     {
-                        IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, output.outputter.FilePath, e.Message), ConsoleColor.Red);
+                        Log.Error(string.Format(PPSHOW_IO_ERROR, output.outputter.FilePath, e.Message));
                     }
                 }
             }
@@ -179,7 +185,7 @@ namespace OsuLiveStatusPanel.PPShow
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.outputter.FilePath, e.Message), ConsoleColor.Red);
+                    Log.Error(string.Format(PPSHOW_IO_ERROR, o.outputter.FilePath, e.Message));
                 }
             }
         }
@@ -198,7 +204,7 @@ namespace OsuLiveStatusPanel.PPShow
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor(string.Format(PPSHOW_IO_ERROR, o.outputter.FilePath, e.Message), ConsoleColor.Red);
+                    Log.Error(string.Format(PPSHOW_IO_ERROR, o.outputter.FilePath, e.Message));
                 }
             }
         }

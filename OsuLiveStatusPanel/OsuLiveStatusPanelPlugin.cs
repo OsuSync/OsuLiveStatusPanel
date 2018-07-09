@@ -145,7 +145,7 @@ namespace OsuLiveStatusPanel
                         break;
 
                     case "get":
-                        IO.CurrentIO.WriteColor($"{args[1]}\t=\t{GetData(args[1])}", ConsoleColor.Cyan);
+                        Log.Output($"{args[1]}\t=\t{GetData(args[1])}");
                         break;
 
                     case "restart":
@@ -179,17 +179,17 @@ namespace OsuLiveStatusPanel
 
             SetupPlugin(getHoster());
 
-            IO.CurrentIO.WriteColor(REINIT_SUCCESS, ConsoleColor.Green);
+            Log.Output(REINIT_SUCCESS);
         }
 
         public void Help()
         {
-            IO.CurrentIO.WriteColor(COMMAND_HELP, ConsoleColor.Yellow);
+            Log.Output(COMMAND_HELP);
         }
 
         public void Status()
         {
-            IO.CurrentIO.WriteColor(string.Format(CONNAND_STATUS, source.ToString(), PPShowJsonConfigFilePath), ConsoleColor.Green);
+            Log.Output(string.Format(CONNAND_STATUS, source.ToString(), PPShowJsonConfigFilePath));
         }
 
         #endregion Commands
@@ -225,17 +225,17 @@ namespace OsuLiveStatusPanel
             }
             catch (Exception e)
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{LOAD_PLUGIN_DEPENDENCY_FAILED}:{e.Message}", ConsoleColor.Red);
+                Log.Error($"[OsuLiveStatusPanelPlugin]{LOAD_PLUGIN_DEPENDENCY_FAILED}:{e.Message}");
                 source = UsingSource.None;
             }
 
             if (source == UsingSource.None)
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_PLUGIN_FAILED_CAUSE_NO_DEPENDENCY}", ConsoleColor.Red);
+                Log.Error(INIT_PLUGIN_FAILED_CAUSE_NO_DEPENDENCY);
             }
             else
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{INIT_SUCCESS}", ConsoleColor.Green);
+                Log.Output(INIT_SUCCESS);
             }
 
             Plugin config_gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
@@ -257,7 +257,7 @@ namespace OsuLiveStatusPanel
             {
                 if (plugin.Name == "OsuRTDataProvider")
                 {
-                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSURTDP_FOUND}", ConsoleColor.Green);
+                    Log.Output(OSURTDP_FOUND);
                     OsuRTDataProvider.OsuRTDataProviderPlugin reader = plugin as OsuRTDataProvider.OsuRTDataProviderPlugin;
 
                     if (reader.ModsChangedAtListening)
@@ -278,7 +278,7 @@ namespace OsuLiveStatusPanel
                 }
             }
 
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSURTDP_NOTFOUND}", ConsoleColor.Red);
+            Log.Error(OSURTDP_NOTFOUND);
 
             source = UsingSource.None;
         }
@@ -289,7 +289,7 @@ namespace OsuLiveStatusPanel
             {
                 if (plugin.Name == "DifficultParamModifyPlugin")
                 {
-                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]发现dpmp插件", ConsoleColor.Green);
+                    Log.Output($"发现dpmp插件");
                     DifficultParamModifyPlugin.DifficultParamModifyPlugin reader = plugin as DifficultParamModifyPlugin.DifficultParamModifyPlugin;
 
                     SourceWrapper = new DifficultParamModifyPluginSourceWrapper(reader, this);
@@ -303,7 +303,7 @@ namespace OsuLiveStatusPanel
                 }
             }
 
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]没发现dpmp插件", ConsoleColor.Red);
+            Log.Error($"没发现dpmp插件");
 
             source = UsingSource.None;
         }
@@ -314,7 +314,7 @@ namespace OsuLiveStatusPanel
             {
                 if (plugin.Name == "Now Playing")
                 {
-                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NOWPLAYING_FOUND}.", ConsoleColor.Green);
+                    Log.Output(NOWPLAYING_FOUND);
                     NowPlaying.NowPlaying np = plugin as NowPlaying.NowPlaying;
 
                     SourceWrapper = new NowPlayingWrapper(np, this);
@@ -328,7 +328,7 @@ namespace OsuLiveStatusPanel
                 }
             }
 
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NOWPLAYING_NOTFOUND}", ConsoleColor.Red);
+            Log.Error(NOWPLAYING_NOTFOUND);
 
             source = UsingSource.None;
         }
@@ -352,7 +352,7 @@ namespace OsuLiveStatusPanel
             if (new_beatmap == null || osu_process == null)
             {
                 if (osu_process == null)
-                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{OSU_PROCESS_NOTFOUND}!", ConsoleColor.Red);
+                    Log.Error(OSU_PROCESS_NOTFOUND);
                 CleanOsuStatus();
                 return;
             }
@@ -362,7 +362,7 @@ namespace OsuLiveStatusPanel
 
         private void CleanOsuStatus()
         {
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CLEAN_STATUS}", ConsoleColor.Green);
+            Log.Output(CLEAN_STATUS);
 
             if (File.Exists(OutputModImageFilePath))
             {
@@ -463,7 +463,7 @@ namespace OsuLiveStatusPanel
 
             if (string.IsNullOrWhiteSpace(beatmap_osu_file))
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{NO_BEATMAP_PATH}", ConsoleColor.Red);
+                Log.Error(NO_BEATMAP_PATH);
                 return false;
             }
 
@@ -485,7 +485,7 @@ namespace OsuLiveStatusPanel
 
             if (!OutputInfomation(current_beatmap.OutputType, current_beatmap, mod))
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Cant output info {current_beatmap.BeatmapSetId}.", ConsoleColor.Yellow);
+                Log.Warn($"Cant output info {current_beatmap.BeatmapSetId}.");
                 return;
             }
 
@@ -525,7 +525,7 @@ namespace OsuLiveStatusPanel
 
             EventBus.RaiseEvent(new OutputInfomationEvent(current_beatmap.OutputType));
 
-            IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]Done!time:{sw.ElapsedMilliseconds}ms output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}", ConsoleColor.Green);
+            Log.Output($"Done!time:{sw.ElapsedMilliseconds}ms output_type:{current_beatmap.OutputType} setid:{current_beatmap.BeatmapSetId} mod:{mod}");
         }
 
         private void OutputBackgroundImage(string bgPath, OutputType type)
@@ -535,7 +535,7 @@ namespace OsuLiveStatusPanel
 
             if (!File.Exists(bgPath))
             {
-                IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin::OutputImage]{IMAGE_NOT_FOUND}{bgPath}", ConsoleColor.Yellow);
+                Log.Warn($"{IMAGE_NOT_FOUND}{bgPath}");
             }
 
             if (EnableListenOutputImageFile == "True" || type == OutputType.Play)
@@ -558,7 +558,7 @@ namespace OsuLiveStatusPanel
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"[OsuLiveStatusPanelPlugin]{CANT_PROCESS_IMAGE}:{e.Message}", ConsoleColor.Red);
+                    Log.Error($"{CANT_PROCESS_IMAGE}:{e.Message}");
                 }
             }
         }
@@ -595,7 +595,7 @@ namespace OsuLiveStatusPanel
 
             string using_skin_path = Path.Combine(osu_path, "Skins", using_skin_name);
 
-            IO.CurrentIO.WriteColor($"[MPG]using_skin_path={using_skin_path}", ConsoleColor.Cyan);
+            Log.Output($"Enable to ouput mod pics , using_skin_path={using_skin_path}");
 
             modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel, CultureInfo.InvariantCulture), int.Parse(ModUnitOffset, CultureInfo.InvariantCulture), ModIsHorizon == "True", ModUse2x == "True", ModSortReverse == "True", ModDrawReverse == "True");
         }
@@ -699,7 +699,7 @@ namespace OsuLiveStatusPanel
                 dbitmap.UnlockBits(ddata);
 
                 stopwatch.Stop();
-                IO.CurrentIO.Write($"[OLSP]线性插值:{stopwatch.ElapsedMilliseconds}ms");
+                Log.Output($"线性插值:{stopwatch.ElapsedMilliseconds}ms");
             }
             return dbitmap;
         }

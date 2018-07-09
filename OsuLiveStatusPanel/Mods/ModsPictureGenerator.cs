@@ -172,7 +172,7 @@ namespace OsuLiveStatusPanel.Mods
                 canvas.DrawImage(mod_bitmap, draw_x, draw_y);
 
 #if DEBUG
-                IO.CurrentIO.WriteColor($"[MPG]Draw {i}th {mod_name} at ({draw_x},{draw_y})", ConsoleColor.Cyan);
+                Log.Output($"Draw {i}th mod {mod_name} at ({draw_x},{draw_y})");
 #endif
             }
 
