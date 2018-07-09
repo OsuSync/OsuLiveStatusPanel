@@ -59,7 +59,7 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                             break;
 
                         case "HPDrainRate":
-                            json.hp = float.Parse(value,CultureInfo.InvariantCulture);
+                            json.hp = float.Parse(value, CultureInfo.InvariantCulture);
                             break;
 
                         case "CircleSize":

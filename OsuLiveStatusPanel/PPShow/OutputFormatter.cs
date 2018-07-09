@@ -42,11 +42,11 @@ namespace OsuLiveStatusPanel.PPShow
                 }
 
                 //简化一下
-                if (int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture,out int idata))
+                if (int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out int idata))
                 {
                     val = $"{idata}";
                 }
-                else if (float.TryParse(val, NumberStyles.AllowThousands | NumberStyles.Float,CultureInfo.InvariantCulture, out float fdata))
+                else if (float.TryParse(val, NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture, out float fdata))
                 {
                     val = $"{fdata:F2}";
                 }

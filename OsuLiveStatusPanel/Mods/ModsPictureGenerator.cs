@@ -1,6 +1,4 @@
-﻿using Sync.Tools;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;

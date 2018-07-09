@@ -30,7 +30,7 @@ namespace OsuLiveStatusPanel.PPShow
             }
             catch (Exception e)
             {
-                Sync.Tools.IO.CurrentIO.WriteColor($"JsonConvert::DeserializeObject Error,{e.Message}", ConsoleColor.Red);
+                Log.Error($"JsonConvert::DeserializeObject Error,{e.Message}");
             }
             return null;
         }

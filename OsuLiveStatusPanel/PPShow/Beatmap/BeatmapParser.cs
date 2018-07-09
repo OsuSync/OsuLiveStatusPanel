@@ -1,5 +1,4 @@
 ﻿using OsuLiveStatusPanel.Mods;
-using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -178,7 +177,7 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
 
                             if (!is_red_line) break;//1是红线
 
-                            double val = double.Parse(data[1],CultureInfo.InvariantCulture);
+                            double val = double.Parse(data[1], CultureInfo.InvariantCulture);
 
                             if (val > 0)
                             {

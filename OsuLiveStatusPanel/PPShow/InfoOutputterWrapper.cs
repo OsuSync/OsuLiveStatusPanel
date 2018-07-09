@@ -36,6 +36,7 @@ namespace OsuLiveStatusPanel.PPShow
 
             if (!File.Exists(config_path))
             {
+                Log.Warn($"Not found PPShowConfig.json or others config file for initilizing Outputter.OLSP will create a default PPShowConfig.json to {config_path}");
                 Config.CreateDefaultPPShowConfig(config_path);
             }
 
@@ -86,7 +87,7 @@ namespace OsuLiveStatusPanel.PPShow
                     ).ToList();
             }
 
-            if (acc_list.Count==0)
+            if (acc_list.Count == 0)
             {
                 Log.Warn("No pp query in PPShowConfig.json,defualt add 100%acc to get info.");
                 acc_list.Add(100);
@@ -100,7 +101,7 @@ namespace OsuLiveStatusPanel.PPShow
         public void Exit()
         {
             var config_instance = new Config();
-            foreach(var o in ListenOfs)
+            foreach (var o in ListenOfs)
             {
                 config_instance.listen_list.Add(new OutputConfig()
                 {
@@ -118,8 +119,8 @@ namespace OsuLiveStatusPanel.PPShow
                 });
             }
 
-            string json = JsonConvert.SerializeObject(config_instance,Formatting.Indented);
-            File.WriteAllText(m_config_path,json);
+            string json = JsonConvert.SerializeObject(config_instance, Formatting.Indented);
+            File.WriteAllText(m_config_path, json);
         }
 
         private void OnOutput(OutputType output_type, Dictionary<string, string> data_dic)
@@ -231,7 +232,7 @@ namespace OsuLiveStatusPanel.PPShow
             {
                 if (CurrentOutputInfo.TryGetValue(name, out string result))
                 {
-                    if (int.TryParse(result,NumberStyles.Integer,CultureInfo.InvariantCulture, out var ival))
+                    if (int.TryParse(result, NumberStyles.Integer, CultureInfo.InvariantCulture, out var ival))
                         return ival;
                     else if (double.TryParse(result, NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture, out var dval))
                         return dval;

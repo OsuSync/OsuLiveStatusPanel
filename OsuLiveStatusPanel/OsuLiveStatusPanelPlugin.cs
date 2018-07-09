@@ -3,7 +3,6 @@ using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow;
 using OsuLiveStatusPanel.SourcesWrapper;
 using OsuLiveStatusPanel.SourcesWrapper.DPMP;
-using OsuLiveStatusPanel.SourcesWrapper.NP;
 using OsuLiveStatusPanel.SourcesWrapper.ORTDP;
 using Sync;
 using Sync.Plugins;
@@ -29,7 +28,6 @@ namespace OsuLiveStatusPanel
         private enum UsingSource
         {
             OsuRTDataProvider,
-            NowPlaying,
             DifficultParamModifyPlugin,
             None
         }
@@ -38,7 +36,7 @@ namespace OsuLiveStatusPanel
 
         #region Options
 
-        [List(AllowMultiSelect = false, IgnoreCase = true, ValueList = new[] { "ortdp", "np" ,"dpmp"})]
+        [List(AllowMultiSelect = false, IgnoreCase = true, ValueList = new[] { "ortdp", "dpmp" })]
         public ConfigurationElement BeatmapSourcePlugin { get; set; } = "ortdp";
 
         [Integer]
@@ -99,8 +97,6 @@ namespace OsuLiveStatusPanel
         private UsingSource source = UsingSource.None;
 
         private PluginConfigurationManager manager;
-
-        private Logger logger = new Logger("OsuLiveStatusPanel");
 
         #region DDPR_field
 
@@ -205,10 +201,6 @@ namespace OsuLiveStatusPanel
             {
                 switch (BeatmapSourcePlugin.ToString().ToLower().Trim())
                 {
-                    case "np":
-                        TryRegisterSourceFromNowPlaying(host);
-                        break;
-
                     case "ortdp":
                         TryRegisterSourceFromOsuRTDataProvider(host);
                         break;
@@ -221,11 +213,11 @@ namespace OsuLiveStatusPanel
                         break;
                 }
 
-                logger.LogInfomation($"Source:{BeatmapSourcePlugin} Loaded:{SourceWrapper.ToString()}");
+                Log.Output($"Source:{BeatmapSourcePlugin} Loaded:{SourceWrapper.GetType().Name}");
             }
             catch (Exception e)
             {
-                Log.Error($"[OsuLiveStatusPanelPlugin]{LOAD_PLUGIN_DEPENDENCY_FAILED}:{e.Message}");
+                Log.Error($"{LOAD_PLUGIN_DEPENDENCY_FAILED}:{e.Message}");
                 source = UsingSource.None;
             }
 
@@ -239,8 +231,8 @@ namespace OsuLiveStatusPanel
             }
 
             Plugin config_gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
-            if(config_gui!=null)
-                GuiRegisterHelper.RegisterConfigGui(config_gui,PPShowPluginInstance);
+            if (config_gui != null)
+                GuiRegisterHelper.RegisterConfigGui(config_gui, PPShowPluginInstance);
 
             CleanOsuStatus();
         }
@@ -308,40 +300,10 @@ namespace OsuLiveStatusPanel
             source = UsingSource.None;
         }
 
-        public void TryRegisterSourceFromNowPlaying(SyncHost host)
-        {
-            foreach (var plugin in host.EnumPluings())
-            {
-                if (plugin.Name == "Now Playing")
-                {
-                    Log.Output(NOWPLAYING_FOUND);
-                    NowPlaying.NowPlaying np = plugin as NowPlaying.NowPlaying;
-
-                    SourceWrapper = new NowPlayingWrapper(np, this);
-
-                    if (SourceWrapper.Attach())
-                    {
-                        source = UsingSource.NowPlaying;
-                    }
-
-                    return;
-                }
-            }
-
-            Log.Error(NOWPLAYING_NOTFOUND);
-
-            source = UsingSource.None;
-        }
-
         #region Kernal
 
-        public void OnBeatmapChanged(SourceWrapperBase source, BeatmapChangedParameter evt)
+        public void OnBeatmapChanged(BeatmapChangedParameter evt)
         {
-            if (source != SourceWrapper)
-            {
-                return;
-            }
-
             BeatmapEntry new_beatmap = evt?.beatmap;
 
             var processes = Process.GetProcessesByName("osu!");
@@ -375,21 +337,21 @@ namespace OsuLiveStatusPanel
         private void TryApplyBeatmapInfomation(object obj)
         {
             BeatmapEntry beatmap = obj as BeatmapEntry;
-            bool apply_result=false;
+            bool apply_result = false;
 
             switch (source)
             {
                 case UsingSource.OsuRTDataProvider:
                     apply_result = ApplyBeatmapInfomationforOsuRTDataProvider(beatmap);
                     break;
-                case UsingSource.NowPlaying:
-                    apply_result = ApplyBeatmapInfomationforNowPlaying(beatmap);
-                    break;
+
                 case UsingSource.DifficultParamModifyPlugin:
-                    apply_result=ApplyBeatmapInfomationforDifficultParamModifyPlugin(beatmap);
+                    apply_result = ApplyBeatmapInfomationforDifficultParamModifyPlugin(beatmap);
                     break;
+
                 case UsingSource.None:
                     break;
+
                 default:
                     break;
             }
@@ -453,25 +415,6 @@ namespace OsuLiveStatusPanel
             EventBus.RaiseEvent(new OutputInfomationEvent(OutputType.Listen));
         }
 
-        private bool ApplyBeatmapInfomationforNowPlaying(BeatmapEntry current_beatmap)
-        {
-            #region GetInfo
-
-            string beatmap_osu_file = string.Empty;
-
-            beatmap_osu_file = current_beatmap.OsuFilePath;
-
-            if (string.IsNullOrWhiteSpace(beatmap_osu_file))
-            {
-                Log.Error(NO_BEATMAP_PATH);
-                return false;
-            }
-
-            OutputBeatmapInfomation(current_beatmap, ModsInfo.Empty);
-
-            return true;
-        }
-
         private Stopwatch sw = new Stopwatch();
 
         public void OutputBeatmapInfomation(BeatmapEntry current_beatmap, ModsInfo mod)
@@ -501,7 +444,7 @@ namespace OsuLiveStatusPanel
 
             #endregion OutputBackgroundImage
 
-            #endregion GetInfo
+            #endregion Kernal
 
             #region Mods Ouptut
 
@@ -706,7 +649,7 @@ namespace OsuLiveStatusPanel
 
         #region DDPR
 
-        private static readonly string[] ppshow_provideable_data_array = new[] { "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners","sliders" };
+        private static readonly string[] ppshow_provideable_data_array = new[] { "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners", "sliders" };
 
         private Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>> DataGetterMap = new Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>>()
         {
@@ -784,7 +727,5 @@ namespace OsuLiveStatusPanel
         }
 
         #endregion tool func
-
-        #endregion Kernal
     }
 }

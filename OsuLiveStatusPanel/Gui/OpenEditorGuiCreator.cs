@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
+﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using OsuLiveStatusPanel.PPShow;
 using Sync.Tools.ConfigurationAttribute;
+using System.Reflection;
+using System.Windows.Controls;
 
 namespace OsuLiveStatusPanel.Gui
 {
-    class OpenEditorGuiCreator:PathConfigurationItemCreator
+    internal class OpenEditorGuiCreator : PathConfigurationItemCreator
     {
         private InfoOutputterWrapper m_wrapper;
 

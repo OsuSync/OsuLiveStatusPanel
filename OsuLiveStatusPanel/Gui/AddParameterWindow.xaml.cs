@@ -1,20 +1,11 @@
 ﻿using Sync;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using static OsuLiveStatusPanel.Gui.EditorWindow;
 
 namespace OsuLiveStatusPanel.Gui
@@ -22,11 +13,12 @@ namespace OsuLiveStatusPanel.Gui
     /// <summary>
     /// Interaction logic for AddParameterWindow.xaml
     /// </summary>
-    public partial class AddParameterWindow : Window,INotifyPropertyChanged
+    public partial class AddParameterWindow : Window, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
         private ConfigItemProxy m_currentProxy;
+
         public ConfigItemProxy CurrnetProxy
         {
             get => m_currentProxy;
@@ -39,7 +31,7 @@ namespace OsuLiveStatusPanel.Gui
         }
 
         public bool IsModsDisplay => !(!m_modsChangeAtListen && m_currentProxy?.OutputType == OutputType.Listen);
-        public Visibility PPInputVisibility => IsModsDisplay? Visibility.Visible: Visibility.Collapsed;
+        public Visibility PPInputVisibility => IsModsDisplay ? Visibility.Visible : Visibility.Collapsed;
 
         private static readonly List<string> s_olspParameter = new List<string>()
         {
@@ -50,31 +42,31 @@ namespace OsuLiveStatusPanel.Gui
 
         private static readonly Dictionary<string, string> s_previewData = new Dictionary<string, string>()
         {
-            ["ar"]="10.00",
-            ["cs"]="5.20",
-            ["od"]="10.00",
-            ["hp"]="7.00",
+            ["ar"] = "10.00",
+            ["cs"] = "5.20",
+            ["od"] = "10.00",
+            ["hp"] = "7.00",
 
-            ["version"]= "Kaitei",
+            ["version"] = "Kaitei",
             ["creator"] = "Loreley",
             ["title"] = "Umiyuri Kaiteitan",
             ["artist"] = "GEM",
-            ["title_avaliable"]= "ウミユリ海底譚",
-            ["artist_avaliable"]= "ジェム",
+            ["title_avaliable"] = "ウミユリ海底譚",
+            ["artist_avaliable"] = "ジェム",
 
-            ["beatmap_setlink"]= "http://osu.ppy.sh/s/647452",
+            ["beatmap_setlink"] = "http://osu.ppy.sh/s/647452",
             ["beatmap_link"] = "http://osu.ppy.sh/b/1371599",
             ["beatmap_setid"] = "647452",
             ["beatmap_id"] = "1371599",
 
-            ["min_bpm"]="240",
+            ["min_bpm"] = "240",
             ["max_bpm"] = "240",
 
-            ["speed_stars"]="2.84",
-            ["aim_stars"]="4.02",
-            ["stars"]="7.44",
+            ["speed_stars"] = "2.84",
+            ["aim_stars"] = "4.02",
+            ["stars"] = "7.44",
 
-            ["max_combo"]="1662",
+            ["max_combo"] = "1662",
             ["circles"] = "603",
             ["sliders"] = "522",
             ["spinners"] = "0"
@@ -106,11 +98,11 @@ namespace OsuLiveStatusPanel.Gui
             {
                 var btn = new Button()
                 {
-                    Content = para.Replace("_","__"),
+                    Content = para.Replace("_", "__"),
                     Margin = new Thickness(2)
                 };
 
-                if(para=="mods")
+                if (para == "mods")
                 {
                     btn.SetBinding(Button.VisibilityProperty, new Binding("PPInputVisibility") { Source = this });
                 }
@@ -122,7 +114,6 @@ namespace OsuLiveStatusPanel.Gui
 
                 ButtonsList.Children.Add(btn);
             }
-            
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -133,7 +124,7 @@ namespace OsuLiveStatusPanel.Gui
 
         private void AddPP_Click(object sender, RoutedEventArgs e)
         {
-            if (float.TryParse(AccTextBox.Text, NumberStyles.AllowThousands|NumberStyles.Float, CultureInfo.InvariantCulture, out float acc))
+            if (float.TryParse(AccTextBox.Text, NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture, out float acc))
             {
                 if (0 <= acc && acc <= 100.0)
                     m_currentProxy.FormatTemplate += "${pp:" + $"{acc:F2}" + "%}";

@@ -107,10 +107,10 @@
     <Compile Include="PPShow\InfoOutputter.cs" />
     <Compile Include="PPShow\InfoOutputterWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SourcesWrapper\NP\NowPlayingWrapper.cs" />
     <Compile Include="SourcesWrapper\ORTDP\RealtimeDataProviderModsWrapper.cs" />
     <Compile Include="SourcesWrapper\ORTDP\RealtimeDataProvideWrapperBase.cs" />
     <Compile Include="SourcesWrapper\SourceWrapperBase.cs" />
+    <Compile Include="Utils\Log.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Sync\OfficalPlugins\ConfigGUI\ConfigGUI.csproj">

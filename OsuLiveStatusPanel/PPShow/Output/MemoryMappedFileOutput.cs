@@ -8,7 +8,8 @@ namespace OsuLiveStatusPanel.PPShow.Output
         public override string FilePath
         {
             get => base.FilePath;
-            set {
+            set
+            {
                 lock (mtx)
                 {
                     base.FilePath = value;
@@ -17,6 +18,7 @@ namespace OsuLiveStatusPanel.PPShow.Output
                 }
             }
         }
+
         private object mtx = new object();
 
         public const string MMF_FORMAT = @"mmf://";

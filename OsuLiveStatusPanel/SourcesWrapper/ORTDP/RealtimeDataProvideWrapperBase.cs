@@ -23,7 +23,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
 
                 beatmap.OutputType = CurrentOutputType = (current_status == OsuStatus.Playing || current_status == OsuStatus.Rank) ? OutputType.Play : OutputType.Listen;
 
-                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
+                RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
             };
         }
 
@@ -65,7 +65,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
 
             beatmap.OutputType = CurrentOutputType = OutputType.Listen;
 
-            RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
+            RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
         }
 
         public override void Detach()

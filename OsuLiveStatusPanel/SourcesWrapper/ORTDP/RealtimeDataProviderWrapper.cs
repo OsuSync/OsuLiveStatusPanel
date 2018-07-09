@@ -37,7 +37,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
 
                     beatmap.OutputType = CurrentOutputType = OutputType.Play;
 
-                    RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
+                    RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
                 }
             }
         }
@@ -55,7 +55,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
                 }
                 else
                 {
-                    RefPanelPlugin.OnBeatmapChanged(this, null);
+                    RefPanelPlugin.OnBeatmapChanged(null);
                 }
             }
             else
@@ -74,7 +74,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
                     OsuFilePath = OsuFilePath
                 };
 
-                RefPanelPlugin.OnBeatmapChanged(this, new BeatmapChangedParameter() { beatmap = beatmap });
+                RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });
             }
         }
     }
