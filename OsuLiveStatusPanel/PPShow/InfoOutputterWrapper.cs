@@ -101,6 +101,7 @@ namespace OsuLiveStatusPanel.PPShow
         public void Exit()
         {
             var config_instance = new Config();
+
             foreach (var o in ListenOfs)
             {
                 config_instance.listen_list.Add(new OutputConfig()

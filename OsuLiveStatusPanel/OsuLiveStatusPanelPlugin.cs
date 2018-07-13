@@ -514,7 +514,7 @@ namespace OsuLiveStatusPanel
 
         private void TryCreateModsPictureGenerator(out ModsPictureGenerator modsPictureGenerator)
         {
-            Process process = Process.GetProcessesByName("osu!")?.First();
+            Process process = Process.GetProcessesByName("osu!")?.FirstOrDefault();
             if (process == null)
             {
                 modsPictureGenerator = null;

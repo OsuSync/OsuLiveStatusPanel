@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace OsuLiveStatusPanel.PPShow
@@ -45,7 +46,7 @@ namespace OsuLiveStatusPanel.PPShow
             default_config.output_list.Add(new OutputConfig()
             {
                 output_file = "..\\output\\PP.txt",
-                output_format = "92%:${pp:92.00%}pp 94%:${pp:94.00%}pp 96%:${pp:96.00%}pp 98%:${pp:98.00%}pp 100%:${pp:100.00%}pp"
+                output_format = $"92%:${{pp:{92.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp 94%:${{pp:{94.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp 96%:${{pp:{96.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp 98%:${{pp:{98.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp 100%:${{pp:{100.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp"
             });
 
             default_config.output_list.Add(new OutputConfig()
@@ -74,24 +75,36 @@ namespace OsuLiveStatusPanel.PPShow
 
             #endregion Default Output List
 
-            #region Default (NowPlaying) Listen List
+            #region Default (No NowPlaying) Listen List
+
+            default_config.listen_list.Add(new OutputConfig()
+            {
+                output_file = "..\\output\\PP.txt",
+                output_format = $"92%:${{pp:{92.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp 94%:${{pp:{94.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp 96%:${{pp:{96.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp 98%:${{pp:{98.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp 100%:${{pp:{100.00.ToString("F2", CultureInfo.CurrentCulture)}%}}pp"
+            });
+
+            default_config.listen_list.Add(new OutputConfig()
+            {
+                output_file = "..\\output\\map_info.txt",
+                output_format = "CS:${cs} \nAR:${ar} \nOD:${od} \nHP:${hp} \n \nStars:${stars}* \nAim:${aim_stars}* \nSpeed:${speed_stars}* \n \nMaxCombo:${max_combo}"
+            });
+
+            default_config.listen_list.Add(new OutputConfig()
+            {
+                output_file = "..\\output\\mods.txt",
+                output_format = "Mods:${mods}"
+            });
 
             default_config.listen_list.Add(new OutputConfig()
             {
                 output_file = "..\\output\\current_playing.txt",
-                output_format = "选图中 >///<"
+                output_format = "CurrentListening:${artist_avaliable} - ${title_avaliable} [${version}]"
             });
 
             default_config.listen_list.Add(new OutputConfig()
             {
                 output_file = "..\\output\\current_playing_map_info.txt",
-                output_format = "推荐铺面可按以下格式发送弹幕:"
-            });
-
-            default_config.listen_list.Add(new OutputConfig()
-            {
-                output_file = "..\\output\\PP.txt",
-                output_format = "\"?suggest -b 铺面ID号码\" ,或者\"?suggest -s 铺面SetID号码\""
+                output_format = "Creator:${creator} \t Link:${beatmap_link}"
             });
 
             #endregion Default (NowPlaying) Listen List
