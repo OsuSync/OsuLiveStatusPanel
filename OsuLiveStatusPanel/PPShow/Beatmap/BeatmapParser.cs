@@ -70,7 +70,7 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
 
                             if (line == "[Difficulty]")
                             {
-                                //status = 4; //不需要
+                                status = 4;
                             }
 
                             if (line == "[TimingPoints]")

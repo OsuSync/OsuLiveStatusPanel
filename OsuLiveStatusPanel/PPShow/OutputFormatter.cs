@@ -38,7 +38,8 @@ namespace OsuLiveStatusPanel.PPShow
 
                 if (!data_dic.TryGetValue(key, out val))
                 {
-                    val = String.Empty;
+                    //if no value,default set to "???"
+                    val = "???";
                 }
 
                 //简化一下
