@@ -23,7 +23,7 @@ COMMAND_DESC=Get info about OsuLiveStatusPanel Plugin. type "help" for details.
 
 BeatmapSourcePlugin=Source
 Width=Background Width
-Heigth=Background Heigth
+Height=Background Height
 EnableOutputModPicture=Output Mods Picture
 OutputModImageFilePath=Mods Picture Output path
 ModUnitPixel=Mod Unit Picture Size
