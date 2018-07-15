@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:OsuLiveStatusPanel.Gui"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
-             Title="Output editor" Width="1440" Height="720"
+             Title="Output Editor" Width="1440" Height="720"
              ResizeMode="NoResize">
     <Window.Resources>
         <DataTemplate x:Key="FormatOutputTemplate">
