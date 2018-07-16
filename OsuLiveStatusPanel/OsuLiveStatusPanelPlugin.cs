@@ -711,6 +711,7 @@ namespace OsuLiveStatusPanel
 
         public void onConfigurationSave()
         {
+            PPShowPluginInstance?.Save();
         }
 
         public void onConfigurationReload()
@@ -726,7 +727,7 @@ namespace OsuLiveStatusPanel
         public override void OnExit()
         {
             base.OnExit();
-            PPShowPluginInstance?.Exit();
+            PPShowPluginInstance?.Save();
             OutputInfomationClean();
         }
 

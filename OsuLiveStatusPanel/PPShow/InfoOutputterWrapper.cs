@@ -98,7 +98,7 @@ namespace OsuLiveStatusPanel.PPShow
             PP.OnOutputEvent += OnOutput;
         }
 
-        public void Exit()
+        public void Save()
         {
             var config_instance = new Config();
 
