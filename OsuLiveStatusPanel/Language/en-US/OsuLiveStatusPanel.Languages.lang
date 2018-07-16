@@ -40,12 +40,12 @@ PPShowAllowDumpInfo=Dump Oppai Information
 OutputBackgroundImageFilePath=Background Output Path
 EnableOutputBackgroundImage=Enable Background Output
 
-BeatmapSourcePluginDescription=
-WidthDescription=
-HeightDescription=
-ModUnitPixelDescription=
+BeatmapSourcePluginDescription=Which plugin to use as a beatmap provider
+WidthDescription=Only effect when EnableScaleClipOutputImageFile=True
+HeightDescription=Only effect when EnableScaleClipOutputImageFile=True
+ModUnitPixelDescription= Usually square with 90px
 ModUnitOffsetDescription=
 ModSortReverseDescription=
-ModDrawReverseDescription=
-ModSkinPathDescription=
-EnableScaleClipOutputImageFileDescription=
+ModDrawReverseDescription=Draw mod images from right to left (from bottom to top) (otherwise instead)
+ModSkinPathDescription=If the current skin does not have a mod image, then go to this folder to find the corresponding mod image. The default skin player should use this to force the selected image to be output.
+EnableScaleClipOutputImageFileDescription=Otherwise, the image will be copied directly to the command output path.

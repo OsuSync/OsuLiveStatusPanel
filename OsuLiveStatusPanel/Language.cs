@@ -34,7 +34,7 @@ namespace OsuLiveStatusPanel
         public static GuiLanguageElement EnableOutputModPicture = "是否生成Mod图片并输出";
         public static GuiLanguageElement OutputModImageFilePath = "生成的Mod图片保存路径";
         public static GuiLanguageElement ModUnitPixel = "每个Mod图片的大小";
-        public static GuiLanguageElement ModUnitOffset = "反转Mod传入顺序";
+        public static GuiLanguageElement ModUnitOffset = "Mod图片间距";
         public static GuiLanguageElement ModSortReverse = "是否逆序传入Mod";
         public static GuiLanguageElement ModDrawReverse = "是否反向渲染Mod图片";
         public static GuiLanguageElement ModUse2x = "是否钦定使用@2x结尾的Mod图片";
@@ -51,7 +51,7 @@ namespace OsuLiveStatusPanel
         public static GuiLanguageElement WidthDescription = "仅当EnableScaleClipOutputImageFile=1有效";
         public static GuiLanguageElement HeightDescription = "仅当EnableScaleClipOutputImageFile=1有效";
         public static GuiLanguageElement ModUnitPixelDescription = "屙屎皮肤一般都是90*90,单位像素";
-        public static GuiLanguageElement ModUnitOffsetDescription = "反转Mod传入顺序";
+        public static GuiLanguageElement ModUnitOffsetDescription = "单位为px";
         public static GuiLanguageElement ModSortReverseDescription = "是否逆序传入Mod";
         public static GuiLanguageElement ModDrawReverseDescription = "从右到左(从下到上)依次绘制mod图片(否则相反)";
         public static GuiLanguageElement ModSkinPathDescription = "如果这个文件夹没mod图片,再去当前打图皮肤文件夹找,默认皮肤玩家请使用这个强制选择要输出的图片";
