@@ -73,7 +73,7 @@ namespace OsuLiveStatusPanel.PPShow
                 {
                     oppai_infos.Add(oppai_result);
                     //add pp
-                    OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString();
+                    OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString("F2");
                 }
                 /*
                 else
