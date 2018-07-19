@@ -46,7 +46,7 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.Mania
 
             mania_pp_calc.Score = (int)(1000000*acc/100.0f);
 
-            return mania_pp_calc.GetPP().RealTimePP;
+            return mania_pp_calc.GetPerformance().RealTimePP;
         }
     }
 }
