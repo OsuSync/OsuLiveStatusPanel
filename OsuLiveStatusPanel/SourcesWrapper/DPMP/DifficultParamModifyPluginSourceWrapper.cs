@@ -1,4 +1,6 @@
-﻿namespace OsuLiveStatusPanel.SourcesWrapper.DPMP
+﻿using System.Collections.Generic;
+
+namespace OsuLiveStatusPanel.SourcesWrapper.DPMP
 {
     internal class DifficultParamModifyPluginSourceWrapper : SourceWrapperBase<DifficultParamModifyPlugin.DifficultParamModifyPlugin>
     {
@@ -17,7 +19,7 @@
         {
         }
 
-        private void RefPlugin_OnBeatmapChanged(string osu_file, int set_id, int id, bool output_type)
+        private void RefPlugin_OnBeatmapChanged(string osu_file, int set_id, int id, bool output_type, Dictionary<string, object> extra)
         {
             RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter()
             {
@@ -26,7 +28,8 @@
                     BeatmapId = id,
                     BeatmapSetId = set_id,
                     OsuFilePath = osu_file,
-                    OutputType = output_type ? OutputType.Play : OutputType.Listen
+                    OutputType = output_type ? OutputType.Play : OutputType.Listen,
+                    ExtraParam = extra
                 }
             });
         }

@@ -90,6 +90,7 @@
     <Compile Include="PPShow\Beatmap\BeatmapParser.cs" />
     <Compile Include="PPShow\Beatmap\BeatmapReader.cs" />
     <Compile Include="OutputInfomationEvent.cs" />
+    <Compile Include="PPShow\Oppai\Mania\ManiaPPCalculator.cs" />
     <Compile Include="PPShow\Output\DiskFileOutput.cs" />
     <Compile Include="PPShow\Output\MemoryMappedFileOutput.cs" />
     <Compile Include="PPShow\Output\OutputBase.cs" />
@@ -113,6 +114,10 @@
     <Compile Include="Utils\Log.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\RealTimePPDisplayer\RealTimePPDisplayer.csproj">
+      <Project>{666b0891-c401-4060-a6aa-84c57469b6d8}</Project>
+      <Name>RealTimePPDisplayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sync\OfficalPlugins\ConfigGUI\ConfigGUI.csproj">
       <Project>{0f922afa-bbc0-44a0-8ca7-d408d5dd8298}</Project>
       <Name>ConfigGUI</Name>
@@ -147,6 +152,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

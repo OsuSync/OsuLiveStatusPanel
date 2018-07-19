@@ -11,6 +11,8 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
 
         protected int beatmapID, beatmapSetID;
 
+        protected Beatmap current_beatmap;
+
         protected OsuStatus current_status;
 
         public string OsuFilePath;
@@ -38,6 +40,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
             beatmapID = beatmap.BeatmapID;
             beatmapSetID = beatmap.BeatmapSetID;
             OsuFilePath = beatmap.FilenameFull;
+            current_beatmap = beatmap;
 
             if (current_status == OsuStatus.Listening)
             {
@@ -53,7 +56,8 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
             {
                 BeatmapId = beatmapID,
                 BeatmapSetId = beatmapSetID,
-                OsuFilePath = OsuFilePath
+                OsuFilePath = OsuFilePath,
+                ExtraParam = new System.Collections.Generic.Dictionary<string, object> { { "ortdp_beatmap",current_beatmap} }
             };
         }
 

@@ -54,7 +54,8 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
                     OutputType = CurrentOutputType = OutputType.Play,
                     BeatmapId = beatmapID,
                     BeatmapSetId = beatmapSetID,
-                    OsuFilePath = OsuFilePath
+                    OsuFilePath = OsuFilePath,
+                    ExtraParam = new System.Collections.Generic.Dictionary<string, object> { { "ortdp_beatmap", current_beatmap } }
                 };
 
                 RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });

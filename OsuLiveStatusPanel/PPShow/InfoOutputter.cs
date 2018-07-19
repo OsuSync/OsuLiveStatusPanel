@@ -2,6 +2,8 @@
 using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow.Beatmap;
 using OsuLiveStatusPanel.PPShow.Oppai;
+using OsuLiveStatusPanel.PPShow.Oppai.Mania;
+using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,6 +15,8 @@ namespace OsuLiveStatusPanel.PPShow
     internal class InfoOutputter
     {
         private static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut };
+
+        private ManiaPPCalculator maniaPPCalculator;
 
         private static ModsInfo FilteVailedMod(ModsInfo mods)
         {
@@ -33,9 +37,17 @@ namespace OsuLiveStatusPanel.PPShow
         public InfoOutputter(List<float> acc_list)
         {
             AccuracyList = acc_list;
+
+            if (CheckExsitRealtimePPPlugin())
+            {
+                maniaPPCalculator = new ManiaPPCalculator();
+                Log.Output("find RealtimePP plugin,OLSP is support mania pp calculating as well.");
+            }
         }
 
-        public bool TrigOutput(OutputType output_type, string osu_file_path, ModsInfo mods, params KeyValuePair<string, string>[] extra)
+        private bool CheckExsitRealtimePPPlugin() => Sync.SyncHost.Instance.EnumPluings().Any(plugin => plugin.Name == "RealTimePPDisplayer");
+
+        public bool TrigOutput(OutputType output_type, string osu_file_path, ModsInfo mods, params KeyValuePair<string, object>[] extra)
         {
             List<OppaiJson> oppai_infos = new List<OppaiJson>();
 
@@ -45,7 +57,7 @@ namespace OsuLiveStatusPanel.PPShow
             {
                 foreach (var data in extra)
                 {
-                    extra_data[data.Key] = data.Value;
+                    extra_data[data.Key] = data.Value.ToString();
                 }
             }
 
@@ -59,60 +71,78 @@ namespace OsuLiveStatusPanel.PPShow
 
             int nobject = int.Parse(extra_data["num_objects"], CultureInfo.InvariantCulture);
             uint mode = uint.Parse(extra_data.TryGetValue("mode", out string _m) ? _m : "0", CultureInfo.InvariantCulture);//没有那就默认0
-
+            
             if (!string.IsNullOrWhiteSpace(mods.ShortName))
             {
                 mods = FilteVailedMod(mods);
             }
 
-            foreach (float acc in AccuracyList)
+            if (mode<=1)
             {
-                var oppai_result = GetOppaiResult(beatmap_data, data_length, mode, mods, acc);
-
-                if (oppai_result != null)
+                foreach (float acc in AccuracyList)
                 {
-                    oppai_infos.Add(oppai_result);
-                    //add pp
-                    OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString("F2");
+                    var oppai_result = GetOppaiResult(beatmap_data, data_length, mode, mods, acc);
+
+                    if (oppai_result != null)
+                    {
+                        oppai_infos.Add(oppai_result);
+                        //add pp
+                        OutputDataMap[$"pp:{acc:F2}%"] = oppai_result.pp.ToString("F2");
+                    }
                 }
-                /*
+
+                #region Get base beatmap info from oppai once
+
+                if (oppai_infos.Count != 0)
+                {
+                    var oppai_json = oppai_infos.First();
+                    var type = oppai_json.GetType();
+                    var members = type.GetProperties();
+
+                    foreach (var prop in members)
+                    {
+                        var val = prop.GetValue(oppai_json);
+
+                        if (val == null)
+                        {
+                            continue;
+                        }
+
+                        if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string))
+                            OutputDataMap[prop.Name] = val.ToString();
+                        else
+                            OutputDataMap[prop.Name] = $"{val:F2}";
+                    }
+                }
                 else
                 {
-                    //if can get pp,set to 0
-                    OutputDataMap[$"pp:{acc:F2}%"] = "0";
+                    Log.Warn("No any oppai result output , maybe this beatmap mode isn't osu!std/taiko");
                 }
-                */
+
+                #endregion GetBaseInfo
             }
-
-            #region Get base beatmap info from oppai once
-
-            if (oppai_infos.Count != 0)
+            else if (mode==3&&maniaPPCalculator!=null)//是否为mania铺面且初始化mania屁屁计算器
             {
-                var oppai_json = oppai_infos.First();
-                var type = oppai_json.GetType();
-                var members = type.GetProperties();
+                //先钦定好beatmap以及mod
+                OsuRTDataProvider.BeatmapInfo.Beatmap beatmap = extra.Where(p => p.Key == "ortdp_beatmap").FirstOrDefault().Value as OsuRTDataProvider.BeatmapInfo.Beatmap;
 
-                foreach (var prop in members)
+                maniaPPCalculator.SetMod(mods);
+                maniaPPCalculator.SetBeatmap(beatmap);
+
+#if DEBUG
+                IO.CurrentIO.WriteColor($"[OLSP]will calculate mania:{beatmap?.Artist} - {beatmap?.Title}[{beatmap?.Difficulty}]", ConsoleColor.Cyan);
+#endif
+
+                foreach (float acc in AccuracyList)
                 {
-                    var val = prop.GetValue(oppai_json);
+                    var pp=maniaPPCalculator.Calculate(acc);
 
-                    if (val == null)
-                    {
-                        continue;
-                    }
+                    if (pp.HasValue)
+                        OutputDataMap[$"pp:{acc:F2}%"] = pp.Value.ToString("F2");
 
-                    if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string))
-                        OutputDataMap[prop.Name] = val.ToString();
-                    else
-                        OutputDataMap[prop.Name] = $"{val:F2}";
                 }
             }
-            else
-            {
-                Log.Warn("No any oppai result output , maybe this beatmap mode isn't osu!std/taiko");
-            }
 
-            #endregion GetBaseInfo
 
             //add extra info(shortcut arguments)
             foreach (var pair in extra_data)

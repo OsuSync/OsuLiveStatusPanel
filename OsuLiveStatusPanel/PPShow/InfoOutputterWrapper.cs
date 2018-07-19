@@ -211,7 +211,7 @@ namespace OsuLiveStatusPanel.PPShow
             }
         }
 
-        public bool Output(OutputType output_type, string osu_file_path, ModsInfo mods, params KeyValuePair<string, string>[] extra)
+        public bool Output(OutputType output_type, string osu_file_path, ModsInfo mods, params KeyValuePair<string, object>[] extra)
         {
             if (output_type == OutputType.Listen && String.IsNullOrWhiteSpace(osu_file_path))
             {

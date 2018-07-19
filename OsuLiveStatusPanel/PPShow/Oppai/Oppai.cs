@@ -5,8 +5,6 @@ namespace OsuLiveStatusPanel.PPShow.Oppai
 {
     internal class Oppai
     {
-        private pp_params m_cache = new pp_params();
-
         #region oppai struct
 
         [StructLayout(LayoutKind.Sequential)]

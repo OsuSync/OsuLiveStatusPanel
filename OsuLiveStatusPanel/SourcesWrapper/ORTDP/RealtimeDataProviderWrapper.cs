@@ -1,4 +1,5 @@
 ﻿using OsuRTDataProvider;
+using OsuRTDataProvider.BeatmapInfo;
 using OsuRTDataProvider.Mods;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
@@ -11,6 +12,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
     {
         public OsuRTDataProviderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
+
         }
 
         /*
@@ -71,7 +73,8 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
                     OutputType = CurrentOutputType = OutputType.Listen,
                     BeatmapId = beatmapID,
                     BeatmapSetId = beatmapSetID,
-                    OsuFilePath = OsuFilePath
+                    OsuFilePath = OsuFilePath,
+                    ExtraParam = new System.Collections.Generic.Dictionary<string, object> { { "ortdp_beatmap", current_beatmap } }
                 };
 
                 RefPanelPlugin.OnBeatmapChanged(new BeatmapChangedParameter() { beatmap = beatmap });

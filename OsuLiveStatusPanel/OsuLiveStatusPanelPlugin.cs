@@ -549,14 +549,17 @@ namespace OsuLiveStatusPanel
 
         private bool OutputInfomation(OutputType output_type, BeatmapEntry entry, ModsInfo mods)
         {
-            KeyValuePair<string, string>[] extra_Data_arr = new[]
+            IEnumerable<KeyValuePair<string, object>> extra_Data_arr = new[]
             {
-                new KeyValuePair<string, string>( "osu_file_path", entry.OsuFilePath ),
-                new KeyValuePair<string, string>( "beatmap_id", entry.BeatmapId.ToString() ),
-                new KeyValuePair<string, string>( "beatmap_setid", entry.BeatmapSetId.ToString() )
+                new KeyValuePair<string, object>( "osu_file_path", entry.OsuFilePath ),
+                new KeyValuePair<string, object>( "beatmap_id", entry.BeatmapId.ToString() ),
+                new KeyValuePair<string, object>( "beatmap_setid", entry.BeatmapSetId.ToString() )
             };
 
-            return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mods, extra_Data_arr);
+            if (entry.ExtraParam!=null)
+                extra_Data_arr = extra_Data_arr.Concat(entry.ExtraParam);
+
+            return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mods, extra_Data_arr.ToArray());
         }
 
         private Bitmap GetFixedResolutionBitmap(string file, int dstw, int dsth)
