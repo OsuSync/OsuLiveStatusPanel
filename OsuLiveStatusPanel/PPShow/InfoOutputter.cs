@@ -51,26 +51,24 @@ namespace OsuLiveStatusPanel.PPShow
         {
             List<OppaiJson> oppai_infos = new List<OppaiJson>();
 
-            Dictionary<string, string> extra_data = new Dictionary<string, string>();
+            Dictionary<string, string> OutputDataMap = new Dictionary<string, string>();
 
             if (extra != null)
             {
                 foreach (var data in extra)
                 {
-                    extra_data[data.Key] = data.Value.ToString();
+                    OutputDataMap[data.Key] = data.Value.ToString();
                 }
             }
 
-            Dictionary<string, string> OutputDataMap = new Dictionary<string, string>();
-
             string osu_file = osu_file_path;
 
-            BeatmapParser.ParseBeatmap(osu_file_path, extra_data, mods, out byte[] beatmap_data, out uint data_length);
+            BeatmapParser.ParseBeatmap(osu_file_path, OutputDataMap, mods, out byte[] beatmap_data, out uint data_length);
 
             OutputDataMap["mods_str"] = mods.ShortName;
 
-            int nobject = int.Parse(extra_data["num_objects"], CultureInfo.InvariantCulture);
-            uint mode = uint.Parse(extra_data.TryGetValue("mode", out string _m) ? _m : "0", CultureInfo.InvariantCulture);//没有那就默认0
+            int nobject = int.Parse(OutputDataMap["num_objects"], CultureInfo.InvariantCulture);
+            uint mode = uint.Parse(OutputDataMap.TryGetValue("mode", out string _m) ? _m : "0", CultureInfo.InvariantCulture);//没有那就默认0
             
             if (!string.IsNullOrWhiteSpace(mods.ShortName))
             {
@@ -142,14 +140,7 @@ namespace OsuLiveStatusPanel.PPShow
 
                 }
             }
-
-
-            //add extra info(shortcut arguments)
-            foreach (var pair in extra_data)
-            {
-                OutputDataMap[pair.Key] = pair.Value;
-            }
-
+            
             AddExtraInfomation(OutputDataMap);
 
             OnOutputEvent?.Invoke(output_type, OutputDataMap);
