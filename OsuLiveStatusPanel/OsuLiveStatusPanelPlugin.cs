@@ -167,6 +167,10 @@ namespace OsuLiveStatusPanel
             SyncHost host = evt.Host;
 
             SetupPlugin(host);
+
+            Plugin config_gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
+            if (config_gui != null)
+                GuiRegisterHelper.RegisterConfigGui(config_gui, PPShowPluginInstance);
         }
 
         #region Commands
@@ -231,10 +235,6 @@ namespace OsuLiveStatusPanel
             {
                 Log.Output(INIT_SUCCESS);
             }
-
-            Plugin config_gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
-            if (config_gui != null)
-                GuiRegisterHelper.RegisterConfigGui(config_gui, PPShowPluginInstance);
 
             CleanOsuStatus();
         }
