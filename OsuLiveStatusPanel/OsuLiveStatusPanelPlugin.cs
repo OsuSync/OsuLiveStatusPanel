@@ -39,6 +39,9 @@ namespace OsuLiveStatusPanel
         [List(AllowMultiSelect = false, IgnoreCase = true, ValueList = new[] { "ortdp", "dpmp" })]
         public ConfigurationElement BeatmapSourcePlugin { get; set; } = "ortdp";
 
+        [Bool]
+        public ConfigurationElement DebugMode { get; set; } = "False";
+
         [Integer]
         public ConfigurationElement Width { get; set; } = "1920";
 
@@ -710,6 +713,7 @@ namespace OsuLiveStatusPanel
 
         public void onConfigurationLoad()
         {
+            Log.IsDebug = DebugMode.ToBool();
         }
 
         public void onConfigurationSave()
@@ -719,6 +723,7 @@ namespace OsuLiveStatusPanel
 
         public void onConfigurationReload()
         {
+            Log.IsDebug = DebugMode.ToBool();
             mods_pic_output = null;
             if (source == UsingSource.OsuRTDataProvider)
             {
