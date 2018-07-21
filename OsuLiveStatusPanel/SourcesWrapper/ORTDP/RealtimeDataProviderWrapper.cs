@@ -1,5 +1,4 @@
 ﻿using OsuRTDataProvider;
-using OsuRTDataProvider.BeatmapInfo;
 using OsuRTDataProvider.Mods;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
@@ -12,7 +11,6 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
     {
         public OsuRTDataProviderWrapper(OsuRTDataProviderPlugin ref_plugin, OsuLiveStatusPanelPlugin plugin) : base(ref_plugin, plugin)
         {
-
         }
 
         /*

@@ -169,9 +169,7 @@ namespace OsuLiveStatusPanel.Mods
 
                 canvas.DrawImage(mod_bitmap, draw_x, draw_y);
 
-#if DEBUG
-                Log.Output($"Draw {i}th mod {mod_name} at ({draw_x},{draw_y})");
-#endif
+                Log.Debug($"Draw {i}th mod {mod_name} at ({draw_x},{draw_y})");
             }
 
             canvas.Dispose();

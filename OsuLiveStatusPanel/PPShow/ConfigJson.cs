@@ -143,7 +143,7 @@ namespace OsuLiveStatusPanel.PPShow
                 output_format = "Creator:${creator} \t Link:${beatmap_link}"
             });
 
-            #endregion Default (NowPlaying) Listen List
+            #endregion Default (No NowPlaying) Listen List
 
             //
             File.WriteAllText(config_path, JsonConvert.SerializeObject(default_config, Formatting.Indented));

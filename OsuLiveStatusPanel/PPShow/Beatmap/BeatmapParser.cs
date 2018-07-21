@@ -154,7 +154,7 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                                     max_bpm = Math.Round(max_bpm, MidpointRounding.AwayFromZero);
                                 }
 #if DEBUG
-                                Log.Output($"[Oppai]BPM:{min_bpm} ~ {max_bpm}");
+                                Log.Debug($"[Oppai]BPM:{min_bpm} ~ {max_bpm}");
 #endif
 
                                 extra_data["min_bpm"] = min_bpm.ToString();

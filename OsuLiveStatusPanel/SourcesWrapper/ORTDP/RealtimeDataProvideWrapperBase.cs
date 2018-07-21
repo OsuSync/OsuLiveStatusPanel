@@ -57,7 +57,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
                 BeatmapId = beatmapID,
                 BeatmapSetId = beatmapSetID,
                 OsuFilePath = OsuFilePath,
-                ExtraParam = new System.Collections.Generic.Dictionary<string, object> { { "ortdp_beatmap",current_beatmap} }
+                ExtraParam = new System.Collections.Generic.Dictionary<string, object> { { "ortdp_beatmap", current_beatmap } }
             };
         }
 

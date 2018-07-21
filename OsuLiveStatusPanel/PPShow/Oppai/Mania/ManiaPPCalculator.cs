@@ -1,15 +1,10 @@
 ﻿using RealTimePPDisplayer.Calculator;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel.PPShow.Oppai.Mania
 {
-    class ManiaPPCalculator
+    internal class ManiaPPCalculator
     {
-        ManiaPerformanceCalculator mania_pp_calc;
+        private ManiaPerformanceCalculator mania_pp_calc;
 
         public ManiaPPCalculator()
         {
@@ -26,7 +21,6 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.Mania
 
             mania_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, OsuRTDataProvider.Listen.OsuPlayMode.Mania);
             mania_pp_calc.Time = int.MaxValue;
-            
         }
 
         public void SetMod(Mods.ModsInfo modsInfo)
@@ -44,7 +38,7 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.Mania
 
             mania_pp_calc.Time = int.MaxValue;
 
-            mania_pp_calc.Score = (int)(1000000*acc/100.0f);
+            mania_pp_calc.Score = (int)(1000000 * acc / 100.0f);
 
             return mania_pp_calc.GetPerformance().RealTimePP;
         }

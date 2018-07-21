@@ -15,7 +15,6 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
 
         public override void OnCurrentModsChange(ModsInfo mod)
         {
-            
             //如果mod相同或者mod是unknown的就不管了
             if (current_mod == mod || mod.Mod.HasFlag(OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown))
                 return;

@@ -239,7 +239,7 @@ namespace OsuLiveStatusPanel
                 Log.Output(INIT_SUCCESS);
             }
 
-            CleanOsuStatus();
+            CleanOutput();
         }
 
         private void TermPlugin()
@@ -247,6 +247,8 @@ namespace OsuLiveStatusPanel
             //source clean itself
             SourceWrapper.Detach();
         }
+
+        #region RegisterSource
 
         public void TryRegisterSourceFromOsuRTDataProvider(SyncHost host)
         {
@@ -305,7 +307,7 @@ namespace OsuLiveStatusPanel
             source = UsingSource.None;
         }
 
-        #region Kernal
+        #endregion
 
         public void OnBeatmapChanged(BeatmapChangedParameter evt)
         {
@@ -320,23 +322,32 @@ namespace OsuLiveStatusPanel
             {
                 if (osu_process == null)
                     Log.Error(OSU_PROCESS_NOTFOUND);
-                CleanOsuStatus();
+                CleanOutput();
                 return;
             }
 
             TryApplyBeatmapInfomation(new_beatmap);
         }
 
-        private void CleanOsuStatus()
+        private void CleanOutput()
         {
             Log.Output(CLEAN_STATUS);
+
+            PPShowPluginInstance?.Output(OutputType.Listen, string.Empty, ModsInfo.Empty);
+
+            current_bg_file_path = string.Empty;
 
             if (File.Exists(OutputModImageFilePath))
             {
                 File.Delete(OutputModImageFilePath);
             }
 
-            OutputInfomationClean();
+            if (File.Exists(OutputBackgroundImageFilePath))
+            {
+                File.Delete(OutputBackgroundImageFilePath);
+            }
+
+            EventBus.RaiseEvent(new OutputInfomationEvent(OutputType.Listen));
         }
 
         private void TryApplyBeatmapInfomation(object obj)
@@ -362,7 +373,7 @@ namespace OsuLiveStatusPanel
             }
 
             if (!apply_result)
-                CleanOsuStatus();
+                CleanOutput();
         }
 
         private bool ApplyBeatmapInfomationforDifficultParamModifyPlugin(BeatmapEntry current_beatmap)
@@ -401,25 +412,6 @@ namespace OsuLiveStatusPanel
             return true;
         }
 
-        private void OutputInfomationClean()
-        {
-            PPShowPluginInstance?.Output(OutputType.Listen, string.Empty, ModsInfo.Empty);
-
-            current_bg_file_path = string.Empty;
-
-            if (File.Exists(OutputModImageFilePath))
-            {
-                File.Delete(OutputModImageFilePath);
-            }
-
-            if (File.Exists(OutputBackgroundImageFilePath))
-            {
-                File.Delete(OutputBackgroundImageFilePath);
-            }
-
-            EventBus.RaiseEvent(new OutputInfomationEvent(OutputType.Listen));
-        }
-
         private Stopwatch sw = new Stopwatch();
 
         public void OutputBeatmapInfomation(BeatmapEntry current_beatmap, ModsInfo mod)
@@ -448,8 +440,6 @@ namespace OsuLiveStatusPanel
             current_bg_file_path = bgPath;
 
             #endregion OutputBackgroundImage
-
-            #endregion Kernal
 
             #region Mods Ouptut
 
@@ -652,7 +642,7 @@ namespace OsuLiveStatusPanel
                 dbitmap.UnlockBits(ddata);
 
                 stopwatch.Stop();
-                Log.Output($"线性插值:{stopwatch.ElapsedMilliseconds}ms");
+                Log.Debug($"线性插值:{stopwatch.ElapsedMilliseconds}ms");
             }
             return dbitmap;
         }
@@ -714,6 +704,9 @@ namespace OsuLiveStatusPanel
         public void onConfigurationLoad()
         {
             Log.IsDebug = DebugMode.ToBool();
+#if DEBUG
+            Log.IsDebug = true;
+#endif
         }
 
         public void onConfigurationSave()
@@ -724,6 +717,11 @@ namespace OsuLiveStatusPanel
         public void onConfigurationReload()
         {
             Log.IsDebug = DebugMode.ToBool();
+
+#if DEBUG
+            Log.IsDebug = true;
+#endif
+
             mods_pic_output = null;
             if (source == UsingSource.OsuRTDataProvider)
             {
@@ -736,7 +734,7 @@ namespace OsuLiveStatusPanel
         {
             base.OnExit();
             PPShowPluginInstance?.Save();
-            OutputInfomationClean();
+            CleanOutput();
         }
 
         #endregion tool func

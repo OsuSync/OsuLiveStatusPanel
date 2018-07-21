@@ -69,13 +69,13 @@ namespace OsuLiveStatusPanel.PPShow
 
             int nobject = int.Parse(OutputDataMap["num_objects"], CultureInfo.InvariantCulture);
             uint mode = uint.Parse(OutputDataMap.TryGetValue("mode", out string _m) ? _m : "0", CultureInfo.InvariantCulture);//没有那就默认0
-            
+
             if (!string.IsNullOrWhiteSpace(mods.ShortName))
             {
                 mods = FilteVailedMod(mods);
             }
 
-            if (mode<=1)
+            if (mode <= 1)
             {
                 foreach (float acc in AccuracyList)
                 {
@@ -117,9 +117,9 @@ namespace OsuLiveStatusPanel.PPShow
                     Log.Warn("No any oppai result output , maybe this beatmap mode isn't osu!std/taiko");
                 }
 
-                #endregion GetBaseInfo
+                #endregion Get base beatmap info from oppai once
             }
-            else if (mode==3&&maniaPPCalculator!=null)//是否为mania铺面且初始化mania屁屁计算器
+            else if (mode == 3 && maniaPPCalculator != null)//是否为mania铺面且初始化mania屁屁计算器
             {
                 //先钦定好beatmap以及mod
                 OsuRTDataProvider.BeatmapInfo.Beatmap beatmap = extra.Where(p => p.Key == "ortdp_beatmap").FirstOrDefault().Value as OsuRTDataProvider.BeatmapInfo.Beatmap;
@@ -133,14 +133,13 @@ namespace OsuLiveStatusPanel.PPShow
 
                 foreach (float acc in AccuracyList)
                 {
-                    var pp=maniaPPCalculator.Calculate(acc);
+                    var pp = maniaPPCalculator.Calculate(acc);
 
                     if (pp.HasValue)
                         OutputDataMap[$"pp:{acc:F2}%"] = pp.Value.ToString("F2");
-
                 }
             }
-            
+
             AddExtraInfomation(OutputDataMap);
 
             OnOutputEvent?.Invoke(output_type, OutputDataMap);
