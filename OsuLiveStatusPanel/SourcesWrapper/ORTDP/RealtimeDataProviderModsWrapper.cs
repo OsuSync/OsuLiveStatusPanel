@@ -15,15 +15,17 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
 
         public override void OnCurrentModsChange(ModsInfo mod)
         {
-            if (current_mod == mod)
+            
+            //如果mod相同或者mod是unknown的就不管了
+            if (current_mod == mod || mod.Mod.HasFlag(OsuRTDataProvider.Mods.ModsInfo.Mods.Unknown))
                 return;
             current_mod = mod;
 
+            //在打图过程中mod变了，那可能就是ortdp要背锅了.jpg
             if (CurrentOutputType == OutputType.Play)
                 return;
 
-            //选图界面改变Mods会输出
-
+            //在选图界面改变Mods会输出，会重新计算PP并输出相关信息
             var beatmap = GetCurrentBeatmap();
 
             beatmap.OutputType = CurrentOutputType;

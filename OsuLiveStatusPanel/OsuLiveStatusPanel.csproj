@@ -117,6 +117,7 @@
     <ProjectReference Include="..\..\RealTimePPDisplayer\RealTimePPDisplayer.csproj">
       <Project>{666b0891-c401-4060-a6aa-84c57469b6d8}</Project>
       <Name>RealTimePPDisplayer</Name>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
     <ProjectReference Include="..\..\Sync\OfficalPlugins\ConfigGUI\ConfigGUI.csproj">
       <Project>{0f922afa-bbc0-44a0-8ca7-d408d5dd8298}</Project>
