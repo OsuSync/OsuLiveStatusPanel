@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace OsuLiveStatusPanel.PPShow
 {
@@ -23,7 +24,7 @@ namespace OsuLiveStatusPanel.PPShow
 
         public static Config LoadPPShowConfig(string config_path)
         {
-            string config_json = File.ReadAllText(config_path);
+            string config_json = CheckConfigContextFloatValueGlobalizable(File.ReadAllText(config_path));
 
             try
             {
@@ -34,6 +35,41 @@ namespace OsuLiveStatusPanel.PPShow
                 Log.Error($"JsonConvert::DeserializeObject Error,{e.Message}");
             }
             return null;
+        }
+
+        /// <summary>
+        /// 将看上去不符合当前用户环境的浮点值转换成合适的格式
+        /// 比如在俄罗斯地区将会把"${pp:12.23%}"转换成"${pp:12,23%}"
+        /// </summary>
+        /// <param name="config_content"></param>
+        /// <returns></returns>
+        private static string CheckConfigContextFloatValueGlobalizable(string config_content)
+        {
+            Log.Debug($"Current CultureInfo:{CultureInfo.CurrentCulture.Name} NumberDecimalSeparator:{CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator}");
+            Log.Debug("Check if config content exsit unknown float format...\n");
+
+            Regex regex = new Regex(@"\$\{pp:(\d+((.)\d+)?)%\}");
+            var match = regex.Match(config_content);
+
+            while (match.Success)
+            {
+                Log.Debug($"-Found PP query format:{match.Value} \t {(match.Groups[3].Value != CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator && !string.IsNullOrWhiteSpace(match.Groups[3].Value) ? $"unknown separator:{match.Groups[3].Value.ToString()}" : string.Empty)}");
+
+                if (match.Groups[3].Value != CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator && !string.IsNullOrWhiteSpace(match.Groups[3].Value))
+                {
+                    var adjust_param = $"{match.Value}".Replace(match.Groups[3].Value.ToString(), CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+
+                    config_content = config_content.Replace(match.Value, adjust_param);
+
+                    var test_val = (int)float.Parse(match.Groups[1].Value.Replace(match.Groups[3].Value, CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator));
+
+                    Log.Debug($"-Adjust float format:{match.Value} -> {adjust_param} val:{test_val}\n");
+                }
+
+                match = match.NextMatch();
+            }
+
+            return config_content;
         }
 
         public static void CreateDefaultPPShowConfig(string config_path)
