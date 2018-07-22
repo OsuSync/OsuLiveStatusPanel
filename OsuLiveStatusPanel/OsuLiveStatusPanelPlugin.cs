@@ -307,7 +307,7 @@ namespace OsuLiveStatusPanel
             source = UsingSource.None;
         }
 
-        #endregion
+        #endregion RegisterSource
 
         public void OnBeatmapChanged(BeatmapChangedParameter evt)
         {
@@ -449,7 +449,7 @@ namespace OsuLiveStatusPanel
                 TryCreateModsPictureGenerator(out mods_pic_output);
             }
 
-            if (mods_pic_output != null && mod!=prev_mods)
+            if (mods_pic_output != null && mod != prev_mods)
             {
                 prev_mods = mod;
 
@@ -549,7 +549,7 @@ namespace OsuLiveStatusPanel
                 new KeyValuePair<string, object>( "beatmap_setid", entry.BeatmapSetId.ToString() )
             };
 
-            if (entry.ExtraParam!=null)
+            if (entry.ExtraParam != null)
                 extra_Data_arr = extra_Data_arr.Concat(entry.ExtraParam);
 
             return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mods, extra_Data_arr.ToArray());
