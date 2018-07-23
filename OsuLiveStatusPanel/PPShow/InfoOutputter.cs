@@ -67,8 +67,8 @@ namespace OsuLiveStatusPanel.PPShow
 
             OutputDataMap["mods_str"] = mods.ShortName;
 
-            int nobject = int.Parse(OutputDataMap["num_objects"], CultureInfo.InvariantCulture);
-            uint mode = uint.Parse(OutputDataMap.TryGetValue("mode", out string _m) ? _m : "0", CultureInfo.InvariantCulture);//没有那就默认0
+            int nobject = int.Parse(OutputDataMap["num_objects"]);
+            uint mode = uint.Parse(OutputDataMap.TryGetValue("mode", out string _m) ? _m : "0");//没有那就默认0
 
             if (!string.IsNullOrWhiteSpace(mods.ShortName))
             {
@@ -169,8 +169,8 @@ namespace OsuLiveStatusPanel.PPShow
 
         private void AddExtraInfomation(Dictionary<string, string> dic)
         {
-            dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid", "-1"), CultureInfo.InvariantCulture) > 0 ? (@"https://osu.ppy.sh/s/" + dic["beatmap_setid"]) : "";
-            dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id", "-1"), CultureInfo.InvariantCulture) > 0 ? (@"https://osu.ppy.sh/b/" + dic["beatmap_id"]) : string.Empty;
+            dic["beatmap_setlink"] = int.Parse(_TryGetValue("beatmap_setid", "-1")) > 0 ? (@"https://osu.ppy.sh/s/" + dic["beatmap_setid"]) : "";
+            dic["beatmap_link"] = int.Parse(_TryGetValue("beatmap_id", "-1")) > 0 ? (@"https://osu.ppy.sh/b/" + dic["beatmap_id"]) : string.Empty;
 
             dic["title_avaliable"] = _TryGetValue("title_unicode", _TryGetValue("title", string.Empty));
             dic["artist_avaliable"] = _TryGetValue("artist_unicode", _TryGetValue("artist", string.Empty));

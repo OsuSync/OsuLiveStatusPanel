@@ -484,7 +484,7 @@ namespace OsuLiveStatusPanel
                 {
                     if (EnableScaleClipOutputImageFile == "True")
                     {
-                        using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width, CultureInfo.InvariantCulture), int.Parse(Height, CultureInfo.InvariantCulture)))
+                        using (Bitmap bitmap = GetFixedResolutionBitmap(bgPath, int.Parse(Width), int.Parse(Height)))
                         using (var fp = File.Open(OutputBackgroundImageFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
                             bitmap.Save(fp, ImageFormat.Png);
                     }
@@ -537,7 +537,7 @@ namespace OsuLiveStatusPanel
 
             Log.Output($"Enable to ouput mod pics , using_skin_path={using_skin_path}");
 
-            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel, CultureInfo.InvariantCulture), int.Parse(ModUnitOffset, CultureInfo.InvariantCulture), ModIsHorizon == "True", ModUse2x == "True", ModSortReverse == "True", ModDrawReverse == "True");
+            modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "True", ModUse2x == "True", ModSortReverse == "True", ModDrawReverse == "True");
         }
 
         private bool OutputInfomation(OutputType output_type, BeatmapEntry entry, ModsInfo mods)

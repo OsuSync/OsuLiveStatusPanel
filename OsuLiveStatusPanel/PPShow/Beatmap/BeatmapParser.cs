@@ -203,7 +203,7 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                                 if (obj_data.Length >= 4)
                                 {
                                     nobjects++;
-                                    int type = int.Parse(obj_data[3], CultureInfo.InvariantCulture);
+                                    int type = int.Parse(obj_data[3]);
 
                                     if (IS_TYPE(type, TYPE_CIRCLE))
                                         ncircle++;
