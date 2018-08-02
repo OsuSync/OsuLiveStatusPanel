@@ -39,7 +39,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
             if (last_status == status) return;
             if ((status != OsuStatus.Playing) && (status != OsuStatus.Rank))
             {
-                if (status == OsuStatus.Listening)
+                if (status == OsuStatus.Listening || status == OsuStatus.MatchSetup)
                 {
                     TrigListen();
                 }
