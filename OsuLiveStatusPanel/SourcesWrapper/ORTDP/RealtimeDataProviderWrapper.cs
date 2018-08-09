@@ -1,4 +1,5 @@
 ﻿using OsuRTDataProvider;
+using OsuRTDataProvider.Helper;
 using OsuRTDataProvider.Mods;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
@@ -49,7 +50,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
             if (last_status == status) return;
             if ((status != OsuStatus.Playing) && (status != OsuStatus.Rank))
             {
-                if (status == OsuStatus.Listening)
+                if (OsuStatusHelper.IsListening(status))
                 {
                     TrigListen();
                 }

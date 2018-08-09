@@ -1,5 +1,6 @@
 ﻿using OsuRTDataProvider;
 using OsuRTDataProvider.BeatmapInfo;
+using OsuRTDataProvider.Helper;
 using OsuRTDataProvider.Mods;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
@@ -42,7 +43,7 @@ namespace OsuLiveStatusPanel.SourcesWrapper.ORTDP
             OsuFilePath = beatmap.FilenameFull;
             current_beatmap = beatmap;
 
-            if (current_status == OsuStatus.Listening)
+            if (OsuStatusHelper.IsListening(current_status))
             {
                 TrigListen();
             }
