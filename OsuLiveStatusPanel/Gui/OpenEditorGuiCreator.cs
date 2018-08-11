@@ -2,6 +2,7 @@
 using OsuLiveStatusPanel.PPShow;
 using Sync.Tools.ConfigurationAttribute;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace OsuLiveStatusPanel.Gui
@@ -23,9 +24,15 @@ namespace OsuLiveStatusPanel.Gui
                 Content = "Open Editor"
             };
 
+            EditorWindow window = null;
+
             btn.Click += (s, e) =>
               {
-                  new EditorWindow(m_wrapper).ShowDialog();
+                  window = (window??new EditorWindow(m_wrapper));
+                  if (window.Visibility == Visibility.Visible)
+                      window.Activate();
+                  else
+                      window.Show();
               };
 
             panel.Children.Add(btn);
