@@ -221,5 +221,11 @@ namespace OsuLiveStatusPanel.Gui
             m_wrapper.PlayOfs.Add(item);
             play_list.Add(new ConfigItem(item, OutputType.Listen, this));
         }
+
+        private void EditorWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
+        }
     }
 }

@@ -7,6 +7,7 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              Title="Output Editor" Width="1440" Height="720"
+             Closing="EditorWindow_OnClosing"
              ResizeMode="NoResize">
     <Window.Resources>
         <DataTemplate x:Key="FormatOutputTemplate">
