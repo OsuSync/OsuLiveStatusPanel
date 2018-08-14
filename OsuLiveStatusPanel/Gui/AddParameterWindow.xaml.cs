@@ -108,9 +108,12 @@ namespace OsuLiveStatusPanel.Gui
                 }
 
                 btn.Click += (s, e) =>
-                  {
-                      m_currentProxy.FormatTemplate += $"${{{para}}}";
-                  };
+                {
+                    int pos = FormatEditBox.CaretIndex;
+                    string val = $"${{{para}}}";
+                    m_currentProxy.FormatTemplate = m_currentProxy.FormatTemplate.Insert(pos,val);
+                    FormatEditBox.CaretIndex = pos + val.Length;
+                };
 
                 ButtonsList.Children.Add(btn);
             }
