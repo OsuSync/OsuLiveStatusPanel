@@ -90,6 +90,7 @@
     <Compile Include="PPShow\Beatmap\BeatmapParser.cs" />
     <Compile Include="PPShow\Beatmap\BeatmapReader.cs" />
     <Compile Include="OutputInfomationEvent.cs" />
+    <Compile Include="PPShow\Oppai\CTB\CTBPPCalculator.cs" />
     <Compile Include="PPShow\Oppai\Mania\ManiaPPCalculator.cs" />
     <Compile Include="PPShow\Output\DiskFileOutput.cs" />
     <Compile Include="PPShow\Output\MemoryMappedFileOutput.cs" />
@@ -130,10 +131,6 @@
     <ProjectReference Include="..\..\Sync\OfficalPlugins\ExtraWorkspace\My_Sync_Plugin\DifficultParamModifyPlugin\DifficultParamModifyPlugin.csproj">
       <Project>{8a21fa06-ceee-4c7b-b592-6fdb0a7d6ab2}</Project>
       <Name>DifficultParamModifyPlugin</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Sync\OfficalPlugins\NowPlaying\NowPlaying.csproj">
-      <Project>{91ed3fe1-b0f7-44b4-8ab2-a3f6825eea60}</Project>
-      <Name>NowPlaying</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Sync\Sync\Sync.csproj">
       <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>

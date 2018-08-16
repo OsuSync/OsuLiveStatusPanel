@@ -33,9 +33,6 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.Mania
 
         public double? Calculate(float acc)
         {
-            if (mania_pp_calc == null)
-                return null;
-
             mania_pp_calc.Time = int.MaxValue;
 
             mania_pp_calc.Score = (int)(1000000 * acc / 100.0f);

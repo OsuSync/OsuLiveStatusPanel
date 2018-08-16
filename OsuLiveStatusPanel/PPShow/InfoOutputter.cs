@@ -2,10 +2,12 @@
 using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow.Beatmap;
 using OsuLiveStatusPanel.PPShow.Oppai;
+using OsuLiveStatusPanel.PPShow.Oppai.CTB;
 using OsuLiveStatusPanel.PPShow.Oppai.Mania;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -17,6 +19,9 @@ namespace OsuLiveStatusPanel.PPShow
         private static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut };
 
         private ManiaPPCalculator maniaPPCalculator;
+        private CTBPPCalculator ctbPPCalculator;
+
+        Stopwatch sw = new Stopwatch();
 
         private static ModsInfo FilteVailedMod(ModsInfo mods)
         {
@@ -40,6 +45,9 @@ namespace OsuLiveStatusPanel.PPShow
 
             if (CheckExsitRealtimePPPlugin())
             {
+                ctbPPCalculator = new CTBPPCalculator();
+                Log.Output("find RealtimePP plugin,OLSP is support ctb pp calculating as well.");
+
                 maniaPPCalculator = new ManiaPPCalculator();
                 Log.Output("find RealtimePP plugin,OLSP is support mania pp calculating as well.");
             }
@@ -138,6 +146,30 @@ namespace OsuLiveStatusPanel.PPShow
                     if (pp.HasValue)
                         OutputDataMap[$"pp:{acc:F2}%"] = pp.Value.ToString("F2");
                 }
+            }
+            else if (mode == 2 && ctbPPCalculator != null)//ctb
+            {
+                sw.Restart();
+
+                //先钦定好beatmap以及mod
+                OsuRTDataProvider.BeatmapInfo.Beatmap beatmap = extra.Where(p => p.Key == "ortdp_beatmap").FirstOrDefault().Value as OsuRTDataProvider.BeatmapInfo.Beatmap;
+
+                ctbPPCalculator.SetMod(mods);
+                ctbPPCalculator.SetBeatmap(beatmap);
+
+#if DEBUG
+                IO.CurrentIO.WriteColor($"[OLSP]will calculate ctb:{beatmap?.Artist} - {beatmap?.Title}[{beatmap?.Difficulty}]", ConsoleColor.Cyan);
+#endif
+
+                foreach (float acc in AccuracyList)
+                {
+                    var pp = ctbPPCalculator.Calculate(acc);
+
+                    if (pp.HasValue)
+                        OutputDataMap[$"pp:{acc:F2}%"] = pp.Value.ToString("F2");
+                }
+
+                IO.CurrentIO.WriteColor($"[OLSP]ctb calculate pp:{sw.ElapsedMilliseconds}ms", ConsoleColor.Cyan);
             }
 
             AddExtraInfomation(OutputDataMap);
