@@ -11,6 +11,12 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
 {
     internal class CTBPPCalculator
     {
+        public class CtbCalculateResult
+        {
+            public CtbServerResult ServerResult { get; set; }
+            public double Pp { get; set; }
+        }
+
         private CatchTheBeatPerformanceCalculator ctb_pp_calc;
 
         public CTBPPCalculator()
@@ -43,16 +49,19 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
             return GetData(acc)?.Pp?? 0;
         }
 
-        private CtbPp GetData(float acc)
+        private CtbCalculateResult GetData(float acc)
         {
-            CtbPp result = null;
             int retry = 15;
 
             while (retry != 0)
             {
                 try
                 {
-                    return SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods, int.MaxValue, 0, acc);
+                    
+                    CtbCalculateResult result = new CtbCalculateResult();
+                    result.ServerResult = SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods);
+                    result.Pp = CalculatePp(result.ServerResult, ctb_pp_calc.Mods, acc, result.ServerResult.FullCombo, 0);
+                    return result;
                 }
                 catch (Exception e)
                 {
@@ -65,7 +74,7 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
 
         public double? Stars()
         {
-            return GetData(100)?.Stars ?? 0;
+            return GetData(100)?.ServerResult.Stars ?? 0;
         }
     }
 }
