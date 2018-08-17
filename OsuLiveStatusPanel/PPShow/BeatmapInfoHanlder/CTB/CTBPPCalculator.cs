@@ -27,7 +27,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder
                 return;
             }
 
-            ctb_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, OsuRTDataProvider.Listen.OsuPlayMode.Mania);
+            ctb_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, OsuRTDataProvider.Listen.OsuPlayMode.CatchTheBeat);
         }
 
         public void SetMod(Mods.ModsInfo modsInfo)
@@ -55,16 +55,16 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder
             {
                 try
                 {
+                    if (calc_cache == null)
+                        calc_cache = ctb_pp_calc.SendCalculateCtb(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods);
                     switch (require)
                     {
                         case RequireType.PP:
-                            if (calc_cache == null)
-                                calc_cache = SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods);
                             return CalculatePp(calc_cache, ctb_pp_calc.Mods, acc, calc_cache.FullCombo, 0);
                         case RequireType.Star:
-                            return SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods).Stars;
+                            return calc_cache.Stars;
                         case RequireType.AR:
-                            return SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods).ApproachRate;
+                            return calc_cache.ApproachRate;
                         default:
                             return null;
                     }
