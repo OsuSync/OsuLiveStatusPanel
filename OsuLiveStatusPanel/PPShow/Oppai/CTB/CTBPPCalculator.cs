@@ -11,12 +11,6 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
 {
     internal class CTBPPCalculator
     {
-        public class CtbCalculateResult
-        {
-            public CtbServerResult ServerResult { get; set; }
-            public double Pp { get; set; }
-        }
-
         private CatchTheBeatPerformanceCalculator ctb_pp_calc;
 
         public CTBPPCalculator()
@@ -34,6 +28,7 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
 
             ctb_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, OsuRTDataProvider.Listen.OsuPlayMode.Mania);
             ctb_pp_calc.Time = int.MaxValue;
+            calc_cache = null;
         }
 
         public void SetMod(Mods.ModsInfo modsInfo)
@@ -42,14 +37,24 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
             mod.Mod = (OsuRTDataProvider.Mods.ModsInfo.Mods)((uint)modsInfo.Mod);
 
             ctb_pp_calc.Mods = mod;
+            calc_cache = null;
         }
 
         public double? Calculate(float acc)
         {
-            return GetData(acc)?.Pp?? 0;
+            return GetData(acc,RequireType.PP);
         }
 
-        private CtbCalculateResult GetData(float acc)
+        enum RequireType
+        {
+            PP,
+            Star,
+            AR
+        }
+
+        CtbServerResult calc_cache;
+
+        private double? GetData(float acc,RequireType require)
         {
             int retry = 15;
 
@@ -57,24 +62,33 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
             {
                 try
                 {
-                    
-                    CtbCalculateResult result = new CtbCalculateResult();
-                    result.ServerResult = SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods);
-                    result.Pp = CalculatePp(result.ServerResult, ctb_pp_calc.Mods, acc, result.ServerResult.FullCombo, 0);
-                    return result;
+                    switch (require)
+                    {
+                        case RequireType.PP:
+                            if (calc_cache == null)
+                                calc_cache = SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods);
+                            return CalculatePp(calc_cache, ctb_pp_calc.Mods, acc, calc_cache.FullCombo, 0);
+                        case RequireType.Star:
+                            return SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods).Stars;
+                        case RequireType.AR:
+                            return SendGetPp(new ArraySegment<byte>(this.ctb_pp_calc.Beatmap.RawData), ctb_pp_calc.Mods).ApproachRate;
+                        default:
+                            return null;
+                    }
                 }
-                catch (Exception e)
+                catch
                 {
                     Thread.Sleep(50);
+                    retry--;
                 }
             }
 
-            return null;
+            return 0;
         }
 
         public double? Stars()
         {
-            return GetData(100)?.ServerResult.Stars ?? 0;
+            return GetData(100,RequireType.Star);
         }
     }
 }
