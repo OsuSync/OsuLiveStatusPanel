@@ -95,6 +95,9 @@ namespace OsuLiveStatusPanel.PPShow
 
             var mode = int.Parse(OpenReadBeatmapParamValue(ref stream, "Mode") ?? "0");
 
+            if (!OutputDataMap.ContainsKey("mode"))
+                OutputDataMap["mode"] = mode.ToString();
+
             if (ModeHandler[mode] != null)
             {
                 var handler = ModeHandler[mode];
