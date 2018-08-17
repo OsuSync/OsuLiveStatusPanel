@@ -7,15 +7,16 @@ using System.Threading.Tasks;
 using RealTimePPDisplayer.Calculator;
 using static RealTimePPDisplayer.Calculator.CatchTheBeatPerformanceCalculator;
 
-namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
+namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder
 {
-    internal class CTBPPCalculator
+    internal class CTBPPCalculator:BeatmapInfoHandlerBase
     {
         private CatchTheBeatPerformanceCalculator ctb_pp_calc;
 
         public CTBPPCalculator()
         {
             ctb_pp_calc = new CatchTheBeatPerformanceCalculator();
+            ctb_pp_calc.Time = int.MaxValue;
         }
         
         public void SetBeatmap(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
@@ -27,8 +28,6 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
             }
 
             ctb_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, OsuRTDataProvider.Listen.OsuPlayMode.Mania);
-            ctb_pp_calc.Time = int.MaxValue;
-            calc_cache = null;
         }
 
         public void SetMod(Mods.ModsInfo modsInfo)
@@ -37,12 +36,6 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
             mod.Mod = (OsuRTDataProvider.Mods.ModsInfo.Mods)((uint)modsInfo.Mod);
 
             ctb_pp_calc.Mods = mod;
-            calc_cache = null;
-        }
-
-        public double? Calculate(float acc)
-        {
-            return GetData(acc,RequireType.PP);
         }
 
         enum RequireType
@@ -86,9 +79,25 @@ namespace OsuLiveStatusPanel.PPShow.Oppai.CTB
             return 0;
         }
 
-        public double? Stars()
+        public override void HandleExtraData(Dictionary<string, object> extra, Dictionary<string, string> map_info)
         {
-            return GetData(100,RequireType.Star);
+            calc_cache = null;
+            SetBeatmap(extra["ortdp_beatmap"] as OsuRTDataProvider.BeatmapInfo.Beatmap);
+            SetMod((Mods.ModsInfo)extra["Mods"]);
+
+            var list = extra["AccuracyList"] as List<float>;
+
+            foreach (var acc in list)
+            {
+                var pp=GetData(acc, RequireType.PP);
+                map_info[$"pp:{acc:F2}%"] = pp?.ToString("F2")??"0";
+            }
+
+            map_info["ar"] = GetData(100, RequireType.AR)?.ToString("F2") ?? map_info["ar"];
+            var star=GetData(100, RequireType.Star)?.ToString("F2");
+
+            if (!string.IsNullOrWhiteSpace(star))
+                map_info["stars"] = star;
         }
     }
 }

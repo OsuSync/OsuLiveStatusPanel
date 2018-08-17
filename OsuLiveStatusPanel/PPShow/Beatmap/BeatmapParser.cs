@@ -40,16 +40,13 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
 
         private static bool IS_TYPE(int value, int type) => (type & value) != 0;
 
-        public static void ParseBeatmap(string file_path, Dictionary<string, string> extra_data, ModsInfo mods, out byte[] beatmap_data, out uint data_length)
+        public static void ParseBeatmap(ref byte[] beatmap_raw_data, Dictionary<string, string> extra_data, ModsInfo mods)
         {
             int status = 0;
             int nobjects = 0, ncircle = 0, nslider = 0, nspiner = 0;
             double min_bpm = int.MaxValue, max_bpm = int.MinValue, current_bpm = 0;
-
-            beatmap_data = File.ReadAllBytes(file_path);
-            data_length = (uint)beatmap_data.Length;
-
-            using (StreamReader reader = new StreamReader(new MemoryStream(beatmap_data, false)))
+            
+            using (StreamReader reader = new StreamReader(new MemoryStream(beatmap_raw_data)))
             {
                 //简单的状态机
                 while (!reader.EndOfStream)

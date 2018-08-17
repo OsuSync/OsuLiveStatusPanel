@@ -333,7 +333,7 @@ namespace OsuLiveStatusPanel
         {
             Log.Output(CLEAN_STATUS);
 
-            PPShowPluginInstance?.Output(OutputType.Listen, string.Empty, ModsInfo.Empty);
+            PPShowPluginInstance?.Output(OutputType.Listen, string.Empty, ModsInfo.Empty,null);
 
             current_bg_file_path = string.Empty;
 
@@ -542,17 +542,13 @@ namespace OsuLiveStatusPanel
 
         private bool OutputInfomation(OutputType output_type, BeatmapEntry entry, ModsInfo mods)
         {
-            IEnumerable<KeyValuePair<string, object>> extra_Data_arr = new[]
-            {
-                new KeyValuePair<string, object>( "osu_file_path", entry.OsuFilePath ),
-                new KeyValuePair<string, object>( "beatmap_id", entry.BeatmapId.ToString() ),
-                new KeyValuePair<string, object>( "beatmap_setid", entry.BeatmapSetId.ToString() )
-            };
+            var extra = entry.ExtraParam ?? new Dictionary<string, object>();
 
-            if (entry.ExtraParam != null)
-                extra_Data_arr = extra_Data_arr.Concat(entry.ExtraParam);
+            extra.Add("osu_file_path", entry.OsuFilePath);
+            extra.Add("beatmap_id", entry.BeatmapId.ToString());
+            extra.Add("beatmap_setid", entry.BeatmapSetId.ToString());
 
-            return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mods, extra_Data_arr.ToArray());
+            return PPShowPluginInstance.Output(output_type, entry.OsuFilePath, mods, extra);
         }
 
         private Bitmap GetFixedResolutionBitmap(string file, int dstw, int dsth)
