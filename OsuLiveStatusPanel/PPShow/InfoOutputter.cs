@@ -20,9 +20,7 @@ namespace OsuLiveStatusPanel.PPShow
         private static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut };
 
         private BeatmapInfoHandlerBase[] ModeHandler = new BeatmapInfoHandlerBase[4]; 
-
-        Stopwatch sw = new Stopwatch();
-
+        
         private static ModsInfo FilteVailedMod(ModsInfo mods)
         {
             ModsInfo result = default(ModsInfo);
@@ -82,9 +80,7 @@ namespace OsuLiveStatusPanel.PPShow
                     OutputDataMap[data.Key] = data.Value.ToString();
 
             if (!string.IsNullOrWhiteSpace(mods.ShortName))
-            {
                 mods = FilteVailedMod(mods);
-            }
 
             OutputDataMap["mods_str"] = mods.ShortName;
 
@@ -94,6 +90,13 @@ namespace OsuLiveStatusPanel.PPShow
             var stream = File.ReadAllBytes(osu_file_path);
 
             var mode = int.Parse(OpenReadBeatmapParamValue(ref stream, "Mode") ?? "0");
+
+            if (extra.TryGetValue("mode",out var ortdp_mode))
+            {
+                int value = (int)ortdp_mode;
+                if (value>0&&mode==0 /*原铺面是std而当前模式并非std*/)
+                    mode = value;
+            }
 
             if (!OutputDataMap.ContainsKey("mode"))
                 OutputDataMap["mode"] = mode.ToString();
@@ -114,26 +117,6 @@ namespace OsuLiveStatusPanel.PPShow
             OnOutputEvent?.Invoke(output_type, OutputDataMap);
 
             return true;
-        }
-
-        private byte[] buffer = new byte[4096];
-
-        private OppaiJson GetOppaiResult(byte[] data, uint length, uint mode, ModsInfo mods, double acc)
-        {
-            Array.Clear(buffer, 0, buffer.Length);
-
-            Oppai.Oppai.sppv2_by_acc(data, length, acc, mode, (uint)mods.Mod, buffer, length);
-
-            string content = Encoding.UTF8.GetString(buffer).TrimEnd('\0')/*.Replace("\0",string.Empty)*/;
-
-            if (!content.Contains("no error"))
-            {
-                return null;
-            }
-
-            var oppai_result = JsonConvert.DeserializeObject<OppaiJson>(content);
-
-            return oppai_result;
         }
     }
 }
