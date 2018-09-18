@@ -40,17 +40,6 @@ namespace OsuLiveStatusPanel.PPShow
         public InfoOutputter(List<float> acc_list)
         {
             AccuracyList = acc_list;
-
-            ModeHandler[0] = ModeHandler[1] = new OppaiHandlerBase();
-
-            if (CheckExsitRealtimePPPlugin())
-            {
-                ModeHandler[2] = new CTBPPCalculator();
-                Log.Output("find RealtimePP plugin,OLSP is support ctb pp calculating as well.");
-
-                ModeHandler[3] = new ManiaPPCalculator();
-                Log.Output("find RealtimePP plugin,OLSP is support mania pp calculating as well.");
-            }
         }
 
         private bool CheckExsitRealtimePPPlugin() => Sync.SyncHost.Instance.EnumPluings().Any(plugin => plugin.Name == "RealTimePPDisplayer");
@@ -101,7 +90,7 @@ namespace OsuLiveStatusPanel.PPShow
             if (!OutputDataMap.ContainsKey("mode"))
                 OutputDataMap["mode"] = mode.ToString();
 
-            if (ModeHandler[mode] != null)
+            if (ModeHandler[mode] != null || TryCreateModeHandler(mode))
             {
                 var handler = ModeHandler[mode];
 
@@ -111,12 +100,40 @@ namespace OsuLiveStatusPanel.PPShow
 
                 handler.AddExtraBeatmapInfo(OutputDataMap);
             }
-
-
-
+            
             OnOutputEvent?.Invoke(output_type, OutputDataMap);
 
             return true;
+        }
+
+        public bool TryCreateModeHandler(int mode)
+        {
+            try
+            {
+                switch (mode)
+                {
+                    case 0:
+                    case 1:
+                        ModeHandler[0] = ModeHandler[1] = new OppaiHandlerBase();
+                        break;
+                    case 2:
+                        ModeHandler[2] = new CTBPPCalculator();
+                        break;
+                    case 3:
+                        ModeHandler[3] = new ManiaPPCalculator();
+                        break;
+                    default:
+                        throw new Exception("Unknown mode "+mode);
+                }
+
+                Log.Output("create mode handler {mode} successfully");
+            }
+            catch (Exception e)
+            {
+                Log.Error("Try to create mode handler error:" + e.Message);
+            }
+
+            return ModeHandler[mode] != null;
         }
     }
 }
