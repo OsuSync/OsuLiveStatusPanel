@@ -27,7 +27,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder
                 return;
             }
 
-            ctb_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, OsuRTDataProvider.Listen.OsuPlayMode.CatchTheBeat);
+            ctb_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, (int)OsuRTDataProvider.Listen.OsuPlayMode.CatchTheBeat);
         }
 
         public void SetMod(Mods.ModsInfo modsInfo)
@@ -35,7 +35,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder
             var mod = new OsuRTDataProvider.Mods.ModsInfo();
             mod.Mod = (OsuRTDataProvider.Mods.ModsInfo.Mods)((uint)modsInfo.Mod);
 
-            ctb_pp_calc.Mods = mod;
+            ctb_pp_calc.Mods = (uint)mod.Mod;
         }
 
         enum RequireType

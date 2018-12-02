@@ -15,13 +15,13 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder
         public override void HandleExtraData(Dictionary<string, object> extra, Dictionary<string, string> map_info)
         {
             var beatmap = extra["ortdp_beatmap"] as OsuRTDataProvider.BeatmapInfo.Beatmap;
-            mania_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, OsuRTDataProvider.Listen.OsuPlayMode.Mania);
+            mania_pp_calc.Beatmap = new RealTimePPDisplayer.Beatmap.BeatmapReader(beatmap, (int)OsuRTDataProvider.Listen.OsuPlayMode.Mania);
             mania_pp_calc.Time = int.MaxValue;
 
             var mod = new OsuRTDataProvider.Mods.ModsInfo();
             mod.Mod = (OsuRTDataProvider.Mods.ModsInfo.Mods)((uint)((Mods.ModsInfo)extra["Mods"]).Mod);
 
-            mania_pp_calc.Mods = mod;
+            mania_pp_calc.Mods = (uint)mod.Mod;
 
             mania_pp_calc.Time = int.MaxValue;
 
