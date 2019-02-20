@@ -24,6 +24,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +34,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -146,6 +148,10 @@
     <ProjectReference Include="..\..\Sync\Sync\Sync.csproj">
       <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
       <Name>Sync</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\MikiraSora\source\repos\Oppai.w.Net\Oppai.w.Net\Oppai.w.Net.csproj">
+      <Project>{D02CC1ED-E1E8-4553-8942-0A1A855BEDB8}</Project>
+      <Name>Oppai.w.Net</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
