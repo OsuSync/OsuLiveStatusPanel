@@ -8,9 +8,12 @@
 
 ## 使用到的其他项目
 * [OsuSync (MIT License)](https://github.com/Deliay/Sync)
+* [Oppai.w.Net](https://github.com/MikiraSora/Oppai.w.Net)
+* [RealTimePPDisplayer](https://github.com/OsuSync/RealTimePPDisplayer)(用于计算ctb/mania的pp)
 * [OsuSync/NowPlayingPlugin (MIT License)](https://github.com/Deliay/SyncPlugin/tree/master/NowPlaying)
 * [PPShowPlugin](https://coding.net/u/KedamaOvO/p/PPShowPlugin/git)(已经内置,不再支持外置调用)
 * [oppai (GPL-3.0 License)](https://github.com/Francesco149/oppai)
+* [OsuDifficultParamModifyPlugin](https://github.com/MikiraSora/OsuDifficultParamModifyPlugin)
 * [OsuRTDataProvider(原MemoryReader)](https://github.com/KedamaOvO/OsuRTDataProvider-Release)
 
 ## 截图
