@@ -17,6 +17,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using System.Text.RegularExpressions;
 using static OsuLiveStatusPanel.Languages;
 
@@ -157,6 +158,10 @@ namespace OsuLiveStatusPanel
                         Status();
                         break;
 
+                    case "print":
+                        PrintCurrentOutputableParams();
+                        break;
+
                     default:
                         break;
                 }
@@ -195,6 +200,27 @@ namespace OsuLiveStatusPanel
         public void Status()
         {
             Log.Output(string.Format(CONNAND_STATUS, source.ToString(), PPShowJsonConfigFilePath));
+        }
+
+        public void PrintCurrentOutputableParams()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
+            foreach (var name in EnumProvidableDataName())
+            {
+
+                try
+                {
+                    var value = GetData(name);
+                    sb.AppendLine($"{name}\t=\t{value}");
+                }
+                catch
+                {
+                    //ignore
+                }
+            }
+
+            Log.Output(sb.ToString());
         }
 
         #endregion Commands
