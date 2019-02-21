@@ -3,7 +3,6 @@ using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow.Beatmap;
 using OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder;
 using OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai;
-using OsuLiveStatusPanel.PPShow.Oppai;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
@@ -60,8 +59,6 @@ namespace OsuLiveStatusPanel.PPShow
 
         public bool TrigOutput(OutputType output_type, string osu_file_path, ModsInfo mods, Dictionary<string, object> extra)
         {
-            List<OppaiJson> oppai_infos = new List<OppaiJson>();
-
             Dictionary<string, string> OutputDataMap = new Dictionary<string, string>();
 
             if (extra != null)

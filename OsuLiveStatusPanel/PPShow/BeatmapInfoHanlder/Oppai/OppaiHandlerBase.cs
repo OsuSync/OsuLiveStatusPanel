@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using OppaiWNet.Wrap;
 using OsuLiveStatusPanel.Mods;
-using OsuLiveStatusPanel.PPShow.Oppai;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
