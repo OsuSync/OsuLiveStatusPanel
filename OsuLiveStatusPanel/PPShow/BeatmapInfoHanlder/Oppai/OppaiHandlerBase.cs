@@ -16,7 +16,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai
     {
         private byte[] beatmap_data_buffer;
 
-        Ezpp pp_instance;
+        CompatibleOppaiJson pp_instance;
 
         public override void HandleBaseInfo(Dictionary<string, string> map_info, ref byte[] beatmap_raw_data, Dictionary<string, object> extra)
         {
@@ -24,7 +24,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai
 
             beatmap_data_buffer=beatmap_raw_data;
             pp_instance?.Dispose();
-            pp_instance=new Ezpp(beatmap_raw_data);
+            pp_instance=new CompatibleOppaiJson(new Ezpp(beatmap_raw_data));
         }
 
         public override void HandleExtraData(Dictionary<string, object> extra, Dictionary<string, string> map_info)
@@ -36,7 +36,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai
                 ApplyPPCalculate(int.Parse(map_info["mode"]), (ModsInfo)extra["Mods"], acc);
 
                 //add pp
-                map_info[$"pp:{acc:F2}%"]=pp_instance.PP.ToString("F2");
+                map_info[$"pp:{acc:F2}%"]=pp_instance.pp.ToString("F2");
 
                 if (init)
                 {
@@ -66,11 +66,11 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai
         {
             Debug.Assert(pp_instance!=null);
             
-            pp_instance.Acc=acc;
-            pp_instance.Mods=(OppaiWNet.Wrap.Mods)(int)mods.Mod;
-            pp_instance.Mode=mode;
+            pp_instance.info.Acc=acc;
+            pp_instance.info.Mods=(OppaiWNet.Wrap.Mods)(int)mods.Mod;
+            pp_instance.info.Mode=mode;
 
-            pp_instance.ApplyChange();
+            pp_instance.info.ApplyChange();
         } 
     }
 }
