@@ -31,7 +31,8 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
 
         private static readonly Dictionary<string, string> GENERAL_MAP = new Dictionary<string, string>
         {
-            {"Mode","mode"}
+            {"Mode","mode"},
+            {"AudioFilename","audio_file_name"}
         };
 
         private const int TYPE_CIRCLE = 1;

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ATL;
+using Newtonsoft.Json;
 using OsuLiveStatusPanel.Mods;
 using OsuLiveStatusPanel.PPShow.Beatmap;
 using OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder;
@@ -11,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel.PPShow
 {
@@ -75,6 +77,20 @@ namespace OsuLiveStatusPanel.PPShow
 
             var stream = File.ReadAllBytes(osu_file_path);
 
+            var audio_duration_task = Task.Run<int>(() => {
+                var dir = Directory.GetParent(osu_file_path).FullName;
+                var audio_file_name = OpenReadBeatmapParamValue(ref stream, "AudioFilename");
+
+                if (string.IsNullOrWhiteSpace(audio_file_name))
+                    return -1;
+
+                var audio_file_path = Path.Combine(dir, audio_file_name);
+
+                var track = new Track(audio_file_path);
+
+                return track.Duration * 1000;//convert to ms
+            });
+
             var mode = int.Parse(OpenReadBeatmapParamValue(ref stream, "Mode") ?? "0");
 
             if (extra.TryGetValue("mode",out var ortdp_mode))
@@ -97,7 +113,11 @@ namespace OsuLiveStatusPanel.PPShow
 
                 handler.AddExtraBeatmapInfo(OutputDataMap);
             }
-            
+
+            var audio_duration = audio_duration_task.Result;
+            if (audio_duration>=0)
+                OutputDataMap["audio_duration"] = audio_duration.ToString();
+
             OnOutputEvent?.Invoke(output_type, OutputDataMap);
 
             return true;

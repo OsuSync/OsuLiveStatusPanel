@@ -28,7 +28,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai
 
         public override void HandleExtraData(Dictionary<string, object> extra, Dictionary<string, string> map_info)
         {
-            bool init = true;
+            bool first_output = true;
 
             foreach (float acc in extra["AccuracyList"] as List<float>)
             {
@@ -37,8 +37,9 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai
                 //add pp
                 map_info[$"pp:{acc:F2}%"]=pp_instance.pp.ToString("F2");
 
-                if (init)
+                if (first_output)
                 {
+                    first_output = false;
                     var type = pp_instance.GetType();
                     var members = type.GetProperties();
 
@@ -57,7 +58,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai
                 }
             }
             
-            if (!init)
+            if (first_output)
                 Log.Warn("No any oppai result output , maybe this beatmap mode isn't osu!std/taiko");
         }
 
