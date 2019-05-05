@@ -115,8 +115,14 @@ namespace OsuLiveStatusPanel.PPShow
             }
 
             var audio_duration = audio_duration_task.Result;
-            if (audio_duration>=0)
+            if (audio_duration >= 0)
+            {
                 OutputDataMap["audio_duration"] = audio_duration.ToString();
+
+                //get more useful params
+                OutputDataMap["audio_duration_min_part"] = (audio_duration / 1000 / 60).ToString();
+                OutputDataMap["audio_duration_sec_part"] = ((audio_duration / 1000) % 60).ToString();
+            }
 
             OnOutputEvent?.Invoke(output_type, OutputDataMap);
 
