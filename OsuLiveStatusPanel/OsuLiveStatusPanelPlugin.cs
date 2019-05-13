@@ -23,7 +23,7 @@ using static OsuLiveStatusPanel.Languages;
 
 namespace OsuLiveStatusPanel
 {
-    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33", "2.2.2")]
+    [SyncPluginID("dcca15cb-8b8c-4375-934c-2c2b34862e33", "2.2.3")]
     public class OsuLiveStatusPanelPlugin : Plugin, IConfigurable
     {
         private enum UsingSource
@@ -671,7 +671,8 @@ namespace OsuLiveStatusPanel
 
         #region DDPR
 
-        private static readonly string[] ppshow_provideable_data_array = new[] { "ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners", "sliders" };
+        private static readonly string[] ppshow_provideable_data_array = new[] 
+        {"audio_duration","audio_duration_min_part","audio_duration_sec_part","ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners", "sliders" };
 
         private Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>> DataGetterMap = new Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>>()
         {
