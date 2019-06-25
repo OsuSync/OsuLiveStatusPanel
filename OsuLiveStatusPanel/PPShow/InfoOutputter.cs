@@ -43,8 +43,6 @@ namespace OsuLiveStatusPanel.PPShow
             AccuracyList = acc_list;
         }
 
-        private bool CheckExsitRealtimePPPlugin() => Sync.SyncHost.Instance.EnumPluings().Any(plugin => plugin.Name == "RealTimePPDisplayer");
-
         private string OpenReadBeatmapParamValue(ref byte[] beatmap_raw_data, string Name)
         {
             using (var reader = new StreamReader(new MemoryStream(beatmap_raw_data)))
@@ -115,6 +113,7 @@ namespace OsuLiveStatusPanel.PPShow
             }
 
             var audio_duration = audio_duration_task.Result;
+
             if (audio_duration >= 0)
             {
                 OutputDataMap["audio_duration"] = audio_duration.ToString();

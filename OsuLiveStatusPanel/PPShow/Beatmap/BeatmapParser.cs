@@ -38,12 +38,14 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
         private const int TYPE_CIRCLE = 1;
         private const int TYPE_SLIDER = 2;
         private const int TYPE_SPINER = 8;
+        private const int TYPE_MANIA_HOLD = 128;
 
         private static bool IS_TYPE(int value, int type) => (type & value) != 0;
 
         public static void ParseBeatmap(ref byte[] beatmap_raw_data, Dictionary<string, string> extra_data, ModsInfo mods)
         {
             int status = 0;
+            double min_playable_start = double.MaxValue, max_playable_end = double.MinValue;
             int nobjects = 0, ncircle = 0, nslider = 0, nspiner = 0;
             double min_bpm = int.MaxValue, max_bpm = int.MinValue, current_bpm = 0;
             
@@ -198,8 +200,10 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                             {
                                 var obj_data = line.Split(',');
 
-                                if (obj_data.Length >= 4)
+                                if (obj_data.Length >= 6)
                                 {
+                                    double? time = null;
+
                                     nobjects++;
                                     int type = int.Parse(obj_data[3]);
 
@@ -208,7 +212,19 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                                     else if (IS_TYPE(type, TYPE_SLIDER))
                                         nslider++;
                                     else if (IS_TYPE(type, TYPE_SPINER))
+                                    {
                                         nspiner++;
+                                        time = double.Parse(obj_data[5]);
+                                    }
+                                    else if (IS_TYPE(type, TYPE_MANIA_HOLD))
+                                    {
+                                        time = double.Parse(obj_data[4]);
+                                    }
+
+                                    var t = time??double.Parse(obj_data[2]);
+
+                                    min_playable_start = Math.Min(t, min_playable_start);
+                                    max_playable_end = Math.Max(t, max_playable_end);
                                 }
                             }
                             break;
@@ -223,6 +239,12 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
             extra_data["num_circles"] = ncircle.ToString();
             extra_data["num_sliders"] = nslider.ToString();
             extra_data["num_spinners"] = nspiner.ToString();
+
+            var playable_duration = (int)(max_playable_end - min_playable_start);
+            extra_data["playable_duration"] = playable_duration.ToString();
+
+            extra_data["playable_duration_min_part"] = (playable_duration / 1000 / 60).ToString();
+            extra_data["playable_duration_sec_part"] = ((playable_duration / 1000) % 60).ToString();
         }
     }
 }

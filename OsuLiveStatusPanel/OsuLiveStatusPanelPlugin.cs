@@ -541,7 +541,7 @@ namespace OsuLiveStatusPanel
             }
 
             string osu_path = Path.GetDirectoryName(process.MainModule.FileName);
-            string osu_config_file = Path.Combine(osu_path, $"osu!.{Environment.UserName}.cfg");
+            string osu_config_file = Path.Combine(osu_path, $"osu!.{WindowsPathStrip(Environment.UserName)}.cfg");
             string using_skin_name = string.Empty;
 
             var lines = File.ReadLines(osu_config_file);
@@ -564,6 +564,17 @@ namespace OsuLiveStatusPanel
             Log.Output($"Enable to ouput mod pics , using_skin_path={using_skin_path}");
 
             modsPictureGenerator = new ModsPictureGenerator(using_skin_path, ModSkinPath, int.Parse(ModUnitPixel), int.Parse(ModUnitOffset), ModIsHorizon == "True", ModUse2x == "True", ModSortReverse == "True", ModDrawReverse == "True");
+
+            // 5/11 一开始叫我抄ortdp我是拒绝的，就算是萌新也有写代码的骨气
+            // 5/13 真香
+            string WindowsPathStrip(string entry)
+            {
+                StringBuilder builder = new StringBuilder(entry);
+                foreach (char c in Path.GetInvalidFileNameChars())
+                    builder.Replace(c.ToString(), string.Empty);
+                builder.Replace(".", string.Empty);
+                return builder.ToString();
+            }
         }
 
         private bool OutputInfomation(OutputType output_type, BeatmapEntry entry, ModsInfo mods)
