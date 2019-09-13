@@ -24,7 +24,7 @@ namespace OsuLiveStatusPanel.PPShow
         public List<OutputWrapper> ListenOfs { get; private set; }
         public List<OutputWrapper> PlayOfs { get; private set; }
 
-        private InfoOutputter PP;
+        public InfoOutputter InfoOutputter { get; private set; }
 
         public bool PPShowAllowDumpInfo = false;
 
@@ -93,9 +93,9 @@ namespace OsuLiveStatusPanel.PPShow
                 acc_list.Add(100);
             }
 
-            PP = new InfoOutputter(acc_list);
+            InfoOutputter = new InfoOutputter(acc_list);
 
-            PP.OnOutputEvent += OnOutput;
+            InfoOutputter.OnOutputEvent += OnOutput;
         }
 
         public void Save()
@@ -219,7 +219,7 @@ namespace OsuLiveStatusPanel.PPShow
                 return true;
             }
 
-            return PP.TrigOutput(output_type, osu_file_path, mods, extra);
+            return InfoOutputter.TrigOutput(output_type, osu_file_path, mods, extra);
         }
 
         #region DDRP
@@ -244,7 +244,7 @@ namespace OsuLiveStatusPanel.PPShow
             {
                 //output pp
                 var list = new List<object>();
-                foreach (var acc in PP.AccuracyList)
+                foreach (var acc in InfoOutputter.AccuracyList)
                     if (CurrentOutputInfo.TryGetValue($"pp:{acc:F2}%", out string pp))
                     {
                         if (double.TryParse(pp, out var dval))

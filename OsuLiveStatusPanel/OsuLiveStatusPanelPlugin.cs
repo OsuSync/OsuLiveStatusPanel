@@ -98,7 +98,7 @@ namespace OsuLiveStatusPanel
 
         public event Action OnSettingChanged;
 
-        public ModsInfo prev_mods = default(ModsInfo);
+        public ModsInfo prev_mods = default;
 
         private UsingSource source = UsingSource.None;
 
@@ -683,7 +683,7 @@ namespace OsuLiveStatusPanel
         #region DDPR
 
         private static readonly string[] ppshow_provideable_data_array = new[]
-        {"audio_duration_min_part","audio_duration_sec_part","audio_duration","audio_duration","audio_duration_min_part","audio_duration_sec_part","ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners", "sliders" };
+        {"playable_duration_min_part","playable_duration_sec_part","playable_duration","audio_duration","audio_duration_min_part","audio_duration_sec_part","ar", "cs", "od", "hp", "pp", "beatmap_setid", "version", "title_avaliable", "artist_avaliable", "beatmap_setlink", "beatmap_link", "beatmap_id", "min_bpm", "max_bpm", "speed_stars", "aim_stars", "stars", "mods", "title", "creator", "max_combo", "artist", "circles", "spinners", "sliders" };
 
         private Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>> DataGetterMap = new Dictionary<string, Func<OsuLiveStatusPanelPlugin, string>>()
         {
@@ -730,6 +730,9 @@ namespace OsuLiveStatusPanel
                 yield return name;
 
             foreach (var name in ppshow_provideable_data_array)
+                yield return name;
+
+            foreach (var name in PPShowPluginInstance.InfoOutputter.AccuracyList.Select(x=>$"pp:{x:F2}%"))
                 yield return name;
         }
 

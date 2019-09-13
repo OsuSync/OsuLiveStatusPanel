@@ -240,7 +240,7 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
             extra_data["num_sliders"] = nslider.ToString();
             extra_data["num_spinners"] = nspiner.ToString();
 
-            var playable_duration = (int)(max_playable_end - min_playable_start);
+            var playable_duration = (int)(max_playable_end /*- min_playable_start*/);//为什么Length直接拿最后一个物件来做的？
             extra_data["playable_duration"] = playable_duration.ToString();
 
             extra_data["playable_duration_min_part"] = (playable_duration / 1000 / 60).ToString();

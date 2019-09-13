@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace OsuLiveStatusPanel.PPShow
 {
-    internal class InfoOutputter
+    public class InfoOutputter
     {
         private static readonly ModsInfo.Mods[] OPPAI_SUPPORT_MODS = new[] { ModsInfo.Mods.NoFail, ModsInfo.Mods.Easy, ModsInfo.Mods.Hidden, ModsInfo.Mods.HardRock, ModsInfo.Mods.DoubleTime, ModsInfo.Mods.HalfTime, ModsInfo.Mods.Nightcore, ModsInfo.Mods.Flashlight, ModsInfo.Mods.SpunOut };
 
@@ -24,7 +24,7 @@ namespace OsuLiveStatusPanel.PPShow
         
         private static ModsInfo FilteVailedMod(ModsInfo mods)
         {
-            ModsInfo result = default(ModsInfo);
+            ModsInfo result = default;
 
             foreach (var vaild_mod in (from mod in OPPAI_SUPPORT_MODS where mods.HasMod(mod) select mod))
                 result.Mod |= vaild_mod;
@@ -32,7 +32,7 @@ namespace OsuLiveStatusPanel.PPShow
             return result;
         }
 
-        public List<float> AccuracyList;
+        public List<float> AccuracyList { get; private set; }
 
         public delegate void OnOutputFunc(OutputType output_type, Dictionary<string, string> data_dic);
 
