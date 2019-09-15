@@ -30,33 +30,40 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder.Oppai
         {
             bool first_output = true;
 
-            foreach (float acc in extra["AccuracyList"] as List<float>)
+            var mode_str = map_info["mode"];     
+
+            if (int.TryParse(mode_str, out var mode) || (Enum.TryParse(mode_str,out OsuMode m)&&((mode=(int)m)!=-1)))
             {
-                ApplyPPCalculate(int.Parse(map_info["mode"]), (ModsInfo)extra["Mods"], acc);
-
-                //add pp
-                map_info[$"pp:{acc:F2}%"]=pp_instance.pp.ToString("F2");
-
-                if (first_output)
+                foreach (float acc in extra["AccuracyList"] as List<float>)
                 {
-                    first_output = false;
-                    var type = pp_instance.GetType();
-                    var members = type.GetProperties();
+                    ApplyPPCalculate(mode, (ModsInfo)extra["Mods"], acc);
 
-                    foreach (var prop in members)
+                    //add pp
+                    map_info[$"pp:{acc:F2}%"] = pp_instance.pp.ToString("F2");
+
+                    if (first_output)
                     {
-                        var val = prop.GetValue(pp_instance);
+                        first_output = false;
+                        var type = pp_instance.GetType();
+                        var members = type.GetProperties();
 
-                        if (val==null)
-                            continue;
+                        foreach (var prop in members)
+                        {
+                            var val = prop.GetValue(pp_instance);
 
-                        if (prop.PropertyType==typeof(int)||prop.PropertyType==typeof(string)||prop.PropertyType.IsEnum)
-                            map_info[prop.Name]=val.ToString();
-                        else
-                            map_info[prop.Name]=$"{val:F2}";
+                            if (val == null)
+                                continue;
+
+                            if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(string) || prop.PropertyType.IsEnum)
+                                map_info[prop.Name] = val.ToString();
+                            else
+                                map_info[prop.Name] = $"{val:F2}";
+                        }
                     }
                 }
             }
+            else
+                Log.Error($"Unknown mode value:{mode_str}");
             
             if (first_output)
                 Log.Warn("No any oppai result output , maybe this beatmap mode isn't osu!std/taiko");

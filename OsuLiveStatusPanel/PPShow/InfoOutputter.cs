@@ -79,10 +79,10 @@ namespace OsuLiveStatusPanel.PPShow
                 var dir = Directory.GetParent(osu_file_path).FullName;
                 var audio_file_name = OpenReadBeatmapParamValue(ref stream, "AudioFilename");
 
-                if (string.IsNullOrWhiteSpace(audio_file_name))
-                    return -1;
+                var audio_file_path = Path.Combine(dir, audio_file_name??"");
 
-                var audio_file_path = Path.Combine(dir, audio_file_name);
+                if (!File.Exists(audio_file_name))
+                    return -1;
 
                 var track = new Track(audio_file_path);
 
