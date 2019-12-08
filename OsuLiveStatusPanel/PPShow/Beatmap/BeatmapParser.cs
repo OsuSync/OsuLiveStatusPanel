@@ -54,9 +54,10 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                 //简单的状态机
                 while (!reader.EndOfStream)
                 {
-                    string line = reader.ReadLine();
+                    string line = reader.ReadLine().Trim();
 
-                    if (line.Contains("[") && status != 0)
+                    //[....]
+                    if (line.StartsWith("[") && line.EndsWith("]") && status != 0)
                     {
                         status = 0;
                     }
