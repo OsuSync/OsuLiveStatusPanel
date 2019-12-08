@@ -55,6 +55,12 @@ namespace OsuLiveStatusPanel.PPShow.Beatmap
                 while (!reader.EndOfStream)
                 {
                     string line = reader.ReadLine();
+
+                    if (line.Contains("[") && status != 0)
+                    {
+                        status = 0;
+                    }
+
                     switch (status)
                     {
                         case 0: //seeking
