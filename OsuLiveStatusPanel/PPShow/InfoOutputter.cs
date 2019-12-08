@@ -74,20 +74,11 @@ namespace OsuLiveStatusPanel.PPShow
             extra["Mods"] = mods;
 
             var stream = File.ReadAllBytes(osu_file_path);
+            var audio_file_name = OpenReadBeatmapParamValue(ref stream, "AudioFilename");
+            var dir = Directory.GetParent(osu_file_path).FullName;
+            var audio_file_path = Path.Combine(dir, audio_file_name ?? "");
 
-            var audio_duration_task = Task.Run<int>(() => {
-                var dir = Directory.GetParent(osu_file_path).FullName;
-                var audio_file_name = OpenReadBeatmapParamValue(ref stream, "AudioFilename");
-
-                var audio_file_path = Path.Combine(dir, audio_file_name??"");
-
-                if (!File.Exists(audio_file_name))
-                    return -1;
-
-                var track = new Track(audio_file_path);
-
-                return track.Duration * 1000;//convert to ms
-            });
+            var audio_duration = AudioDurationHelper.GetAudioDuration(audio_file_path);
 
             var mode = int.Parse(OpenReadBeatmapParamValue(ref stream, "Mode") ?? "0");
 
@@ -112,9 +103,7 @@ namespace OsuLiveStatusPanel.PPShow
                 handler.AddExtraBeatmapInfo(OutputDataMap);
             }
 
-            var audio_duration = audio_duration_task.Result;
-
-            if (audio_duration >= 0)
+            if (audio_duration!=null)
             {
                 OutputDataMap["audio_duration"] = audio_duration.ToString();
 

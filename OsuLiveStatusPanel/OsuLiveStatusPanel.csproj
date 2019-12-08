@@ -102,6 +102,7 @@
     <Compile Include="Language.cs" />
     <Compile Include="Mods\ModsPictureGenerator.cs" />
     <Compile Include="OsuMode.cs" />
+    <Compile Include="PPShow\AudioDurationHelper.cs" />
     <Compile Include="PPShow\BeatmapInfoHanlder\BeatmapInfoHandlerBase.cs" />
     <Compile Include="PPShow\BeatmapInfoHanlder\CompatibleOppaiJson.cs" />
     <Compile Include="PPShow\BeatmapInfoHanlder\Oppai\OppaiHandlerBase.cs" />

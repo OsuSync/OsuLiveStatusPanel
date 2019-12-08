@@ -35,6 +35,9 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder
 
                 map_info[$"pp:{acc:F2}%"] = pp.ToString("F2");
             }
+
+            map_info[$"stars"] = mania_pp_calc.RealTimeStars.ToString("F2");
+            map_info[$"max_combo"] = mania_pp_calc.MaxCombo.ToString("F2");
         }
     }
 }
