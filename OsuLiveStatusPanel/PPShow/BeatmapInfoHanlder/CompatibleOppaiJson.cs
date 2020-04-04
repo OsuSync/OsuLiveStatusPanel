@@ -38,7 +38,7 @@ namespace OsuLiveStatusPanel.PPShow.BeatmapInfoHanlder
         public int max_combo => info.MaxCombo;
         public int num_circles => info.CountCircles;
         public int num_sliders => info.CountSliders;
-        public int num_spinners => info.CountSliders;
+        public int num_spinners => info.CountSpinners;
         public int misses => info.CountMiss;
         public int score_version => info.ScoreVersion;
         public float stars => info.Stars;
